@@ -6,6 +6,7 @@ class PokerSocketClient {
     this.roomId = null;
     this.playerId = null;
     this.playerName = null;
+    this.hostToken = null;
     this.currentState = null;
     this.networkInfo = null;
 
@@ -56,20 +57,25 @@ class PokerSocketClient {
     });
   }
 
-  saveSession(roomId, playerId, playerName) {
+  saveSession(roomId, playerId, playerName, hostToken = null) {
     this.roomId = roomId;
     this.playerId = playerId;
     this.playerName = playerName;
+    if (hostToken) {
+      this.hostToken = hostToken;
+    }
     localStorage.setItem('poker_session', JSON.stringify({
       roomId,
       playerId,
-      playerName
+      playerName,
+      hostToken: this.hostToken
     }));
   }
 
   clearSession() {
     this.roomId = null;
     this.playerId = null;
+    this.hostToken = null;
     localStorage.removeItem('poker_session');
   }
 
@@ -82,6 +88,7 @@ class PokerSocketClient {
         this.roomId = session.roomId;
         this.playerId = session.playerId;
         this.playerName = session.playerName;
+        this.hostToken = session.hostToken || null;
 
         this.socket.emit('reconnect-player', session, (res) => {
           if (!res || !res.success) {
@@ -101,7 +108,8 @@ class PokerSocketClient {
     return new Promise((resolve, reject) => {
       this.socket.emit('create-game', { playerName, config }, (res) => {
         if (res && res.success) {
-          this.saveSession(res.roomId, res.playerId, playerName);
+          this.hostToken = res.hostToken;
+          this.saveSession(res.roomId, res.playerId, playerName, res.hostToken);
           resolve(res);
         } else {
           reject(new Error(res?.message || 'Failed to create game'));
@@ -114,16 +122,20 @@ class PokerSocketClient {
     return new Promise((resolve, reject) => {
       const raw = localStorage.getItem('poker_session');
       let existingPlayerId = null;
+      let existingHostToken = null;
       if (raw) {
         try {
           const s = JSON.parse(raw);
-          if (s.roomId === roomId) existingPlayerId = s.playerId;
+          if (s.roomId === roomId) {
+            existingPlayerId = s.playerId;
+            existingHostToken = s.hostToken || null;
+          }
         } catch (e) {}
       }
 
       this.socket.emit('join-game', { roomId, playerName, playerId: existingPlayerId }, (res) => {
         if (res && res.success) {
-          this.saveSession(res.roomId, res.playerId, playerName);
+          this.saveSession(res.roomId, res.playerId, playerName, existingHostToken);
           resolve(res);
         } else {
           reject(new Error(res?.message || 'Failed to join game'));
@@ -134,7 +146,7 @@ class PokerSocketClient {
 
   updateConfig(config) {
     return new Promise((resolve, reject) => {
-      this.socket.emit('update-config', { roomId: this.roomId, config }, (res) => {
+      this.socket.emit('update-config', { roomId: this.roomId, hostToken: this.hostToken, config }, (res) => {
         if (res?.success) resolve(res);
         else reject(new Error(res?.message || 'Failed to update config'));
       });
@@ -143,7 +155,7 @@ class PokerSocketClient {
 
   startGame() {
     return new Promise((resolve, reject) => {
-      this.socket.emit('start-game', { roomId: this.roomId }, (res) => {
+      this.socket.emit('start-game', { roomId: this.roomId, hostToken: this.hostToken }, (res) => {
         if (res?.success) resolve(res);
         else reject(new Error(res?.message || 'Failed to start game'));
       });
@@ -161,7 +173,7 @@ class PokerSocketClient {
 
   startNextHand() {
     return new Promise((resolve, reject) => {
-      this.socket.emit('start-next-hand', { roomId: this.roomId }, (res) => {
+      this.socket.emit('start-next-hand', { roomId: this.roomId, hostToken: this.hostToken }, (res) => {
         if (res?.success) resolve(res);
         else reject(new Error(res?.message || 'Failed to deal next hand'));
       });
@@ -170,7 +182,7 @@ class PokerSocketClient {
 
   awardPots(allocations) {
     return new Promise((resolve, reject) => {
-      this.socket.emit('award-pots', { roomId: this.roomId, allocations }, (res) => {
+      this.socket.emit('award-pots', { roomId: this.roomId, hostToken: this.hostToken, allocations }, (res) => {
         if (res?.success) resolve(res);
         else reject(new Error(res?.message || 'Failed to award pots'));
       });
@@ -179,7 +191,7 @@ class PokerSocketClient {
 
   rebuy(targetPlayerId, amount) {
     return new Promise((resolve, reject) => {
-      this.socket.emit('rebuy', { roomId: this.roomId, targetPlayerId, amount }, (res) => {
+      this.socket.emit('rebuy', { roomId: this.roomId, hostToken: this.hostToken, targetPlayerId, amount }, (res) => {
         if (res?.success) resolve(res);
         else reject(new Error(res?.message || 'Rebuy failed'));
       });
@@ -188,7 +200,7 @@ class PokerSocketClient {
 
   kickPlayer(targetPlayerId) {
     return new Promise((resolve, reject) => {
-      this.socket.emit('kick-player', { roomId: this.roomId, targetPlayerId }, (res) => {
+      this.socket.emit('kick-player', { roomId: this.roomId, hostToken: this.hostToken, targetPlayerId }, (res) => {
         if (res?.success) resolve(res);
         else reject(new Error(res?.message || 'Failed to kick player'));
       });
@@ -197,7 +209,7 @@ class PokerSocketClient {
 
   endGame() {
     return new Promise((resolve, reject) => {
-      this.socket.emit('end-game', { roomId: this.roomId }, (res) => {
+      this.socket.emit('end-game', { roomId: this.roomId, hostToken: this.hostToken }, (res) => {
         if (res?.success) resolve(res);
         else reject(new Error(res?.message || 'Failed to end game'));
       });
@@ -206,7 +218,7 @@ class PokerSocketClient {
 
   resumeGame() {
     return new Promise((resolve, reject) => {
-      this.socket.emit('resume-game', { roomId: this.roomId }, (res) => {
+      this.socket.emit('resume-game', { roomId: this.roomId, hostToken: this.hostToken }, (res) => {
         if (res?.success) resolve(res);
         else reject(new Error(res?.message || 'Failed to resume game'));
       });

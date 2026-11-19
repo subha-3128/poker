@@ -158,6 +158,35 @@ document.addEventListener('DOMContentLoaded', () => {
     showToast(isNowOn ? 'Sound effects enabled' : 'Sound muted');
   });
 
+  // Screen Wake Lock (prevents mobile phone screen from sleeping during home game)
+  let wakeLockSentinel = null;
+
+  async function requestWakeLock() {
+    try {
+      if ('wakeLock' in navigator && !wakeLockSentinel) {
+        wakeLockSentinel = await navigator.wakeLock.request('screen');
+        wakeLockSentinel.addEventListener('release', () => {
+          wakeLockSentinel = null;
+        });
+      }
+    } catch (e) {
+      // Silently ignore if device doesn't support or disallows
+    }
+  }
+
+  function releaseWakeLock() {
+    if (wakeLockSentinel) {
+      wakeLockSentinel.release().catch(() => {});
+      wakeLockSentinel = null;
+    }
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && client.currentState && ['lobby', 'playing'].includes(client.currentState.stage)) {
+      requestWakeLock();
+    }
+  });
+
   // Switch Active View
   function switchView(viewName) {
     Object.keys(views).forEach(key => {
@@ -172,8 +201,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (viewName === 'home') {
       elRoomCodeBadge.classList.add('hidden');
+      releaseWakeLock();
     } else {
       elRoomCodeBadge.classList.remove('hidden');
+      if (['lobby', 'table'].includes(viewName)) {
+        requestWakeLock();
+      }
     }
   }
 

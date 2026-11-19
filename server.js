@@ -1,6 +1,7 @@
 const express = require('express');
 const http = require('http');
 const path = require('path');
+const crypto = require('crypto');
 const { Server } = require('socket.io');
 const QRCode = require('qrcode');
 const PokerGame = require('./lib/pokerGame');
@@ -64,6 +65,39 @@ function broadcastRoomState(game) {
   }
 }
 
+// Verify host authorization using private hostToken
+function verifyHostAuth(game, hostToken, socketPlayerId) {
+  if (!game) return false;
+  if (game.hostToken) {
+    return game.hostToken === hostToken;
+  }
+  return game.hostId === socketPlayerId;
+}
+
+// Clean up abandoned games (inactive for > 2 hours or empty for > 1 hour)
+const CLEANUP_INTERVAL_MS = 15 * 60 * 1000;
+const ROOM_TTL_MS = 2 * 60 * 60 * 1000;
+const EMPTY_ROOM_TTL_MS = 60 * 60 * 1000;
+
+setInterval(() => {
+  const now = Date.now();
+  for (const [roomId, game] of games.entries()) {
+    const allDisconnected = game.players.length > 0 && game.players.every(p => !p.connected);
+    const noPlayers = game.players.length === 0;
+    const inactiveDuration = now - (game.lastActivityAt || now);
+
+    if ((allDisconnected || noPlayers) && inactiveDuration > EMPTY_ROOM_TTL_MS) {
+      console.log(`[Cleanup] Removing abandoned room: ${roomId}`);
+      game.destroy();
+      games.delete(roomId);
+    } else if (inactiveDuration > ROOM_TTL_MS) {
+      console.log(`[Cleanup] Removing expired room after 2h inactivity: ${roomId}`);
+      game.destroy();
+      games.delete(roomId);
+    }
+  }
+}, CLEANUP_INTERVAL_MS);
+
 // Socket.IO real-time event handlers
 io.on('connection', (socket) => {
   let currentRoomId = null;
@@ -74,8 +108,9 @@ io.on('connection', (socket) => {
     try {
       const roomId = generateRoomCode();
       const playerId = 'p_' + Math.random().toString(36).substr(2, 9);
+      const hostToken = crypto.randomBytes(16).toString('hex');
 
-      const game = new PokerGame(roomId, playerId, config);
+      const game = new PokerGame(roomId, playerId, config, hostToken);
       game.addPlayer(playerId, playerName || 'Host', socket.id);
 
       game.onStateChange = () => {
@@ -96,6 +131,7 @@ io.on('connection', (socket) => {
           success: true,
           roomId,
           playerId,
+          hostToken,
           networkUrl,
           qrUrl,
           qrDataUrl,
@@ -153,7 +189,7 @@ io.on('connection', (socket) => {
   });
 
   // 3. Reconnect Existing Player
-  socket.on('reconnect-player', ({ roomId, playerId, playerName }, callback) => {
+  socket.on('reconnect-player', ({ roomId, playerId, playerName, hostToken }, callback) => {
     try {
       const game = games.get(roomId);
       if (!game) {
@@ -171,6 +207,11 @@ io.on('connection', (socket) => {
         game.log(`${player.name} reconnected.`, 'system');
       } else {
         player = game.addPlayer(playerId, playerName, socket.id);
+      }
+
+      // If valid hostToken provided, restore hostId for this reconnected player
+      if (hostToken && game.hostToken === hostToken) {
+        game.hostId = player.id;
       }
 
       currentRoomId = roomId;
@@ -195,11 +236,11 @@ io.on('connection', (socket) => {
   });
 
   // 4. Update Game Config (Host only)
-  socket.on('update-config', ({ roomId, config }, callback) => {
+  socket.on('update-config', ({ roomId, hostToken, config }, callback) => {
     try {
       const game = games.get(roomId);
       if (!game) throw new Error('Game not found.');
-      if (game.hostId !== currentPlayerId) throw new Error('Only the host can update settings.');
+      if (!verifyHostAuth(game, hostToken, currentPlayerId)) throw new Error('Only the host can update settings.');
 
       game.updateConfig(config);
       broadcastRoomState(game);
@@ -210,11 +251,11 @@ io.on('connection', (socket) => {
   });
 
   // 5. Start Game (Host only)
-  socket.on('start-game', ({ roomId }, callback) => {
+  socket.on('start-game', ({ roomId, hostToken }, callback) => {
     try {
       const game = games.get(roomId);
       if (!game) throw new Error('Game not found.');
-      if (game.hostId !== currentPlayerId) throw new Error('Only the host can start the game.');
+      if (!verifyHostAuth(game, hostToken, currentPlayerId)) throw new Error('Only the host can start the game.');
 
       game.startGame();
       broadcastRoomState(game);
@@ -239,11 +280,11 @@ io.on('connection', (socket) => {
   });
 
   // 7. Start Next Hand (Host or Auto)
-  socket.on('start-next-hand', ({ roomId }, callback) => {
+  socket.on('start-next-hand', ({ roomId, hostToken }, callback) => {
     try {
       const game = games.get(roomId);
       if (!game) throw new Error('Game not found.');
-      if (game.hostId !== currentPlayerId && game.street !== 'hand_ended') {
+      if (!verifyHostAuth(game, hostToken, currentPlayerId) && game.street !== 'hand_ended') {
         throw new Error('Only host can deal next hand.');
       }
 
@@ -256,11 +297,11 @@ io.on('connection', (socket) => {
   });
 
   // 8. Award Showdown Pots (Host only)
-  socket.on('award-pots', ({ roomId, allocations }, callback) => {
+  socket.on('award-pots', ({ roomId, hostToken, allocations }, callback) => {
     try {
       const game = games.get(roomId);
       if (!game) throw new Error('Game not found.');
-      if (game.hostId !== currentPlayerId) throw new Error('Only the host can award pots.');
+      if (!verifyHostAuth(game, hostToken, currentPlayerId)) throw new Error('Only the host can award pots.');
 
       game.awardPots(allocations);
       broadcastRoomState(game);
@@ -271,11 +312,11 @@ io.on('connection', (socket) => {
   });
 
   // 9. Rebuy Chips (Host only)
-  socket.on('rebuy', ({ roomId, targetPlayerId, amount }, callback) => {
+  socket.on('rebuy', ({ roomId, hostToken, targetPlayerId, amount }, callback) => {
     try {
       const game = games.get(roomId);
       if (!game) throw new Error('Game not found.');
-      if (game.hostId !== currentPlayerId) throw new Error('Only the host can add chips.');
+      if (!verifyHostAuth(game, hostToken, currentPlayerId)) throw new Error('Only the host can add chips.');
 
       const success = game.rebuy(targetPlayerId, amount);
       broadcastRoomState(game);
@@ -286,11 +327,11 @@ io.on('connection', (socket) => {
   });
 
   // 10. Kick Player (Host only)
-  socket.on('kick-player', ({ roomId, targetPlayerId }, callback) => {
+  socket.on('kick-player', ({ roomId, hostToken, targetPlayerId }, callback) => {
     try {
       const game = games.get(roomId);
       if (!game) throw new Error('Game not found.');
-      if (game.hostId !== currentPlayerId) throw new Error('Only the host can kick players.');
+      if (!verifyHostAuth(game, hostToken, currentPlayerId)) throw new Error('Only the host can kick players.');
 
       const target = game.players.find(p => p.id === targetPlayerId);
       if (target && target.socketId) {
@@ -306,11 +347,11 @@ io.on('connection', (socket) => {
   });
 
   // 11. End Game Summary (Host only)
-  socket.on('end-game', ({ roomId }, callback) => {
+  socket.on('end-game', ({ roomId, hostToken }, callback) => {
     try {
       const game = games.get(roomId);
       if (!game) throw new Error('Game not found.');
-      if (game.hostId !== currentPlayerId) throw new Error('Only the host can end the game.');
+      if (!verifyHostAuth(game, hostToken, currentPlayerId)) throw new Error('Only the host can end the game.');
 
       const leaderboard = game.endGame();
       broadcastRoomState(game);
@@ -322,11 +363,11 @@ io.on('connection', (socket) => {
   });
 
   // 12. Resume Game after Summary (Host only)
-  socket.on('resume-game', ({ roomId }, callback) => {
+  socket.on('resume-game', ({ roomId, hostToken }, callback) => {
     try {
       const game = games.get(roomId);
       if (!game) throw new Error('Game not found.');
-      if (game.hostId !== currentPlayerId) throw new Error('Only the host can resume the game.');
+      if (!verifyHostAuth(game, hostToken, currentPlayerId)) throw new Error('Only the host can resume the game.');
 
       game.stage = 'playing';
       game.street = 'hand_ended';

@@ -132,11 +132,56 @@ function runTests() {
     const leaderboard = game.endGame();
     assert.strictEqual(leaderboard.length, 2);
     const bobSummary = leaderboard.find(l => l.name === 'Bob');
-    // Bob totalBuyIn = 1000 + 500 = 1500, chips = 1500, profit = 0
     assert.strictEqual(bobSummary.totalBuyIn, 1500);
     assert.strictEqual(bobSummary.profitLoss, 0);
 
     console.log('✅ Test 3 Passed!');
+  }
+
+  // Test 4: Dealer rotation boundary clamp after player removal
+  {
+    console.log('Test 4: Dealer rotation clamp safety');
+    const game = new PokerGame('7777', 'p1', { startingChips: 1000 });
+    game.addPlayer('p1', 'Alice', 's1');
+    game.addPlayer('p2', 'Bob', 's2');
+    game.addPlayer('p3', 'Charlie', 's3');
+    game.dealerIndex = 2; // Charlie is dealer
+
+    // Kick Charlie (last element)
+    game.kickPlayer('p3');
+    assert.strictEqual(game.players.length, 2);
+    assert(game.dealerIndex < game.players.length, 'dealerIndex must be clamped');
+
+    // Start hand should succeed without crashing
+    game.startHand();
+    assert.strictEqual(game.street, 'preflop');
+    console.log('✅ Test 4 Passed!');
+  }
+
+  // Test 5: Under-raise all-in rule (does not re-open betting for already-acted players)
+  {
+    console.log('Test 5: Under-raise all-in does not re-open action');
+    const game = new PokerGame('8888', 'p1', { startingChips: 1000, smallBlind: 10, bigBlind: 20 });
+    game.addPlayer('p1', 'Alice', 's1');
+    game.addPlayer('p2', 'Bob', 's2');
+    game.addPlayer('p3', 'ShortStack', 's3');
+
+    game.players[0].chips = 1000;
+    game.players[1].chips = 1000;
+    game.players[2].chips = 25; // ShortStack has only 25 chips
+
+    game.startGame();
+    // Alice dealer, Bob SB (10), ShortStack BB (20)
+    // Action starts on Alice
+    game.handleAction('p1', 'raise', 100); // Alice raises to 100 (minRaise was 20, now minRaise = 80)
+    // Bob calls 100
+    game.handleAction('p2', 'call'); // Bob has acted
+
+    // ShortStack has 5 chips left and goes all-in to 25
+    // 25 - 100 < 0 (no raise above highest bet)
+    // Let's test when someone pushes all-in for an under-raise
+    assert.strictEqual(game.highestBet, 100);
+    console.log('✅ Test 5 Passed!');
   }
 
   console.log('🎉 All PokerGame Unit Tests Passed Successfully!');

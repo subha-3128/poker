@@ -15,6 +15,7 @@ async function runMultiplayerSimulation() {
   let hostState = null;
   let roomId = null;
   let hostPlayerId = null;
+  let hostToken = null;
 
   socketHost.on('game-state', state => {
     hostState = state;
@@ -34,7 +35,9 @@ async function runMultiplayerSimulation() {
   assert(createRes.success, 'Create game failed');
   roomId = createRes.roomId;
   hostPlayerId = createRes.playerId;
-  console.log(`✅ Room created successfully: ${roomId}`);
+  hostToken = createRes.hostToken;
+  assert(hostToken, 'hostToken must be generated and returned to creator');
+  console.log(`✅ Room created successfully: ${roomId} with secure hostToken`);
 
   // Client 2: Priya
   const socketPriya = io(SERVER_URL);
@@ -76,9 +79,16 @@ async function runMultiplayerSimulation() {
   assert.strictEqual(hostState.players.length, 3, 'All 3 players must be in lobby');
   console.log(`✅ Lobby has 3 players: ${hostState.players.map(p => p.name).join(', ')}`);
 
-  // 2. Start Game
+  // SECURITY TEST: Priya attempts unauthorized host action (e.g. start-game without valid hostToken)
+  const unauthRes = await new Promise(resolve => {
+    socketPriya.emit('start-game', { roomId, hostToken: 'invalid_fake_token' }, resolve);
+  });
+  assert.strictEqual(unauthRes.success, false, 'Unauthorized guest must NOT be able to start game');
+  console.log('✅ Security verified: Unauthorized host command rejected successfully');
+
+  // 2. Start Game (Authorized with hostToken)
   const startRes = await new Promise(resolve => {
-    socketHost.emit('start-game', { roomId }, resolve);
+    socketHost.emit('start-game', { roomId, hostToken }, resolve);
   });
   assert(startRes.success, 'Host failed to start game');
   await wait(300);
@@ -147,7 +157,7 @@ async function runMultiplayerSimulation() {
 
   // Host tests Rebuy: Add 500 chips to Priya
   const rebuyRes = await new Promise(resolve => {
-    socketHost.emit('rebuy', { roomId, targetPlayerId: priyaPlayerId, amount: 500 }, resolve);
+    socketHost.emit('rebuy', { roomId, hostToken, targetPlayerId: priyaPlayerId, amount: 500 }, resolve);
   });
   assert(rebuyRes.success, 'Rebuy failed');
   await wait(300);
@@ -156,10 +166,10 @@ async function runMultiplayerSimulation() {
   console.log(`✅ Host rebuy 500 chips to Priya verified!`);
 
   // Host awards pot at Showdown
-  // Let's test awarding pot to Rahul
   const awardRes = await new Promise(resolve => {
     socketHost.emit('award-pots', {
       roomId,
+      hostToken,
       allocations: {
         pots: [{ potId: 'main', winnerIds: [hostPlayerId] }]
       }
@@ -173,7 +183,7 @@ async function runMultiplayerSimulation() {
   // End Game Summary
   let summaryLeaderboard = null;
   const endRes = await new Promise(resolve => {
-    socketHost.emit('end-game', { roomId }, (res) => {
+    socketHost.emit('end-game', { roomId, hostToken }, (res) => {
       summaryLeaderboard = res.leaderboard;
       resolve(res);
     });

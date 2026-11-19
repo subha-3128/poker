@@ -195,3 +195,11 @@ class PokerAudio {
 }
 
 window.pokerAudio = new PokerAudio();
+
+// Unlock Web Audio API on first user interaction on mobile browsers
+document.addEventListener('pointerdown', () => {
+  window.pokerAudio.init();
+}, { once: true });
+document.addEventListener('keydown', () => {
+  window.pokerAudio.init();
+}, { once: true });
