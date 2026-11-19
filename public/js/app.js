@@ -1,10 +1,13 @@
-// Poker Chip Tracker - Main Frontend Controller
+// ==========================================================================
+// POKER NIGHT - HIGH-STAKES CASINO FRONTEND CONTROLLER
+// UI/UX Pro Max Engine
+// ==========================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
   const client = window.pokerClient;
   const audio = window.pokerAudio;
 
-  // Cache DOM elements
+  // DOM Elements - Header
   const elHeaderRoomCode = document.getElementById('header-room-code');
   const elRoomCodeBadge = document.getElementById('room-code-badge');
   const elBtnQrModal = document.getElementById('btn-qr-modal');
@@ -17,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const elChatForm = document.getElementById('chat-form');
   const elChatInput = document.getElementById('chat-input');
   const elGameLogMessages = document.getElementById('game-log-messages');
+  const elScreenFlashOverlay = document.getElementById('screen-flash-overlay');
 
   // Views
   const views = {
@@ -90,14 +94,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const elBtnConfirmRaise = document.getElementById('btn-confirm-raise');
   const elConfirmRaiseVal = document.getElementById('confirm-raise-val');
 
-  // Host Floating Controls
+  // Host Floating Actions
   const elFabRebuy = document.getElementById('fab-rebuy');
   const elFabAward = document.getElementById('fab-award');
   const elFabNext = document.getElementById('fab-next');
   const elFabEndGame = document.getElementById('fab-end-game');
 
-  // Summary View
-  const elLeaderboardTbody = document.getElementById('leaderboard-tbody');
+  // Summary Elements
+  const elSummaryCardsList = document.getElementById('summary-cards-list');
   const elBtnResumeGame = document.getElementById('btn-resume-game');
   const elBtnSummaryHome = document.getElementById('btn-summary-home');
 
@@ -119,15 +123,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const elToastContainer = document.getElementById('toast-container');
   const elCelebrationOverlay = document.getElementById('celebration-overlay');
+  const elConfettiContainer = document.getElementById('confetti-container');
   const elWinnerCelebrationDesc = document.getElementById('winner-celebration-desc');
   const elCelebrationChipsStack = document.getElementById('celebration-chips-stack');
   const elBtnCloseCelebration = document.getElementById('btn-close-celebration');
 
-  // Local state variables
+  // Local State
   let timerInterval = null;
   let lastLoggedId = null;
   let previousPot = 0;
   let isRaiseDrawerOpen = false;
+  let lastWinnerResult = null;
+  let wakeLockSentinel = null;
+
+  // Vibrant Casino Avatar Gradients
+  const AVATAR_GRADIENTS = [
+    'linear-gradient(135deg, #3B82F6, #1D4ED8)', // Sapphire
+    'linear-gradient(135deg, #10B981, #047857)', // Emerald
+    'linear-gradient(135deg, #F59E0B, #B45309)', // Amber
+    'linear-gradient(135deg, #EC4899, #BE185D)', // Ruby
+    'linear-gradient(135deg, #8B5CF6, #6D28D9)', // Amethyst
+    'linear-gradient(135deg, #06B6D4, #0E7490)', // Diamond
+    'linear-gradient(135deg, #F97316, #C2410C)', // Topaz
+    'linear-gradient(135deg, #64748B, #334155)'  // Onyx
+  ];
+
+  function getAvatarGradient(id) {
+    if (!id) return AVATAR_GRADIENTS[0];
+    let hash = 0;
+    for (let i = 0; i < id.length; i++) {
+      hash = (hash << 5) - hash + id.charCodeAt(i);
+      hash |= 0;
+    }
+    const idx = Math.abs(hash) % AVATAR_GRADIENTS.length;
+    return AVATAR_GRADIENTS[idx];
+  }
 
   // Prepopulate saved player name
   const savedName = localStorage.getItem('poker_player_name');
@@ -140,14 +170,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const roomParam = urlParams.get('room');
   if (roomParam) {
     elInputRoomCode.value = roomParam;
-    if (!savedName) {
-      elInputPlayerName.focus();
-    }
+    if (!savedName) elInputPlayerName.focus();
   }
 
-  // Sound icon init
+  // Sound Icon Init
   updateSoundIcon();
-
   function updateSoundIcon() {
     elSoundIcon.textContent = audio.enabled ? '🔊' : '🔇';
   }
@@ -155,12 +182,10 @@ document.addEventListener('DOMContentLoaded', () => {
   elBtnSoundToggle.addEventListener('click', () => {
     const isNowOn = audio.toggle();
     updateSoundIcon();
-    showToast(isNowOn ? 'Sound effects enabled' : 'Sound muted');
+    showToast(isNowOn ? 'Sound enabled' : 'Sound muted');
   });
 
-  // Screen Wake Lock (prevents mobile phone screen from sleeping during home game)
-  let wakeLockSentinel = null;
-
+  // Screen Wake Lock API
   async function requestWakeLock() {
     try {
       if ('wakeLock' in navigator && !wakeLockSentinel) {
@@ -169,9 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
           wakeLockSentinel = null;
         });
       }
-    } catch (e) {
-      // Silently ignore if device doesn't support or disallows
-    }
+    } catch (e) {}
   }
 
   function releaseWakeLock() {
@@ -213,16 +236,16 @@ document.addEventListener('DOMContentLoaded', () => {
   // Toast Notification
   function showToast(message, type = 'info') {
     const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
+    toast.className = `toast-pill toast-${type}`;
     toast.textContent = message;
     elToastContainer.appendChild(toast);
     setTimeout(() => {
       toast.remove();
-    }, 3000);
+    }, 2800);
   }
 
   // Copy Link Helper
-  function copyTextToClipboard(text, successMsg = 'Link copied!') {
+  function copyTextToClipboard(text, successMsg = 'Link copied to clipboard!') {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(() => {
         showToast(successMsg, 'success');
@@ -246,7 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function loadNetworkInfo(code = '') {
     const info = await client.fetchNetworkInfo(code);
     if (info) {
-      elWifiAddressText.textContent = `WiFi URL: ${info.targetUrl || info.networkUrl}`;
+      elWifiAddressText.textContent = `WiFi: ${info.targetUrl || info.networkUrl}`;
       if (info.qrDataUrl) {
         elLobbyQrImg.src = info.qrDataUrl;
         elModalQrImage.src = info.qrDataUrl;
@@ -256,9 +279,36 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   loadNetworkInfo(roomParam);
 
+  // All-In Screen Flash Micro-Interaction
+  function triggerScreenFlash() {
+    elScreenFlashOverlay.classList.remove('flash-active');
+    void elScreenFlashOverlay.offsetWidth; // Force reflow
+    elScreenFlashOverlay.classList.add('flash-active');
+  }
+
+  // Animated Number Roll Counter
+  function animateNumber(element, start, end, duration = 400) {
+    if (!element || start === end) return;
+    const startTime = performance.now();
+    const diff = end - start;
+
+    function step(currentTime) {
+      const progress = Math.min((currentTime - startTime) / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 3);
+      const current = Math.floor(start + diff * ease);
+      element.textContent = current.toLocaleString();
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      } else {
+        element.textContent = end.toLocaleString();
+      }
+    }
+    requestAnimationFrame(step);
+  }
+
   // --- HOME VIEW HANDLERS ---
   elBtnCreateGame.addEventListener('click', async () => {
-    const name = elInputPlayerName.value.trim() || 'Player 1';
+    const name = elInputPlayerName.value.trim() || 'Host';
     localStorage.setItem('poker_player_name', name);
 
     const config = {
@@ -272,7 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
       elBtnCreateGame.disabled = true;
       const res = await client.createGame(name, config);
       elBtnCreateGame.disabled = false;
-      showToast(`Game created! Room: ${res.roomId}`, 'success');
+      showToast(`Table created! Room: ${res.roomId}`, 'success');
       loadNetworkInfo(res.roomId);
     } catch (err) {
       elBtnCreateGame.disabled = false;
@@ -285,7 +335,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const room = elInputRoomCode.value.trim();
 
     if (!room) {
-      showToast('Please enter a 4-digit room code', 'error');
+      showToast('Enter 4-digit table code', 'error');
+      elInputRoomCode.focus();
       return;
     }
 
@@ -330,23 +381,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   elBtnCopyLink.addEventListener('click', () => {
     const url = `${window.location.origin}?room=${client.roomId}`;
-    copyTextToClipboard(url, 'Invite link copied to clipboard!');
+    copyTextToClipboard(url, 'Table invite link copied!');
   });
 
   elRoomCodeBadge.addEventListener('click', () => {
     if (client.roomId) {
       const url = `${window.location.origin}?room=${client.roomId}`;
-      copyTextToClipboard(url, `Copied Room ${client.roomId} link!`);
+      copyTextToClipboard(url, `Copied Table ${client.roomId} link!`);
     }
   });
 
-  elLobbyQrClick.addEventListener('click', () => {
-    openQrModal();
-  });
-
-  elBtnQrModal.addEventListener('click', () => {
-    openQrModal();
-  });
+  elLobbyQrClick.addEventListener('click', () => openQrModal());
+  elBtnQrModal.addEventListener('click', () => openQrModal());
 
   function openQrModal() {
     elModalRoomCodeText.textContent = client.roomId || '----';
@@ -358,7 +404,7 @@ document.addEventListener('DOMContentLoaded', () => {
     copyTextToClipboard(elModalShareUrl.textContent, 'WiFi URL copied!');
   });
 
-  // --- ACTION BUTTONS & DOCK ---
+  // --- ACTION CONTROLS ---
   elBtnActionFold.addEventListener('click', async () => {
     try {
       audio.playFold();
@@ -387,6 +433,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   elBtnActionAllIn.addEventListener('click', async () => {
     try {
+      triggerScreenFlash();
       audio.playAllIn();
       await client.sendAction('allin');
     } catch (err) {
@@ -394,7 +441,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Raise Drawer Interactions
+  // Raise Drawer Toggle & Slider
   elBtnToggleRaise.addEventListener('click', () => {
     isRaiseDrawerOpen = !isRaiseDrawerOpen;
     elRaiseDrawer.classList.toggle('hidden', !isRaiseDrawerOpen);
@@ -422,7 +469,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     elRaiseInputNumber.value = val;
     elRaiseRangeSlider.value = val;
-    elConfirmRaiseVal.textContent = val;
+    elConfirmRaiseVal.textContent = val.toLocaleString();
   }
 
   elRaiseRangeSlider.addEventListener('input', (e) => {
@@ -444,12 +491,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Preset Raise Buttons
-  document.querySelectorAll('.preset-btn[data-preset]').forEach(btn => {
+  document.querySelectorAll('.preset-pill[data-preset]').forEach(btn => {
     btn.addEventListener('click', () => {
       const preset = btn.dataset.preset;
       const opts = client.currentState?.playerTurnOptions;
       const pot = client.currentState?.pot || 0;
-      const bb = client.currentState?.config?.bigBlind || 20;
       if (!opts) return;
 
       let target = opts.minRaiseTo;
@@ -476,7 +522,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // --- HOST ACTION CONTROLS ---
+  // --- HOST CONTROLS ---
   elBtnNextHand.addEventListener('click', () => dealNextHand());
   elFabNext.addEventListener('click', () => dealNextHand());
 
@@ -502,7 +548,7 @@ document.addEventListener('DOMContentLoaded', () => {
     state.players.forEach(p => {
       const opt = document.createElement('option');
       opt.value = p.id;
-      opt.textContent = `${p.name} (${p.chips} chips)`;
+      opt.textContent = `${p.name} (${p.chips.toLocaleString()} chips)`;
       elRebuyPlayerSelect.appendChild(opt);
     });
 
@@ -530,7 +576,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   elFabEndGame.addEventListener('click', () => {
-    if (confirm('Are you sure you want to end the game and view the final summary?')) {
+    if (confirm('Conclude the game and generate final night ledger?')) {
       client.endGame().catch(err => showToast(err.message, 'error'));
     }
   });
@@ -544,7 +590,7 @@ document.addEventListener('DOMContentLoaded', () => {
     switchView('home');
   });
 
-  // Modal Close buttons
+  // Modal Closures
   document.querySelectorAll('[data-close]').forEach(btn => {
     btn.addEventListener('click', () => {
       const targetId = btn.dataset.close;
@@ -556,7 +602,7 @@ document.addEventListener('DOMContentLoaded', () => {
     elCelebrationOverlay.classList.add('hidden');
   });
 
-  // Game Log & Chat Drawer
+  // Game Log Drawer
   elBtnLogToggle.addEventListener('click', () => {
     elDrawerLog.classList.toggle('closed');
     elUnreadLogBadge.classList.add('hidden');
@@ -575,7 +621,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // --- STATE UPDATE LISTENER (HEART OF THE APP) ---
+  // --- STATE LISTENER ---
   client.onStateUpdate = (state) => {
     renderGameState(state);
   };
@@ -586,18 +632,17 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   client.onKicked = ({ message }) => {
-    alert(message || 'You were kicked by the host.');
+    alert(message || 'You were kicked from the table.');
     switchView('home');
   };
 
   function renderGameState(state) {
     if (!state) return;
 
-    // Header info
     elHeaderRoomCode.textContent = state.roomId;
     elLobbyRoomCode.textContent = state.roomId;
 
-    // Show/hide host-only elements
+    // Show/hide host-only items
     document.querySelectorAll('.host-only').forEach(el => {
       el.classList.toggle('hidden', !state.isHost);
     });
@@ -605,7 +650,6 @@ document.addEventListener('DOMContentLoaded', () => {
       el.classList.toggle('hidden', state.isHost);
     });
 
-    // Handle Stage routing
     if (state.stage === 'lobby') {
       switchView('lobby');
       renderLobby(state);
@@ -616,7 +660,6 @@ document.addEventListener('DOMContentLoaded', () => {
       switchView('summary');
     }
 
-    // Render Action Log
     renderActionLogs(state.actionLog);
   }
 
@@ -624,12 +667,10 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderLobby(state) {
     elPlayerCount.textContent = state.players.length;
 
-    // Lobby settings for guests
-    elGuestRuleChips.textContent = state.config.startingChips;
+    elGuestRuleChips.textContent = state.config.startingChips.toLocaleString();
     elGuestRuleBlinds.textContent = `${state.config.smallBlind} / ${state.config.bigBlind}`;
-    elGuestRuleTimer.textContent = state.config.turnTimeLimit > 0 ? `${state.config.turnTimeLimit}s` : 'No limit';
+    elGuestRuleTimer.textContent = state.config.turnTimeLimit > 0 ? `${state.config.turnTimeLimit}s` : 'Untimed';
 
-    // Host inputs sync (if not actively focused)
     if (state.isHost && document.activeElement !== elCfgStartingChips) {
       elCfgStartingChips.value = state.config.startingChips;
       elCfgSmallBlind.value = state.config.smallBlind;
@@ -637,10 +678,8 @@ document.addEventListener('DOMContentLoaded', () => {
       elCfgTurnTimer.value = state.config.turnTimeLimit;
     }
 
-    // Start button state
     elBtnStartGame.disabled = state.players.length < 2;
 
-    // Render Player roster
     elLobbyPlayersList.innerHTML = '';
     state.players.forEach(p => {
       const item = document.createElement('div');
@@ -648,17 +687,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const initial = p.name ? p.name.charAt(0).toUpperCase() : '?';
       const isHost = p.id === state.hostId;
+      const grad = getAvatarGradient(p.id);
 
       item.innerHTML = `
-        <div class="roster-player-info">
-          <div class="roster-avatar">${initial}</div>
-          <span class="roster-name">${escapeHtml(p.name)}</span>
-          <div class="roster-badges">
+        <div class="roster-left">
+          <div class="user-avatar-circle" style="background: ${grad}">${initial}</div>
+          <div>
+            <span class="roster-name">${escapeHtml(p.name)}</span>
             ${isHost ? '<span class="tag-host">👑 Host</span>' : ''}
-            ${p.isYou ? '<span class="tag-you">You</span>' : ''}
+            ${p.isYou ? '<span class="tag-you">(You)</span>' : ''}
           </div>
         </div>
-        <div class="roster-actions">
+        <div class="roster-right">
           ${state.isHost && !isHost ? `<button class="btn-kick" data-kick="${p.id}">Kick</button>` : ''}
         </div>
       `;
@@ -666,39 +706,36 @@ document.addEventListener('DOMContentLoaded', () => {
       elLobbyPlayersList.appendChild(item);
     });
 
-    // Attach kick handlers
     elLobbyPlayersList.querySelectorAll('[data-kick]').forEach(btn => {
       btn.addEventListener('click', () => {
         const id = btn.dataset.kick;
-        if (confirm('Kick this player from game?')) {
+        if (confirm('Kick player from table?')) {
           client.kickPlayer(id).catch(err => showToast(err.message, 'error'));
         }
       });
     });
   }
 
-  // --- RENDER BETTING TABLE ---
+  // --- RENDER POKER TABLE ---
   function renderTable(state) {
     elStatusHandNum.textContent = `Hand #${state.handNumber}`;
     elStatusStreetBadge.textContent = state.street.replace('_', ' ').toUpperCase();
 
-    // Pot display
+    // Pot Counter Animation
     const currentPot = state.pot || 0;
-    elTotalPotAmount.textContent = currentPot.toLocaleString();
-    elCenterPotVal.textContent = currentPot.toLocaleString();
-
-    // Chip stack animation & pot update
     if (currentPot !== previousPot) {
+      animateNumber(elTotalPotAmount, previousPot, currentPot);
+      animateNumber(elCenterPotVal, previousPot, currentPot);
       elCenterPotChips.innerHTML = window.renderChipStack(currentPot);
       previousPot = currentPot;
     }
 
-    // Side Pots Breakdown
+    // Side Pots
     if (state.pots && state.pots.length > 1) {
       elSidePotsContainer.classList.remove('hidden');
       elSidePotsContainer.innerHTML = state.pots.map(pt => `
-        <div class="side-pot-pill">
-          ${pt.name}: <strong>🪙 ${pt.amount}</strong>
+        <div class="side-pot-badge">
+          ${pt.name}: <strong>🪙 ${pt.amount.toLocaleString()}</strong>
         </div>
       `).join('');
     } else {
@@ -718,98 +755,102 @@ document.addEventListener('DOMContentLoaded', () => {
       elCenterHostActions.classList.add('hidden');
     }
 
-    // Render Players around felt
     renderTablePlayers(state);
-
-    // Turn Dock Controls
     renderTurnDock(state);
 
-    // Winner celebration check
     if (state.lastHandResult && state.street === 'hand_ended') {
       checkWinnerCelebration(state.lastHandResult);
     }
   }
 
-  // Render Seated Players along elliptical felt
+  // Render Seated Players Around the Oval Table with SVG Circular Timer Ring
   function renderTablePlayers(state) {
     elPokerPlayersLayer.innerHTML = '';
     const players = state.players || [];
     const count = players.length;
     if (count === 0) return;
 
-    // Center "YOU" at bottom (angle = PI/2)
     let youIndex = players.findIndex(p => p.isYou);
     if (youIndex === -1) youIndex = 0;
 
-    // Table ellipse parameters (relative percentage: 50% = center)
-    // Horizontal radius = 38%, Vertical radius = 35%
     const rx = 38;
     const ry = 35;
     const cx = 50;
     const cy = 50;
 
+    // SVG Timer Circumference for r=26: 2 * PI * 26 ≈ 163.36
+    const CIRCUMFERENCE = 163.36;
+
     players.forEach((player, idx) => {
-      // Re-order so "YOU" is at position 0 (bottom)
       const seatOffset = (idx - youIndex + count) % count;
-      // Angle: 0 is bottom (PI/2), moving clockwise around the oval
       const angle = (Math.PI / 2) + (seatOffset * (2 * Math.PI / count));
 
       const posX = cx + rx * Math.cos(angle);
       const posY = cy + ry * Math.sin(angle);
 
-      // Current bet chip position (nudged inward toward table center)
       const betRx = rx * 0.62;
       const betRy = ry * 0.62;
       const betX = cx + betRx * Math.cos(angle);
       const betY = cy + betRy * Math.sin(angle);
 
-      // Create Player Card
       const card = document.createElement('div');
       card.id = `player-seat-${player.id}`;
-      card.className = `seated-player ${player.isTurn ? 'is-turn' : ''} ${player.isFolded ? 'is-folded' : ''} ${player.isAllIn ? 'is-allin' : ''}`;
+      card.className = `seated-player ${player.isTurn ? 'is-turn' : ''} ${player.isFolded ? 'is-folded' : ''}`;
       card.style.left = `${posX}%`;
       card.style.top = `${posY}%`;
 
       const initial = player.name ? player.name.charAt(0).toUpperCase() : '?';
+      const grad = getAvatarGradient(player.id);
 
-      // Role badge (D, SB, BB)
+      // Role Chip Badge (D, SB, BB)
       let roleHtml = '';
       if (player.role === 'dealer' || player.isDealer) {
-        roleHtml = `<div class="player-role-badge role-dealer" title="Dealer">D</div>`;
+        roleHtml = `<div class="role-chip-badge badge-dealer" title="Dealer">D</div>`;
       } else if (player.role === 'sb') {
-        roleHtml = `<div class="player-role-badge role-sb" title="Small Blind">SB</div>`;
+        roleHtml = `<div class="role-chip-badge badge-sb" title="Small Blind">SB</div>`;
       } else if (player.role === 'bb') {
-        roleHtml = `<div class="player-role-badge role-bb" title="Big Blind">BB</div>`;
+        roleHtml = `<div class="role-chip-badge badge-bb" title="Big Blind">BB</div>`;
       }
 
-      // Action pill
-      let actionClass = 'act-check';
+      // Action pill styling
+      let actionClass = 'action-check';
       if (player.lastAction) {
         const la = player.lastAction.toLowerCase();
-        if (la.includes('fold')) actionClass = 'act-fold';
-        else if (la.includes('call')) actionClass = 'act-call';
-        else if (la.includes('raise')) actionClass = 'act-raise';
-        else if (la.includes('all-in')) actionClass = 'act-allin';
+        if (la.includes('fold')) actionClass = 'action-fold';
+        else if (la.includes('call')) actionClass = 'action-call';
+        else if (la.includes('raise')) actionClass = 'action-raise';
+        else if (la.includes('all-in')) actionClass = 'action-allin';
       }
 
       card.innerHTML = `
-        ${roleHtml}
-        <div class="player-card-inner">
-          <div class="player-name-row">
-            <span class="player-name-text">${escapeHtml(player.name)}</span>
-            ${player.isYou ? '<span class="tag-you-mini">YOU</span>' : ''}
+        <div class="avatar-wrapper">
+          <!-- Circular SVG Countdown Ring -->
+          <svg class="timer-ring-svg" viewBox="0 0 60 60">
+            <circle class="timer-ring-bg" cx="30" cy="30" r="26" fill="transparent" stroke-width="3" />
+            <circle id="timer-ring-progress-${player.id}" class="timer-ring-progress" cx="30" cy="30" r="26" fill="transparent" stroke-width="3"
+              stroke-dasharray="${CIRCUMFERENCE}" stroke-dashoffset="${player.isTurn ? 0 : CIRCUMFERENCE}" />
+          </svg>
+
+          <div class="player-avatar-circle" style="background: ${grad}">${initial}</div>
+          ${roleHtml}
+        </div>
+
+        <div class="player-meta-box">
+          <div class="player-name-line">
+            <span>${escapeHtml(player.name)}</span>
+            ${player.isYou ? '<span class="you-tag">(YOU)</span>' : ''}
           </div>
-          <div class="player-chips-badge">
+          <div class="player-chip-counter">
             <span>🪙</span>
             <span>${player.chips.toLocaleString()}</span>
           </div>
-          ${player.lastAction ? `<div class="player-action-pill ${actionClass}">${player.lastAction}</div>` : ''}
+          ${player.lastAction ? `<div class="player-last-action ${actionClass}">${player.lastAction}</div>` : ''}
         </div>
       `;
 
       elPokerPlayersLayer.appendChild(card);
 
-      // If player has an active bet this street, render bet stack on felt
+      // Render Active Bet on Table Felt
       if (player.currentBet > 0) {
         const betEl = document.createElement('div');
         betEl.className = 'player-bet-stack';
@@ -819,20 +860,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
         betEl.innerHTML = `
           ${window.renderChipStack(player.currentBet)}
-          <div class="bet-badge">${player.currentBet}</div>
+          <div class="bet-badge-pill">${player.currentBet.toLocaleString()}</div>
         `;
         elPokerPlayersLayer.appendChild(betEl);
       }
     });
   }
 
-  // --- RENDER TURN CONTROLS & TIMER ---
+  // --- RENDER TURN CONTROLS & SVG CIRCULAR TIMER RING ---
   function renderTurnDock(state) {
     const isYourTurn = state.currentTurnPlayerId && state.players.some(p => p.id === state.currentTurnPlayerId && p.isYou);
     const turnPlayer = state.players.find(p => p.id === state.currentTurnPlayerId);
 
-    // Manage 30-Second Turn Timer
     clearInterval(timerInterval);
+
+    const CIRCUMFERENCE = 163.36;
 
     if (state.turnExpiresAt && state.currentTurnPlayerId) {
       elTurnTimerBar.parentElement.classList.remove('hidden');
@@ -843,40 +885,57 @@ document.addEventListener('DOMContentLoaded', () => {
         const totalDuration = (state.turnTimeLimit || 30) * 1000;
         const pct = Math.max(0, Math.min(100, (remainingMs / totalDuration) * 100));
 
+        // Update bottom timer bar
         elTurnTimerBar.style.width = `${pct}%`;
         elTimerSecondsLeft.textContent = `${seconds}s`;
         elTimerPlayerName.textContent = isYourTurn ? 'Your Turn to Act!' : `${turnPlayer?.name || 'Player'}'s turn`;
 
-        if (seconds <= 5 && seconds > 0) {
-          audio.playTimerTick();
+        // Update active player's circular SVG timer ring
+        const ringCircle = document.getElementById(`timer-ring-progress-${state.currentTurnPlayerId}`);
+        const seatCard = document.getElementById(`player-seat-${state.currentTurnPlayerId}`);
+
+        if (ringCircle) {
+          const offset = CIRCUMFERENCE * (1 - pct / 100);
+          ringCircle.style.strokeDashoffset = offset;
+
+          // Color Transition: Gold -> Orange -> Crimson
+          if (seconds > 15) {
+            ringCircle.style.stroke = '#FFD700';
+            seatCard?.classList.remove('urgent-turn-pulse');
+          } else if (seconds > 5) {
+            ringCircle.style.stroke = '#FF8800';
+            seatCard?.classList.remove('urgent-turn-pulse');
+          } else {
+            ringCircle.style.stroke = '#FF4444';
+            seatCard?.classList.add('urgent-turn-pulse');
+            audio.playTimerTick();
+          }
         }
       };
 
       updateTimer();
-      timerInterval = setInterval(updateTimer, 200);
+      timerInterval = setInterval(updateTimer, 150);
     } else {
       elTurnTimerBar.parentElement.classList.add('hidden');
     }
 
-    // Toggle Action Controls vs Waiting Message
+    // Toggle Action Dock
     if (isYourTurn && state.playerTurnOptions) {
       elTurnControls.classList.remove('hidden');
       elWaitingDock.classList.add('hidden');
 
       const opts = state.playerTurnOptions;
 
-      // Check / Call button config
       if (opts.canCheck) {
         elBtnCheckCallText.textContent = 'CHECK';
         elBtnCheckCallSub.textContent = 'FREE';
       } else {
-        elBtnCheckCallText.textContent = opts.isCallAllIn ? `CALL ALL-IN (${opts.callAmount})` : `CALL ${opts.callAmount}`;
+        elBtnCheckCallText.textContent = opts.isCallAllIn ? `ALL-IN (${opts.callAmount.toLocaleString()})` : `CALL ${opts.callAmount.toLocaleString()}`;
         elBtnCheckCallSub.textContent = opts.isCallAllIn ? 'ALL CHIPS' : 'MATCH BET';
       }
 
-      // Raise button config
       elBtnToggleRaise.disabled = !opts.canRaise;
-      elBtnToggleRaise.style.opacity = opts.canRaise ? '1' : '0.5';
+      elBtnToggleRaise.style.opacity = opts.canRaise ? '1' : '0.4';
 
       syncRaiseInputs();
     } else {
@@ -885,16 +944,16 @@ document.addEventListener('DOMContentLoaded', () => {
       if (turnPlayer) {
         elWaitingStatusText.textContent = `Waiting for ${turnPlayer.name} to act...`;
       } else if (state.street === 'showdown') {
-        elWaitingStatusText.textContent = 'Showdown! Host will award the pot(s).';
+        elWaitingStatusText.textContent = 'Showdown! Host is awarding the pot...';
       } else if (state.street === 'hand_ended') {
-        elWaitingStatusText.textContent = 'Hand complete. Ready for next hand.';
+        elWaitingStatusText.textContent = 'Hand complete. Dealing next hand...';
       } else {
         elWaitingStatusText.textContent = 'Waiting for hand to start...';
       }
     }
   }
 
-  // --- RENDER SHOWDOWN WINNER SELECTION MODAL ---
+  // --- RENDER SHOWDOWN MODAL ---
   function renderShowdownModal() {
     const state = client.currentState;
     if (!state) return;
@@ -902,20 +961,20 @@ document.addEventListener('DOMContentLoaded', () => {
     elShowdownPotsList.innerHTML = '';
     const pots = state.pots && state.pots.length > 0 ? state.pots : [{ id: 'main', name: 'Main Pot', amount: state.pot, eligiblePlayerIds: state.players.filter(p => !p.isFolded).map(p => p.id) }];
 
-    pots.forEach((pot, pIdx) => {
-      const potCard = document.createElement('div');
-      potCard.className = 'pot-award-card';
+    pots.forEach((pot) => {
+      const card = document.createElement('div');
+      card.className = 'pot-select-card';
 
       const eligiblePlayers = state.players.filter(p => pot.eligiblePlayerIds.includes(p.id));
 
-      potCard.innerHTML = `
-        <div class="pot-award-header">
+      card.innerHTML = `
+        <div class="pot-select-header">
           <span>${pot.name}</span>
-          <span>🪙 ${pot.amount} chips</span>
+          <span>🪙 ${pot.amount.toLocaleString()}</span>
         </div>
-        <div class="pot-eligible-players">
+        <div class="pot-player-options">
           ${eligiblePlayers.map(p => `
-            <label class="award-player-option">
+            <label class="pot-player-label">
               <span><strong>${escapeHtml(p.name)}</strong></span>
               <input type="checkbox" name="pot-winner-${pot.id}" value="${p.id}" ${eligiblePlayers.length === 1 ? 'checked' : ''}>
             </label>
@@ -923,7 +982,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       `;
 
-      elShowdownPotsList.appendChild(potCard);
+      elShowdownPotsList.appendChild(card);
     });
   }
 
@@ -937,7 +996,7 @@ document.addEventListener('DOMContentLoaded', () => {
     for (const pot of pots) {
       const checked = Array.from(document.querySelectorAll(`input[name="pot-winner-${pot.id}"]:checked`)).map(cb => cb.value);
       if (checked.length === 0) {
-        showToast(`Please select at least one winner for ${pot.name}`, 'error');
+        showToast(`Select at least one winner for ${pot.name}`, 'error');
         return;
       }
       allocations.push({
@@ -955,73 +1014,105 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // --- WINNER CELEBRATION MODAL ---
-  let lastCelebratedHand = -1;
+  // --- FULLSCREEN WINNER ANNOUNCEMENT & CONFETTI ---
+  function spawnConfetti() {
+    elConfettiContainer.innerHTML = '';
+    const colors = ['#FFD700', '#00C851', '#FF4444', '#FFFFFF', '#FFE55C'];
+    for (let i = 0; i < 40; i++) {
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = `${Math.random() * 100}%`;
+      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.setProperty('--drift', `${(Math.random() - 0.5) * 160}px`);
+      piece.style.setProperty('--rot', `${Math.random() * 720}deg`);
+      piece.style.animationDelay = `${Math.random() * 1.5}s`;
+      piece.style.animationDuration = `${2.5 + Math.random() * 1.5}s`;
+      elConfettiContainer.appendChild(piece);
+    }
+  }
+
   function checkWinnerCelebration(result) {
     const handNum = client.currentState?.handNumber;
-    if (handNum === lastCelebratedHand) return;
-    lastCelebratedHand = handNum;
+    if (handNum === lastWinnerResult) return;
+    lastWinnerResult = handNum;
 
     audio.playWinFanfare();
-    elWinnerCelebrationDesc.textContent = result.message || 'Pot awarded!';
+    elWinnerCelebrationDesc.textContent = result.message || 'Pot awarded to winner!';
 
     const totalChips = result.winners?.reduce((sum, w) => sum + w.amount, 0) || 500;
     elCelebrationChipsStack.innerHTML = window.renderChipStack(totalChips);
 
+    spawnConfetti();
     elCelebrationOverlay.classList.remove('hidden');
   }
 
-  // --- END OF NIGHT SUMMARY LEADERBOARD ---
+  // --- END OF NIGHT SUMMARY LEDGER ---
   function renderLeaderboard(leaderboard) {
-    elLeaderboardTbody.innerHTML = '';
+    elSummaryCardsList.innerHTML = '';
     if (!Array.isArray(leaderboard)) return;
 
     const medals = ['🥇', '🥈', '🥉'];
 
     leaderboard.forEach((row, idx) => {
-      const tr = document.createElement('tr');
-      const rankBadge = medals[idx] || `#${idx + 1}`;
-      const isPositive = row.profitLoss >= 0;
-      const profitClass = isPositive ? 'profit-pos' : 'profit-neg';
+      const card = document.createElement('div');
+      card.className = `summary-row-card ${idx === 0 ? 'rank-1' : ''}`;
 
-      tr.innerHTML = `
-        <td><strong>${rankBadge}</strong></td>
-        <td><strong>${escapeHtml(row.name)}</strong></td>
-        <td>🪙 ${row.chips.toLocaleString()}</td>
-        <td>${row.totalBuyIn.toLocaleString()} ${row.totalRebuys > 0 ? `(+${row.totalRebuys})` : ''}</td>
-        <td class="${profitClass}">${row.profitFormatted}</td>
+      const medal = medals[idx] || `#${idx + 1}`;
+      const isPos = row.profitLoss >= 0;
+      const profitClass = isPos ? 'profit-green' : 'loss-red';
+
+      card.innerHTML = `
+        <div class="summary-left">
+          <span class="rank-badge-icon">${medal}</span>
+          <div>
+            <div class="player-final-name">${escapeHtml(row.name)}</div>
+            <div class="player-buyin-sub">Buy-in: 🪙 ${row.totalBuyIn.toLocaleString()} ${row.totalRebuys > 0 ? `(+${row.totalRebuys.toLocaleString()})` : ''}</div>
+          </div>
+        </div>
+        <div class="summary-right">
+          <div class="final-chips-val">🪙 ${row.chips.toLocaleString()}</div>
+          <div class="${profitClass}">${row.profitFormatted}</div>
+        </div>
       `;
 
-      elLeaderboardTbody.appendChild(tr);
+      elSummaryCardsList.appendChild(card);
     });
   }
 
-  // --- ACTION LOG RENDERING ---
+  // --- ACTION LOG DRAWER ---
   function renderActionLogs(logs) {
     if (!Array.isArray(logs) || logs.length === 0) return;
 
     const latest = logs[logs.length - 1];
     if (latest && latest.id !== lastLoggedId) {
       lastLoggedId = latest.id;
-      // Show unread indicator if drawer is closed
+
       if (elDrawerLog.classList.contains('closed')) {
         elUnreadLogBadge.classList.remove('hidden');
       }
 
-      // Show table action banner for significant actions
       if (['action', 'win'].includes(latest.type)) {
         elBannerText.textContent = latest.text;
         elTableActionBanner.classList.remove('hidden');
         setTimeout(() => {
           elTableActionBanner.classList.add('hidden');
-        }, 4000);
+        }, 3500);
       }
     }
 
     elGameLogMessages.innerHTML = '';
     logs.forEach(item => {
       const div = document.createElement('div');
-      div.className = `log-entry log-${item.type}`;
+      let typeClass = 'log-system';
+      const text = item.text.toLowerCase();
+
+      if (text.includes('raised') || text.includes('all-in')) typeClass = 'log-action-raise';
+      else if (text.includes('folded')) typeClass = 'log-action-fold';
+      else if (text.includes('called') || text.includes('checked')) typeClass = 'log-action-call';
+      else if (text.includes('won') || item.type === 'win') typeClass = 'log-action-win';
+      else if (item.type === 'chat') typeClass = 'log-chat';
+
+      div.className = `log-entry ${typeClass}`;
       div.textContent = item.text;
       elGameLogMessages.appendChild(div);
     });
@@ -1029,7 +1120,7 @@ document.addEventListener('DOMContentLoaded', () => {
     elGameLogMessages.scrollTop = elGameLogMessages.scrollHeight;
   }
 
-  // Helper: Escape HTML to avoid XSS
+  // HTML XSS Escaper
   function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/&/g, '&amp;')
