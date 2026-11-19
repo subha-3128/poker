@@ -5,6 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>POKER NIGHT | High-Stakes Chip Tracker</title>
   
+  <!-- PWA Metadata & Standalone Mode -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#FFD700">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Poker Night">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512.png">
+
   <!-- Google Fonts: Playfair Display (Serif) & Inter (Sans-serif) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,14 +22,41 @@
   
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/animations.css">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%3E<text y=%2226%22 font-size=%2224%22>♠️</text></svg>">
+  <link rel="icon" href="/icons/icon-192.png" type="image/png">
 </head>
 <body>
-  <!-- All-in Screen Edge Flash Overlay -->
+  <!-- PWA Initial Splash Screen (Fades out when app is ready) -->
+  <div id="pwa-splash" class="pwa-splash-screen">
+    <div class="splash-inner">
+      <div class="splash-chip-emblem">♠</div>
+      <h1 class="splash-brand-title">POKER NIGHT</h1>
+      <p class="splash-tag">HIGH-STAKES CASINO APP</p>
+      <div class="splash-loading-bar">
+        <div class="splash-loading-fill"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Landscape Warning Overlay (Prompts user to rotate to portrait) -->
+  <div id="landscape-warning" class="landscape-blocker">
+    <div class="landscape-card">
+      <div class="rotate-phone-anim">📱</div>
+      <h2>Please Rotate to Portrait</h2>
+      <p>Poker Night is tailored for portrait mode on mobile devices for the best casino experience.</p>
+    </div>
+  </div>
+
+  <!-- Screen Flash for All-In action -->
   <div id="screen-flash-overlay" class="screen-flash"></div>
 
+  <!-- Main App Shell -->
   <div id="app-container">
-    <!-- Top Casino Header -->
+    <!-- Top Thin Turn Countdown Progress Bar -->
+    <div id="top-turn-progress-bar" class="top-turn-progress hidden">
+      <div id="top-turn-fill" class="top-turn-fill"></div>
+    </div>
+
+    <!-- Casino Header -->
     <header id="app-header" class="casino-header">
       <div class="header-left">
         <div class="brand-logo">
@@ -33,7 +70,7 @@
         </div>
       </div>
       <div class="header-right">
-        <button id="btn-qr-modal" class="header-btn" title="Scan QR Code to Join on WiFi">
+        <button id="btn-qr-modal" class="header-btn" title="Scan QR Code to Join on WiFi" aria-label="QR Code">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="3" width="7" height="7"></rect>
             <rect x="14" y="3" width="7" height="7"></rect>
@@ -42,10 +79,10 @@
           </svg>
           <span class="wifi-tag">WIFI</span>
         </button>
-        <button id="btn-sound-toggle" class="header-btn" title="Toggle Sound">
+        <button id="btn-sound-toggle" class="header-btn" title="Toggle Sound" aria-label="Sound Toggle">
           <span id="sound-icon">🔊</span>
         </button>
-        <button id="btn-log-toggle" class="header-btn" title="Game History & Chat">
+        <button id="btn-log-toggle" class="header-btn" title="Game History & Chat" aria-label="Logs & Chat">
           <span>💬</span>
           <span id="unread-log-badge" class="badge-dot hidden"></span>
         </button>
@@ -79,7 +116,7 @@
 
           <div class="home-titles">
             <h1 class="shimmer-title">POKER NIGHT</h1>
-            <p class="luxury-tagline">High-Stakes Live Chip & Betting Tracker</p>
+            <p class="luxury-tagline">High-Stakes Live Chip &amp; Betting Tracker</p>
           </div>
 
           <!-- Player Input Card -->
@@ -88,7 +125,7 @@
               <label for="input-player-name">Player Alias</label>
               <div class="input-wrapper">
                 <span class="input-icon">👤</span>
-                <input type="text" id="input-player-name" placeholder="Enter your name" maxlength="15" autocomplete="off">
+                <input type="text" id="input-player-name" placeholder="Enter your name" maxlength="15" autocomplete="off" style="font-size: 16px;">
               </div>
             </div>
 
@@ -105,7 +142,7 @@
               </div>
 
               <div class="join-input-group">
-                <input type="text" id="input-room-code" placeholder="4-digit code" maxlength="4" pattern="[0-9]*" inputmode="numeric">
+                <input type="text" id="input-room-code" class="room-code-input" placeholder="4-digit code" maxlength="4" pattern="[0-9]*" inputmode="numeric" style="font-size: 16px;">
                 <button id="btn-join-game" class="btn btn-luxury-emerald">
                   <span>Join Table</span>
                 </button>
@@ -146,19 +183,19 @@
             <div class="settings-inputs-grid">
               <div class="form-field">
                 <label for="cfg-starting-chips">Starting Chips</label>
-                <input type="number" id="cfg-starting-chips" value="1000" step="50" min="100" max="50000">
+                <input type="number" id="cfg-starting-chips" value="1000" step="50" min="100" max="50000" style="font-size: 16px;">
               </div>
               <div class="form-field">
                 <label for="cfg-small-blind">Small Blind</label>
-                <input type="number" id="cfg-small-blind" value="10" step="5" min="1">
+                <input type="number" id="cfg-small-blind" value="10" step="5" min="1" style="font-size: 16px;">
               </div>
               <div class="form-field">
                 <label for="cfg-big-blind">Big Blind</label>
-                <input type="number" id="cfg-big-blind" value="20" step="5" min="2">
+                <input type="number" id="cfg-big-blind" value="20" step="5" min="2" style="font-size: 16px;">
               </div>
               <div class="form-field">
                 <label for="cfg-turn-timer">Turn Timer</label>
-                <select id="cfg-turn-timer">
+                <select id="cfg-turn-timer" style="font-size: 16px;">
                   <option value="15">15 seconds</option>
                   <option value="30" selected>30 seconds</option>
                   <option value="45">45 seconds</option>
@@ -204,7 +241,7 @@
         </div>
       </section>
 
-      <!-- 3. GAME TABLE SCREEN: Pure CSS Oval Green Felt Table -->
+      <!-- 3. GAME TABLE SCREEN: Mobile-First Layout -->
       <section id="view-table" class="view-section hidden">
         <!-- Top Status Bar -->
         <div class="table-top-bar">
@@ -225,47 +262,49 @@
           <!-- Rendered via JS -->
         </div>
 
-        <!-- The Oval Poker Table Centerpiece -->
-        <div class="table-stage">
-          <div class="poker-table-bezel">
-            <div class="poker-table-felt">
-              <div class="felt-pattern-grid"></div>
-              <div class="felt-luxury-crest">POKER NIGHT</div>
+        <!-- The Oval Poker Table Stage (Scrollable if >6 players) -->
+        <div class="table-stage-scroll-wrapper">
+          <div class="table-stage">
+            <div class="poker-table-bezel">
+              <div class="poker-table-felt">
+                <div class="felt-pattern-grid"></div>
+                <div class="felt-luxury-crest">POKER NIGHT</div>
 
-              <!-- Table Center: Pot & Street Controls -->
-              <div class="felt-center-content">
-                <div class="pot-display-center">
-                  <span class="pot-title-label">TOTAL POT</span>
-                  <div class="pot-number-glow">
-                    <span class="currency-symbol">🪙</span>
-                    <span id="center-pot-val">0</span>
+                <!-- Table Center: Pot & Action Controls -->
+                <div class="felt-center-content">
+                  <div class="pot-display-center">
+                    <span class="pot-title-label">TOTAL POT</span>
+                    <div class="pot-number-glow">
+                      <span class="currency-symbol">🪙</span>
+                      <span id="center-pot-val">0</span>
+                    </div>
+                    <div id="center-pot-chips" class="center-chips-row"></div>
                   </div>
-                  <div id="center-pot-chips" class="center-chips-row"></div>
+
+                  <!-- Last Action Status Banner -->
+                  <div id="table-action-banner" class="status-banner hidden">
+                    <span id="banner-text">Rahul raised to 200</span>
+                  </div>
+
+                  <!-- Host Quick Controls inside Table Center -->
+                  <div id="center-host-actions" class="center-host-bar host-only hidden">
+                    <button id="btn-showdown-award" class="btn btn-sm btn-luxury-gold">🏆 Award Pot</button>
+                    <button id="btn-next-hand" class="btn btn-sm btn-luxury-emerald">Next Hand ▶</button>
+                  </div>
                 </div>
 
-                <!-- Last Action Status Banner -->
-                <div id="table-action-banner" class="status-banner hidden">
-                  <span id="banner-text">Rahul raised to 200</span>
+                <!-- Seated Players Ring (Top opponents, Center pot, Bottom current player) -->
+                <div id="poker-players-layer" class="table-seats-ring">
+                  <!-- Seated player elements injected here -->
                 </div>
-
-                <!-- Host Quick Controls inside Table Center -->
-                <div id="center-host-actions" class="center-host-bar host-only hidden">
-                  <button id="btn-showdown-award" class="btn btn-sm btn-luxury-gold">🏆 Award Pot</button>
-                  <button id="btn-next-hand" class="btn btn-sm btn-luxury-emerald">Next Hand ▶</button>
-                </div>
-              </div>
-
-              <!-- Seated Players Ring (Top, Bottom, Left, Right) -->
-              <div id="poker-players-layer" class="table-seats-ring">
-                <!-- Seated player elements injected here -->
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Action Panel (Bottom of screen, mobile-first glassmorphism) -->
+        <!-- Mobile Action Panel (Fixed Bottom Bar: 180px with safe area, 2x2 grid) -->
         <div id="player-action-dock" class="glass-action-dock">
-          <!-- Turn Timer Top Line -->
+          <!-- Turn Timer Top Line within Dock -->
           <div id="turn-timer-bar-container" class="turn-timer-wrapper">
             <div id="turn-timer-bar" class="turn-timer-fill"></div>
             <div class="turn-timer-info">
@@ -274,32 +313,36 @@
             </div>
           </div>
 
-          <!-- Action Buttons Row -->
+          <!-- 2x2 Grid Button Layout -->
           <div id="turn-controls" class="action-dock-buttons hidden">
-            <div class="button-grid-four">
-              <!-- Fold: Crimson Red -->
-              <button id="btn-action-fold" class="btn-pill btn-fold">
-                <span class="btn-subtext">FORFEIT</span>
-                <span class="btn-maintext">FOLD</span>
-              </button>
+            <div class="action-grid-2x2">
+              <!-- Row 1: Fold (Crimson Red, left) | Check/Call (Gold, right) -->
+              <div class="action-row-split">
+                <button id="btn-action-fold" class="btn-pill btn-fold">
+                  <span class="btn-subtext">FORFEIT</span>
+                  <span class="btn-maintext">FOLD</span>
+                </button>
+                <button id="btn-action-check-call" class="btn-pill btn-call">
+                  <span class="btn-subtext" id="btn-check-call-sub">FREE</span>
+                  <span class="btn-maintext" id="btn-check-call-text">CHECK</span>
+                </button>
+              </div>
 
-              <!-- Check / Call: Gold -->
-              <button id="btn-action-check-call" class="btn-pill btn-call">
-                <span class="btn-subtext" id="btn-check-call-sub">FREE</span>
-                <span class="btn-maintext" id="btn-check-call-text">CHECK</span>
-              </button>
+              <!-- Row 2: Raise (Emerald Green, full width) -->
+              <div class="action-row-full">
+                <button id="btn-toggle-raise" class="btn-pill btn-raise">
+                  <span class="btn-subtext">EXPAND SLIDER</span>
+                  <span class="btn-maintext" id="btn-raise-text">RAISE</span>
+                </button>
+              </div>
 
-              <!-- Raise: Emerald Green -->
-              <button id="btn-toggle-raise" class="btn-pill btn-raise">
-                <span class="btn-subtext">INCREASE</span>
-                <span class="btn-maintext" id="btn-raise-text">RAISE</span>
-              </button>
-
-              <!-- All-In: White with shimmering border -->
-              <button id="btn-action-allin" class="btn-pill btn-allin">
-                <span class="btn-subtext">ALL CHIPS</span>
-                <span class="btn-maintext">ALL-IN</span>
-              </button>
+              <!-- Row 3: All-In (White shimmer, full width) -->
+              <div class="action-row-full">
+                <button id="btn-action-allin" class="btn-pill btn-allin">
+                  <span class="btn-subtext">ALL CHIPS</span>
+                  <span class="btn-maintext">ALL-IN</span>
+                </button>
+              </div>
             </div>
 
             <!-- Custom Raise Slider Drawer -->
@@ -317,7 +360,7 @@
                 <button id="btn-raise-minus" class="stepper-circle">-</button>
                 <div class="raise-display-box">
                   <span class="raise-currency">🪙</span>
-                  <input type="number" id="raise-input-number" min="0" max="50000" step="5">
+                  <input type="number" id="raise-input-number" min="0" max="50000" step="5" style="font-size: 16px;">
                 </div>
                 <button id="btn-raise-plus" class="stepper-circle">+</button>
               </div>
@@ -336,7 +379,7 @@
           <!-- Waiting Panel (When NOT your turn) -->
           <div id="waiting-dock" class="waiting-dock-message">
             <span class="gold-pulse-indicator"></span>
-            <span id="waiting-status-text">Waiting for Rahul to act...</span>
+            <span id="waiting-status-text">Waiting for players to act...</span>
           </div>
         </div>
 
@@ -363,7 +406,7 @@
           <div class="summary-header">
             <span class="giant-trophy">🏆</span>
             <h2 class="shimmer-title">NIGHT SUMMARY</h2>
-            <p class="summary-subtitle">Final Player Ledger & Profit / Loss</p>
+            <p class="summary-subtitle">Final Player Ledger &amp; Profit / Loss</p>
           </div>
 
           <div class="luxury-card summary-table-card">
@@ -380,25 +423,44 @@
       </section>
     </main>
 
-    <!-- Slide-in Game Log & Chat Drawer (Right Side) -->
-    <aside id="drawer-log" class="glass-drawer closed">
+    <!-- Slide-up Mobile Bottom Sheet Game Log & Chat (Replacing side panel) -->
+    <div id="bottom-sheet-backdrop" class="sheet-backdrop hidden"></div>
+    <aside id="drawer-log" class="bottom-sheet-drawer closed">
+      <div class="sheet-drag-handle-bar">
+        <div class="drag-handle-pill"></div>
+      </div>
       <div class="drawer-header">
         <div class="drawer-title">
-          <span>📋</span>
-          <h3>Table Log & Chat</h3>
+          <span>💬</span>
+          <h3>Table Log &amp; Chat</h3>
         </div>
-        <button id="btn-close-log" class="drawer-close-btn">&times;</button>
+        <button id="btn-close-log" class="drawer-close-btn" aria-label="Close Logs">&times;</button>
       </div>
       <div id="game-log-messages" class="drawer-messages-body">
         <!-- Logs rendered here -->
       </div>
       <div class="drawer-chat-footer">
         <form id="chat-form">
-          <input type="text" id="chat-input" placeholder="Type message..." maxlength="100" autocomplete="off">
+          <input type="text" id="chat-input" placeholder="Type message..." maxlength="100" autocomplete="off" style="font-size: 16px;">
           <button type="submit" class="btn-chat-send">Send</button>
         </form>
       </div>
     </aside>
+
+    <!-- PWA "Add to Home Screen" Banner -->
+    <div id="pwa-install-banner" class="pwa-install-banner hidden">
+      <div class="pwa-banner-left">
+        <div class="pwa-banner-chip">♠</div>
+        <div class="pwa-banner-text">
+          <strong>Install Poker Night</strong>
+          <span>Add to Home Screen for fullscreen casino feel</span>
+        </div>
+      </div>
+      <div class="pwa-banner-right">
+        <button id="btn-pwa-install" class="btn btn-sm btn-luxury-gold">Install</button>
+        <button id="btn-pwa-dismiss" class="btn-pwa-close" aria-label="Dismiss">&times;</button>
+      </div>
+    </div>
 
     <!-- MODAL: QR Code & WiFi Share -->
     <div id="modal-qr" class="modal-backdrop hidden">
@@ -434,7 +496,7 @@
         <div class="modal-body-fields">
           <div class="form-field">
             <label for="rebuy-player-select">Select Player</label>
-            <select id="rebuy-player-select"></select>
+            <select id="rebuy-player-select" style="font-size: 16px;"></select>
           </div>
           <div class="form-field">
             <label>Rebuy Amount</label>
@@ -443,7 +505,7 @@
               <button class="preset-pill rebuy-preset active" data-amt="1000">+1000</button>
               <button class="preset-pill rebuy-preset" data-amt="2000">+2000</button>
             </div>
-            <input type="number" id="rebuy-custom-amt" value="1000" min="50" step="50">
+            <input type="number" id="rebuy-custom-amt" value="1000" min="50" step="50" style="font-size: 16px;">
           </div>
         </div>
         <div class="modal-bottom">
@@ -466,22 +528,24 @@
         </div>
         <div class="modal-bottom">
           <button class="btn btn-glass" data-close="modal-showdown">Cancel</button>
-          <button id="btn-confirm-award" class="btn btn-luxury-gold">Confirm & Transfer Chips 🪙</button>
+          <button id="btn-confirm-award" class="btn btn-luxury-gold">Confirm &amp; Transfer Chips 🪙</button>
         </div>
       </div>
     </div>
 
-    <!-- Toast Notification Banner -->
+    <!-- Toast Notification Banner (Top of Screen) -->
     <div id="toast-container" class="toast-stack"></div>
 
-    <!-- Fullscreen Winner Announcement Overlay -->
+    <!-- Fullscreen Winner Announcement Overlay (Mobile z-index 9999) -->
     <div id="celebration-overlay" class="celebration-overlay hidden">
       <div class="confetti-particles-container" id="confetti-container"></div>
+      <div class="celebration-backdrop-glow"></div>
       <div class="celebration-glass-card">
         <div class="celebration-trophy">🏆</div>
         <h2 id="winner-celebration-title" class="celebration-title">WINNER!</h2>
         <div id="winner-celebration-desc" class="celebration-desc">Rahul won 850 chips!</div>
         <div id="celebration-chips-stack" class="celebration-chips-stack"></div>
+        <p class="celebration-dismiss-hint">Tap anywhere or wait 4s to continue</p>
         <button id="btn-close-celebration" class="btn btn-luxury-gold btn-large">Continue Playing ▶</button>
       </div>
     </div>

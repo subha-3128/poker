@@ -1,6 +1,8 @@
 /* ==========================================================================
-   POKER NIGHT - ULTRA-PREMIUM CASINO DESIGN SYSTEM
-   Fonts: Playfair Display (Headings) & Inter (UI)
+   POKER NIGHT - MOBILE-FIRST CASINO PROGRESSIVE WEB APP (PWA)
+   Base Design Width: 390px (iPhone 14 / modern standard)
+   Dynamic Viewport Height: 100dvh
+   Base Font Size: 16px (1rem = 16px, zero iOS auto-zoom on inputs)
    Palette: Deep Black #0a0a0a, Gold #FFD700, Emerald #00C851, Crimson #FF4444
    ========================================================================== */
 
@@ -8,8 +10,8 @@
   --bg-black: #0a0a0a;
   --bg-surface: #121212;
   --bg-surface-elevated: #1a1a1a;
-  --bg-glass: rgba(18, 18, 18, 0.82);
-  --bg-glass-heavy: rgba(10, 10, 10, 0.92);
+  --bg-glass: rgba(18, 18, 18, 0.85);
+  --bg-glass-heavy: rgba(10, 10, 10, 0.94);
 
   /* Primary Casino Accents */
   --gold: #FFD700;
@@ -27,9 +29,9 @@
   --crimson-glow: rgba(255, 68, 68, 0.4);
 
   /* Poker Table Felt */
-  --felt-green-center: #0d5334;
-  --felt-green-mid: #083823;
-  --felt-green-edge: #04190f;
+  --felt-green-center: #0e5a38;
+  --felt-green-mid: #093c25;
+  --felt-green-edge: #052114;
   --table-wood-rim: #24140b;
   --table-bezel-gold: #c59b27;
 
@@ -52,12 +54,22 @@
   /* Radius */
   --radius-pill: 9999px;
   --radius-card: 18px;
+  --radius-button: 16px;
   --radius-sm: 10px;
 
-  /* Safe Area */
-  --safe-bottom: env(safe-area-inset-bottom, 14px);
+  /* Safe Area Insets for Notch / Dynamic Island */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+
+  /* Action Dock Fixed Height */
+  --dock-height: 180px;
 }
 
+/* ==========================================================================
+   RESET & STRICT MOBILE RULES
+   ========================================================================== */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -65,66 +77,264 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-html, body {
-  width: 100%;
+html {
+  font-size: 16px; /* Base 16px throughout */
   height: 100%;
-  overflow-x: hidden;
+  height: 100dvh;
+  overscroll-behavior: none;
+  background-color: var(--bg-black);
+}
+
+body {
+  width: 100%;
+  min-height: 100%;
+  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
   background-color: var(--bg-black);
   color: var(--text-primary);
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 1rem; /* 16px */
   line-height: 1.4;
   user-select: none;
+  -webkit-user-select: none;
   -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
 }
 
+/* All inputs and selects: 16px strictly prevents iOS Safari auto-zoom */
+input, select, textarea, button {
+  font-size: 1rem !important; /* 16px strictly */
+  font-family: var(--font-sans);
+  touch-action: manipulation; /* Eliminate 300ms tap delay */
+}
+
+/* Touch Targets: minimum 52px for primary interaction buttons */
+button, .btn, .btn-pill {
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+}
+
+/* Remove hover dependency: use :active for tactile touch feedback */
+button:active, .btn:active, .btn-pill:active {
+  transform: scale(0.96);
+  filter: brightness(0.9);
+}
+
+button:disabled, .btn:disabled, .btn-pill:disabled {
+  opacity: 0.3 !important;
+  pointer-events: none !important;
+}
+
+/* App Viewport Shell */
 #app-container {
-  min-height: 100vh;
+  width: 100%;
+  max-width: 500px; /* Centered layout for larger screens, natural fit for 390px phones */
+  margin: 0 auto;
+  height: 100%;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   position: relative;
-  background: radial-gradient(circle at 50% 0%, #171717 0%, #0a0a0a 70%);
+  background: radial-gradient(circle at 50% 0%, #151515 0%, #0a0a0a 75%);
+  overflow: hidden;
 }
 
 /* ==========================================================================
-   GLOBAL HEADER
+   PWA SPLASH SCREEN
+   ========================================================================== */
+.pwa-splash-screen {
+  position: fixed;
+  inset: 0;
+  background: #0a0a0a;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.pwa-splash-screen.splash-faded {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.splash-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.splash-chip-emblem {
+  font-size: 3.5rem;
+  color: var(--gold);
+  filter: drop-shadow(0 0 20px var(--gold-glow));
+  margin-bottom: 1rem;
+  animation: pulse-dot 1.8s infinite ease-in-out;
+}
+
+.splash-brand-title {
+  font-family: var(--font-serif);
+  font-size: 2.2rem;
+  font-weight: 900;
+  letter-spacing: 0.25rem;
+  background: linear-gradient(135deg, #FFF099 0%, #FFD700 50%, #B8860B 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.5rem;
+}
+
+.splash-tag {
+  font-size: 0.8rem;
+  letter-spacing: 0.2rem;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin-bottom: 2rem;
+}
+
+.splash-loading-bar {
+  width: 140px;
+  height: 4px;
+  background: rgba(255, 215, 0, 0.15);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.splash-loading-fill {
+  height: 100%;
+  width: 50%;
+  background: var(--gold);
+  border-radius: var(--radius-pill);
+  animation: splash-sweep 1.2s infinite ease-in-out;
+}
+
+@keyframes splash-sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+/* ==========================================================================
+   LANDSCAPE WARNING (PORTRAIT ONLY LOCK)
+   ========================================================================== */
+.landscape-blocker {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #0a0a0a;
+  z-index: 99999;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+/* Show landscape warning if orientation is landscape on mobile / short heights */
+@media screen and (orientation: landscape) and (max-height: 580px) {
+  .landscape-blocker {
+    display: flex;
+  }
+}
+
+.landscape-card {
+  max-width: 320px;
+  background: #141414;
+  border: 1px solid var(--border-gold);
+  border-radius: var(--radius-card);
+  padding: 1.5rem;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.9);
+}
+
+.rotate-phone-anim {
+  font-size: 3rem;
+  margin-bottom: 0.8rem;
+  animation: rotate-phone 2s infinite ease-in-out;
+}
+
+@keyframes rotate-phone {
+  0%, 20% { transform: rotate(0deg); }
+  50%, 80% { transform: rotate(90deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.landscape-card h2 {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  color: var(--gold);
+  margin-bottom: 0.5rem;
+}
+
+.landscape-card p {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* ==========================================================================
+   TOP TURN PROGRESS BAR
+   ========================================================================== */
+.top-turn-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.top-turn-fill {
+  height: 100%;
+  width: 100%;
+  background: var(--gold);
+  box-shadow: 0 0 8px var(--gold);
+  transition: width 0.15s linear, background-color 0.3s ease;
+}
+
+/* ==========================================================================
+   HEADER
    ========================================================================== */
 .casino-header {
-  height: 58px;
-  padding: 0 16px;
+  height: 56px;
+  min-height: 56px;
+  padding: 0 1rem;
+  padding-top: var(--safe-top);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(10, 10, 10, 0.85);
+  background: rgba(10, 10, 10, 0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border-subtle);
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 100;
 }
 
 .header-left, .header-right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0.5rem;
 }
 
 .brand-logo {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 0.4rem;
 }
 
 .gold-crown {
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   filter: drop-shadow(0 0 8px var(--gold-glow));
 }
 
 .logo-title {
   font-family: var(--font-serif);
   font-weight: 800;
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   letter-spacing: 1.5px;
   background: linear-gradient(135deg, #FFF099 0%, #FFD700 50%, #B8860B 100%);
   -webkit-background-clip: text;
@@ -134,92 +344,80 @@ html, body {
 .room-code-pill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
   background: rgba(255, 215, 0, 0.08);
   border: 1px solid var(--border-gold);
   border-radius: var(--radius-pill);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: var(--gold);
   cursor: pointer;
-  transition: transform 0.15s ease, background 0.15s ease;
 }
 
-.room-code-pill:active {
-  transform: scale(0.95);
-  background: rgba(255, 215, 0, 0.15);
+.room-code-pill strong {
+  letter-spacing: 0.1em;
 }
 
 .pill-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--gold);
-  box-shadow: 0 0 6px var(--gold);
+  background: var(--emerald);
+  box-shadow: 0 0 6px var(--emerald);
 }
 
 .header-btn {
-  background: var(--bg-surface-elevated);
+  min-height: 40px;
+  min-width: 40px;
+  background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--border-subtle);
   color: var(--text-primary);
-  width: 38px;
-  height: 38px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-pill);
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 0.25rem;
+  padding: 0.35rem 0.65rem;
   cursor: pointer;
   position: relative;
-  transition: transform 0.15s ease, border-color 0.15s ease;
-}
-
-.header-btn:hover {
-  border-color: var(--border-gold);
-}
-
-.header-btn:active {
-  transform: scale(0.93);
 }
 
 .wifi-tag {
-  position: absolute;
-  bottom: -4px;
-  right: -4px;
-  background: var(--emerald);
-  color: #000;
-  font-size: 0.52rem;
-  font-weight: 900;
-  padding: 1px 3px;
-  border-radius: 3px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: var(--emerald);
 }
 
 .badge-dot {
   position: absolute;
-  top: 5px;
-  right: 5px;
-  width: 7px;
-  height: 7px;
-  background: var(--crimson);
+  top: 4px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  box-shadow: 0 0 6px var(--crimson);
+  background: var(--gold);
+  box-shadow: 0 0 6px var(--gold);
 }
 
 /* ==========================================================================
-   VIEW CONTAINERS & CARDS
+   MAIN VIEWS CONTAINER
    ========================================================================== */
 #main-view {
   flex: 1;
+  position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  position: relative;
 }
 
 .view-section {
+  flex: 1;
   display: none;
   flex-direction: column;
-  width: 100%;
-  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .view-section.active {
@@ -230,171 +428,48 @@ html, body {
   display: none !important;
 }
 
-.luxury-card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-card);
-  padding: 20px;
-  box-shadow: var(--shadow-lg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  position: relative;
-  overflow: hidden;
-}
-
-.luxury-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.4), transparent);
-}
-
 /* ==========================================================================
-   BUTTONS (TOUCH-FRIENDLY & HAPTIC FEEDBACK)
-   ========================================================================== */
-.btn {
-  font-family: var(--font-sans);
-  font-weight: 700;
-  font-size: 0.95rem;
-  min-height: 48px;
-  border-radius: var(--radius-pill);
-  border: none;
-  padding: 12px 22px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: transform 0.12s cubic-bezier(0.2, 0.9, 0.3, 1), box-shadow 0.2s ease, opacity 0.2s ease;
-  position: relative;
-  overflow: hidden;
-  text-decoration: none;
-}
-
-.btn:active {
-  transform: scale(0.95);
-}
-
-.btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  transform: none !important;
-}
-
-.btn-block {
-  width: 100%;
-}
-
-.btn-large {
-  min-height: 54px;
-  font-size: 1.05rem;
-}
-
-.btn-sm {
-  min-height: 36px;
-  padding: 6px 14px;
-  font-size: 0.8rem;
-  border-radius: var(--radius-sm);
-}
-
-/* Gold Shimmer Button */
-.btn-luxury-gold {
-  background: linear-gradient(135deg, #FFE55C 0%, #FFD700 50%, #B8860B 100%);
-  color: #0a0a0a;
-  font-weight: 900;
-  letter-spacing: 0.5px;
-  box-shadow: 0 4px 16px rgba(255, 215, 0, 0.35);
-}
-
-.btn-luxury-gold:hover:not(:disabled) {
-  box-shadow: 0 6px 24px rgba(255, 215, 0, 0.55);
-}
-
-/* Emerald Green Button */
-.btn-luxury-emerald {
-  background: linear-gradient(135deg, #00E676 0%, #00C851 50%, #007E33 100%);
-  color: #FFFFFF;
-  font-weight: 800;
-  box-shadow: 0 4px 16px rgba(0, 200, 81, 0.35);
-}
-
-.btn-luxury-emerald:hover:not(:disabled) {
-  box-shadow: 0 6px 24px rgba(0, 200, 81, 0.55);
-}
-
-/* Glass Outline Button */
-.btn-glass {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-primary);
-}
-
-.btn-glass:hover:not(:disabled) {
-  border-color: var(--border-gold);
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.btn-shine {
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(60deg, transparent 40%, rgba(255, 255, 255, 0.25) 50%, transparent 60%);
-  transform: rotate(25deg);
-  animation: button-glint 4s infinite linear;
-  pointer-events: none;
-}
-
-/* ==========================================================================
-   1. HOME SCREEN: Glowing CSS Poker Table Art & Gold Shimmer
+   1. HOME SCREEN
    ========================================================================== */
 #view-home {
-  align-items: center;
+  padding: 1rem 1rem calc(1rem + var(--safe-bottom)) 1rem;
   justify-content: center;
-  padding: 24px 16px;
-  animation: fadeIn 0.4s ease-out;
 }
 
 .home-hero-container {
-  width: 100%;
-  max-width: 420px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 1.25rem;
+  max-width: 390px;
+  margin: 0 auto;
+  width: 100%;
 }
 
-/* Pure CSS Glowing Poker Table Art */
 .poker-table-art {
-  width: 210px;
-  height: 125px;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 10px;
+  margin-top: 0.5rem;
 }
 
 .art-outer-rail {
-  width: 100%;
-  height: 100%;
-  border-radius: 65px;
-  background: linear-gradient(135deg, #382012 0%, #1a0d06 100%);
-  border: 3px solid #b8860b;
-  padding: 7px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9), 0 0 20px rgba(255, 215, 0, 0.25);
+  width: 220px;
+  height: 125px;
+  background: linear-gradient(135deg, #2b180d 0%, #150a04 100%);
+  border: 4px solid #0f0703;
+  border-radius: 70px;
+  padding: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9), inset 0 2px 4px rgba(255, 215, 0, 0.2);
 }
 
 .art-felt {
   width: 100%;
   height: 100%;
-  border-radius: 58px;
-  background: radial-gradient(ellipse at center, var(--felt-green-center) 0%, var(--felt-green-mid) 70%, var(--felt-green-edge) 100%);
-  border: 1px dashed rgba(255, 215, 0, 0.35);
+  background: radial-gradient(ellipse at center, #0d5334 0%, #083823 65%, #04190f 100%);
+  border: 1.5px dashed rgba(255, 215, 0, 0.3);
+  border-radius: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -404,7 +479,7 @@ html, body {
 .art-center-suits {
   font-size: 1.1rem;
   letter-spacing: 4px;
-  color: rgba(255, 215, 0, 0.6);
+  color: rgba(255, 215, 0, 0.65);
   text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
 }
 
@@ -414,13 +489,8 @@ html, body {
   flex-direction: column-reverse;
 }
 
-.art-chip-stack.stack-left {
-  left: 18px;
-}
-
-.art-chip-stack.stack-right {
-  right: 18px;
-}
+.art-chip-stack.stack-left { left: 16px; }
+.art-chip-stack.stack-right { right: 16px; }
 
 .art-chip {
   width: 18px;
@@ -439,21 +509,20 @@ html, body {
 .art-glow {
   position: absolute;
   width: 240px;
-  height: 150px;
-  border-radius: 75px;
+  height: 140px;
+  border-radius: 70px;
   background: radial-gradient(ellipse at center, rgba(255, 215, 0, 0.15) 0%, transparent 70%);
   z-index: -1;
   pointer-events: none;
 }
 
-/* Titles */
 .home-titles {
   text-align: center;
 }
 
 .shimmer-title {
   font-family: var(--font-serif);
-  font-size: 2.2rem;
+  font-size: 2.1rem;
   font-weight: 900;
   letter-spacing: 3px;
   line-height: 1.1;
@@ -469,10 +538,19 @@ html, body {
   font-size: 0.85rem;
   color: var(--text-muted);
   letter-spacing: 0.5px;
-  margin-top: 6px;
+  margin-top: 0.35rem;
 }
 
-/* Form */
+.luxury-card {
+  background: rgba(18, 18, 18, 0.85);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--radius-card);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
 .home-form-card {
   width: 100%;
 }
@@ -480,8 +558,8 @@ html, body {
 .form-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-bottom: 16px;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
 }
 
 .form-field label {
@@ -501,26 +579,24 @@ html, body {
 .input-icon {
   position: absolute;
   left: 14px;
-  font-size: 1rem;
+  font-size: 1.1rem;
   pointer-events: none;
 }
 
 .form-field input, .form-field select {
   width: 100%;
-  min-height: 48px;
+  min-height: 52px; /* Minimum 52px touch target */
   background: #0d0d0d;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
   padding: 12px 14px;
-  font-size: 1rem;
-  font-family: var(--font-sans);
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .input-wrapper input {
-  padding-left: 42px;
+  padding-left: 44px;
 }
 
 .form-field input:focus, .form-field select:focus {
@@ -531,7 +607,66 @@ html, body {
 .home-action-buttons {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 0.85rem;
+}
+
+.btn {
+  min-height: 52px; /* Strict mobile touch target */
+  border-radius: var(--radius-button);
+  border: none;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.12s ease, filter 0.15s ease;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.btn-luxury-gold {
+  background: linear-gradient(135deg, #FFF099 0%, #FFD700 50%, #B8860B 100%);
+  color: #0a0a0a;
+  box-shadow: 0 4px 16px var(--gold-glow);
+}
+
+.btn-luxury-emerald {
+  background: linear-gradient(135deg, #00E676 0%, #00C851 50%, #007E33 100%);
+  color: #FFFFFF;
+  box-shadow: 0 4px 16px var(--emerald-glow);
+}
+
+.btn-glass {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+}
+
+.btn-sm {
+  min-height: 44px;
+  padding: 0 1rem;
+  font-size: 0.875rem !important;
+}
+
+.btn-large {
+  min-height: 56px;
+  font-size: 1.1rem !important;
+}
+
+.btn-shine {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transform: skewX(-20deg);
+  animation: button-glint 3s infinite;
 }
 
 .gold-divider {
@@ -539,7 +674,7 @@ html, body {
   align-items: center;
   text-align: center;
   color: var(--text-muted);
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   font-weight: 800;
   letter-spacing: 1px;
 }
@@ -551,81 +686,92 @@ html, body {
 }
 
 .gold-divider span {
-  padding: 0 12px;
+  padding: 0 0.5rem;
 }
 
 .join-input-group {
-  display: flex;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
 }
 
-.join-input-group input {
-  flex: 1;
-  min-height: 48px;
+/* Large letter-spacing for 4-digit room code input */
+.room-code-input {
+  min-height: 52px;
   background: #0d0d0d;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
   color: var(--gold);
-  font-size: 1.25rem;
-  font-weight: 800;
+  font-weight: 900;
+  font-size: 1.3rem !important;
+  letter-spacing: 0.3em;
   text-align: center;
-  letter-spacing: 3px;
+  padding: 8px 12px;
   outline: none;
 }
 
-.join-input-group input:focus {
+.room-code-input:focus {
   border-color: var(--gold);
   box-shadow: 0 0 0 2px var(--gold-glow-soft);
 }
 
+.join-input-group .btn {
+  padding: 0 1.25rem;
+}
+
 .wifi-status-card {
-  margin-top: 18px;
-  padding: 10px 14px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px dashed var(--border-subtle);
-  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-size: 0.74rem;
-  color: var(--text-muted);
+  gap: 0.5rem;
+  padding: 0.65rem 0.85rem;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 0.85rem;
 }
 
 .emerald-pulse {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: var(--emerald);
   box-shadow: 0 0 8px var(--emerald);
-  animation: pulse-dot 1.6s infinite;
+  animation: pulse-dot 1.5s infinite;
 }
 
 /* ==========================================================================
    2. LOBBY SCREEN
    ========================================================================== */
 #view-lobby {
-  padding: 16px;
-  align-items: center;
+  padding: 1rem 1rem calc(1rem + var(--safe-bottom)) 1rem;
 }
 
 .lobby-container {
-  width: 100%;
-  max-width: 500px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 1rem;
+  max-width: 440px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .lobby-banner-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border: 1px solid var(--border-gold);
+  padding: 1.25rem;
+}
+
+.lobby-code-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .gold-label {
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   font-weight: 800;
   letter-spacing: 1.5px;
   color: var(--gold);
@@ -633,13 +779,11 @@ html, body {
 
 .huge-gold-code {
   font-family: var(--font-serif);
-  font-size: 2.4rem;
+  font-size: 2.2rem;
   font-weight: 900;
-  letter-spacing: 6px;
+  letter-spacing: 0.3em; /* Spec: large 0.3em letter spacing */
   color: var(--gold);
-  line-height: 1.1;
-  margin: 2px 0 8px 0;
-  text-shadow: 0 2px 14px var(--gold-glow);
+  text-shadow: 0 0 16px var(--gold-glow);
 }
 
 .lobby-qr-box {
@@ -651,21 +795,16 @@ html, body {
   align-items: center;
   cursor: pointer;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
-  transition: transform 0.15s ease;
-}
-
-.lobby-qr-box:active {
-  transform: scale(0.95);
 }
 
 .lobby-qr-box img {
-  width: 68px;
-  height: 68px;
+  width: 64px;
+  height: 64px;
   display: block;
 }
 
 .qr-scan-text {
-  font-size: 0.58rem;
+  font-size: 0.6rem;
   font-weight: 800;
   color: #0a0a0a;
   margin-top: 2px;
@@ -675,7 +814,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 14px;
+  margin-bottom: 0.75rem;
 }
 
 .card-header-row h3 {
@@ -699,13 +838,13 @@ html, body {
 .settings-inputs-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  gap: 0.75rem;
 }
 
 .guest-rules-summary {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 0.5rem;
 }
 
 .rule-chip {
@@ -721,10 +860,15 @@ html, body {
   color: var(--gold);
 }
 
+.min-players-text {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
 .roster-grid {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0.5rem;
 }
 
 .player-roster-item {
@@ -733,25 +877,25 @@ html, body {
   justify-content: space-between;
   background: #0d0d0d;
   border: 1px solid var(--border-subtle);
-  padding: 10px 14px;
+  padding: 0.65rem 0.85rem;
   border-radius: var(--radius-sm);
 }
 
 .roster-left {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0.65rem;
 }
 
 .user-avatar-circle {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 800;
-  font-size: 0.95rem;
+  font-size: 1rem;
   color: #ffffff;
   border: 1.5px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
@@ -766,21 +910,21 @@ html, body {
   font-size: 0.65rem;
   font-weight: 800;
   color: var(--gold);
-  margin-left: 6px;
+  margin-left: 4px;
 }
 
 .tag-you {
   font-size: 0.65rem;
   font-weight: 800;
   color: var(--emerald);
-  margin-left: 6px;
+  margin-left: 4px;
 }
 
 .btn-kick {
   background: transparent;
   border: 1px solid var(--crimson);
   color: var(--crimson);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 700;
   padding: 4px 10px;
   border-radius: var(--radius-pill);
@@ -791,11 +935,11 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding: 16px;
+  gap: 0.75rem;
+  padding: 1rem;
   background: rgba(255, 255, 255, 0.03);
   border-radius: var(--radius-card);
-  font-size: 0.85rem;
+  font-size: 0.875rem;
   color: var(--text-muted);
 }
 
@@ -809,19 +953,23 @@ html, body {
 }
 
 /* ==========================================================================
-   3. GAME TABLE SCREEN (CSS Oval Felt & Seated Players)
+   3. MOBILE POKER TABLE LAYOUT
+   Top half: Poker table (oval CSS shape)
+   Bottom half: Action panel fixed to bottom
    ========================================================================== */
 #view-table {
-  padding-bottom: 125px; /* Leave space for bottom action dock */
   position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .table-top-bar {
-  padding: 10px 16px;
+  padding: 0.5rem 1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(10, 10, 10, 0.85);
+  background: rgba(10, 10, 10, 0.88);
   border-bottom: 1px solid var(--border-subtle);
   position: relative;
   z-index: 20;
@@ -830,11 +978,11 @@ html, body {
 .hand-meta {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
 }
 
 .hand-id {
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 700;
   color: var(--text-muted);
 }
@@ -853,26 +1001,26 @@ html, body {
 .header-pot-pill {
   display: flex;
   align-items: center;
-  gap: 6px;
-  background: rgba(18, 18, 18, 0.9);
+  gap: 0.4rem;
+  background: rgba(18, 18, 18, 0.95);
   border: 1px solid var(--border-gold);
-  padding: 4px 12px;
+  padding: 3px 10px;
   border-radius: var(--radius-pill);
   box-shadow: 0 0 12px var(--gold-glow-soft);
 }
 
 .header-pot-pill .pot-val {
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-weight: 900;
   color: var(--gold);
 }
 
 .side-pots-strip {
   display: flex;
-  gap: 8px;
-  padding: 6px 16px;
+  gap: 0.5rem;
+  padding: 0.35rem 1rem;
   overflow-x: auto;
-  background: rgba(10, 10, 10, 0.6);
+  background: rgba(10, 10, 10, 0.7);
   border-bottom: 1px solid var(--border-subtle);
 }
 
@@ -890,37 +1038,48 @@ html, body {
   color: var(--gold);
 }
 
-/* The Table Stage */
+/* Scroll wrapper if >6 players */
+.table-stage-scroll-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(var(--dock-height) + var(--safe-bottom) + 12px);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Oval Poker Table Stage */
 .table-stage {
-  padding: 14px 8px;
+  padding: 0.75rem 0.5rem;
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
+  margin: auto 0;
 }
 
 .poker-table-bezel {
   width: 100%;
-  max-width: 680px;
+  max-width: 420px;
   background: linear-gradient(135deg, #2b180d 0%, #150a04 100%);
-  border: 5px solid #0f0703;
-  border-radius: 130px;
-  padding: 12px;
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.95), inset 0 2px 4px rgba(255, 215, 0, 0.25);
+  border: 4px solid #0f0703;
+  border-radius: 120px;
+  padding: 10px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.95), inset 0 2px 4px rgba(255, 215, 0, 0.25);
   position: relative;
 }
 
 .poker-table-felt {
   background: radial-gradient(ellipse at center, var(--felt-green-center) 0%, var(--felt-green-mid) 65%, var(--felt-green-edge) 100%);
   border: 2px dashed rgba(255, 215, 0, 0.25);
-  border-radius: 115px;
-  min-height: 490px;
+  border-radius: 108px;
+  min-height: 440px;
   position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 16px 8px;
+  padding: 1rem 0.5rem;
   box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.7);
   overflow: hidden;
 }
@@ -928,9 +1087,9 @@ html, body {
 .felt-luxury-crest {
   position: absolute;
   font-family: var(--font-serif);
-  font-size: 3rem;
+  font-size: 2.2rem;
   font-weight: 900;
-  letter-spacing: 10px;
+  letter-spacing: 8px;
   color: rgba(255, 215, 0, 0.04);
   text-align: center;
   pointer-events: none;
@@ -942,7 +1101,7 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 0.35rem;
   margin: auto;
 }
 
@@ -950,58 +1109,57 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
 }
 
 .pot-title-label {
-  font-size: 0.62rem;
+  font-size: 0.6rem;
   font-weight: 800;
   letter-spacing: 2px;
   color: rgba(255, 215, 0, 0.75);
 }
 
 .pot-number-glow {
-  background: rgba(10, 10, 10, 0.75);
+  background: rgba(10, 10, 10, 0.8);
   border: 1px solid var(--border-gold);
   border-radius: var(--radius-pill);
-  padding: 4px 18px;
+  padding: 3px 14px;
   display: flex;
   align-items: center;
-  gap: 6px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8), 0 0 20px var(--gold-glow-soft);
+  gap: 0.35rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8), 0 0 16px var(--gold-glow-soft);
 }
 
 .pot-number-glow span#center-pot-val {
   font-family: var(--font-serif);
-  font-size: 1.45rem;
+  font-size: 1.35rem;
   font-weight: 900;
   color: var(--gold);
-  letter-spacing: 1px;
 }
 
 .center-chips-row {
-  min-height: 38px;
+  min-height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .status-banner {
-  background: rgba(18, 18, 18, 0.9);
+  background: rgba(18, 18, 18, 0.95);
   border: 1px solid var(--gold);
-  padding: 4px 14px;
+  padding: 3px 12px;
   border-radius: var(--radius-pill);
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: var(--gold);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
-  animation: popIn 0.25s ease-out;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+  animation: popIn 0.2s ease-out;
 }
 
 .center-host-bar {
   display: flex;
-  gap: 8px;
-  margin-top: 4px;
+  gap: 0.5rem;
+  margin-top: 2px;
 }
 
 /* Seated Players Ring */
@@ -1011,7 +1169,16 @@ html, body {
   pointer-events: none;
 }
 
-/* Individual Player Card on Felt */
+/* ==========================================================================
+   PLAYER AVATAR CARDS (MOBILE SPEC)
+   - Compact design: 64x64px circle avatar with initials
+   - Unique pastel color per player
+   - Below avatar: name (truncated at 8 chars with ellipsis)
+   - Below name: chip count in bold gold
+   - Current turn: gold ring + scale(1.1)
+   - Folded: grayscale filter + opacity 0.4
+   - All-in badge: small red "ALL IN" pill on avatar
+   ========================================================================== */
 .seated-player {
   position: absolute;
   pointer-events: auto;
@@ -1019,66 +1186,110 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 96px;
+  width: 90px;
   transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.3s ease, filter 0.3s ease;
   z-index: 20;
 }
 
+/* 64x64px circle avatar container with SVG circular countdown ring */
 .avatar-wrapper {
   position: relative;
-  width: 56px;
-  height: 56px;
+  width: 72px;
+  height: 72px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* SVG Circular Countdown Timer Ring */
+/* Circular SVG Countdown Ring (Circumference ~ 201.06) */
 .timer-ring-svg {
   position: absolute;
   top: 0;
   left: 0;
-  width: 56px;
-  height: 56px;
+  width: 72px;
+  height: 72px;
   transform: rotate(-90deg);
   pointer-events: none;
   z-index: 6;
 }
 
 .timer-ring-bg {
-  stroke: rgba(255, 255, 255, 0.1);
+  stroke: rgba(255, 255, 255, 0.12);
 }
 
 .timer-ring-progress {
   stroke: var(--gold);
   stroke-linecap: round;
-  transition: stroke-dashoffset 0.1s linear, stroke 0.3s ease;
+  transition: stroke-dashoffset 0.12s linear, stroke 0.3s ease;
 }
 
-/* Inner Avatar */
+/* 64x64px circle avatar with pastel background and initials */
 .player-avatar-circle {
-  width: 44px;
-  height: 44px;
+  width: 58px;
+  height: 58px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 900;
-  font-size: 1rem;
-  color: #ffffff;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7);
+  font-size: 1.25rem;
+  color: #0a0a0a; /* High-contrast against pastel */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
   z-index: 4;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Current Turn: Gold Ring + Scale 1.1x */
+.seated-player.is-turn {
+  transform: translate(-50%, -50%) scale(1.1);
+  z-index: 35;
+}
+
+.seated-player.is-turn .player-avatar-circle {
+  border-color: var(--gold);
+  box-shadow: 0 0 20px var(--gold-glow);
+}
+
+.seated-player.is-turn .player-meta-box {
+  border-color: var(--gold);
+  box-shadow: 0 0 14px var(--gold-glow);
+}
+
+/* Folded State: Grayscale + Opacity 0.4 */
+.seated-player.is-folded {
+  opacity: 0.4 !important;
+  filter: grayscale(100%) !important;
+  transform: translate(-50%, -50%) scale(0.92);
+}
+
+/* Red "ALL IN" Pill Badge on Avatar */
+.badge-allin-pill {
+  position: absolute;
+  top: -4px;
+  background: var(--crimson);
+  color: #ffffff;
+  font-size: 0.58rem;
+  font-weight: 900;
+  padding: 1px 6px;
+  border-radius: var(--radius-pill);
+  box-shadow: 0 2px 6px var(--crimson-glow);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  z-index: 10;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  animation: pulse-dot 1.2s infinite;
 }
 
 /* Glossy Role Badges (D, SB, BB) */
 .role-chip-badge {
   position: absolute;
-  bottom: -4px;
-  right: -4px;
+  bottom: 0px;
+  right: 0px;
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 900;
   display: flex;
   align-items: center;
@@ -1103,20 +1314,19 @@ html, body {
   color: #0a0a0a;
 }
 
-/* Player Meta Box */
+/* Player Meta Box Below Avatar */
 .player-meta-box {
   width: 100%;
-  background: rgba(18, 18, 18, 0.92);
-  border: 1.5px solid var(--border-subtle);
+  background: rgba(18, 18, 18, 0.94);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
-  padding: 4px 6px;
-  margin-top: 4px;
+  padding: 3px 4px;
+  margin-top: 3px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
-  transition: border-color 0.25s, box-shadow 0.25s;
+  gap: 1px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
 }
 
 .player-name-line {
@@ -1126,7 +1336,7 @@ html, body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 86px;
+  max-width: 80px;
 }
 
 .you-tag {
@@ -1138,16 +1348,16 @@ html, body {
 .player-chip-counter {
   display: flex;
   align-items: center;
-  gap: 3px;
-  font-size: 0.74rem;
+  gap: 2px;
+  font-size: 0.75rem;
   font-weight: 900;
-  color: var(--gold);
+  color: var(--gold); /* Bold gold chip count */
 }
 
 .player-last-action {
-  font-size: 0.62rem;
+  font-size: 0.6rem;
   font-weight: 800;
-  padding: 1px 6px;
+  padding: 1px 5px;
   border-radius: 4px;
   white-space: nowrap;
 }
@@ -1157,24 +1367,6 @@ html, body {
 .action-call { background: rgba(0, 200, 81, 0.2); color: #2ecc71; }
 .action-raise { background: rgba(255, 215, 0, 0.25); color: #ffd700; }
 .action-allin { background: rgba(255, 255, 255, 0.25); color: #ffffff; }
-
-/* Turn Glow: Gold Border */
-.seated-player.is-turn .avatar-wrapper .player-avatar-circle {
-  border: 2px solid var(--gold);
-  box-shadow: 0 0 20px var(--gold-glow);
-}
-
-.seated-player.is-turn .player-meta-box {
-  border-color: var(--gold);
-  box-shadow: 0 0 16px var(--gold-glow);
-}
-
-/* Folded State: Grayscale & Dimmed */
-.seated-player.is-folded {
-  opacity: 0.4;
-  filter: grayscale(100%);
-  transform: translate(-50%, -50%) scale(0.92);
-}
 
 /* Current Bet on Felt */
 .player-bet-stack {
@@ -1188,10 +1380,10 @@ html, body {
 }
 
 .bet-badge-pill {
-  background: rgba(10, 10, 10, 0.85);
+  background: rgba(10, 10, 10, 0.88);
   border: 1px solid var(--gold);
   color: var(--gold);
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   font-weight: 900;
   padding: 1px 6px;
   border-radius: var(--radius-pill);
@@ -1200,25 +1392,40 @@ html, body {
 }
 
 /* ==========================================================================
-   4. ACTION PANEL (Fixed Bottom Bar - Glassmorphism)
+   4. MOBILE ACTION PANEL (FIXED BOTTOM DOCK)
+   - Height: 180px with safe area padding
+   - Glassmorphism: backdrop-filter: blur(20px), dark semi-transparent
+   - 2x2 grid button layout:
+     Row 1: Fold (red, left) | Check/Call (gold, right)
+     Row 2: Raise (green, full width)
+     Row 3: All-In (white shimmer, full width)
+   - Raise row has inline slider + chip amount display
+   - All buttons border-radius: 16px, large & thumb friendly
    ========================================================================== */
 .glass-action-dock {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
+  max-width: 500px;
+  margin: 0 auto;
+  min-height: var(--dock-height);
   background: var(--bg-glass-heavy);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(255, 215, 0, 0.2);
+  border-top: 1px solid rgba(255, 215, 0, 0.25);
   padding: 8px 12px calc(8px + var(--safe-bottom)) 12px;
   z-index: 90;
-  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.85);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.9);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
+/* Turn Timer Bar at top of Dock */
 .turn-timer-wrapper {
   position: relative;
-  height: 16px;
+  height: 14px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: var(--radius-pill);
   overflow: hidden;
@@ -1246,31 +1453,46 @@ html, body {
   text-shadow: 0 1px 2px #000;
 }
 
-.button-grid-four {
+/* 2x2 Grid Button Layout */
+.action-grid-2x2 {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.action-row-split {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
+  width: 100%;
+}
+
+.action-row-full {
+  width: 100%;
 }
 
 .btn-pill {
-  min-height: 50px;
-  border-radius: var(--radius-pill);
+  min-height: 52px; /* Strict 52px height */
+  width: 100%;
+  border-radius: var(--radius-button); /* 16px radius */
   border: none;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  padding: 6px 4px;
-  transition: transform 0.12s ease, box-shadow 0.2s ease, opacity 0.2s;
+  padding: 4px 8px;
+  transition: transform 0.12s ease, filter 0.15s ease, opacity 0.2s;
 }
 
 .btn-pill:active {
-  transform: scale(0.94);
+  transform: scale(0.96);
+  filter: brightness(0.9);
 }
 
 .btn-pill .btn-subtext {
-  font-size: 0.55rem;
+  font-size: 0.58rem;
   font-weight: 800;
   letter-spacing: 0.5px;
   opacity: 0.85;
@@ -1282,28 +1504,28 @@ html, body {
   letter-spacing: 0.5px;
 }
 
-/* 🔴 Fold: Crimson Red */
+/* Row 1: Fold (Crimson Red, left) */
 .btn-fold {
   background: linear-gradient(135deg, #FF6B6B 0%, #FF4444 50%, #CC0000 100%);
   color: #FFFFFF;
   box-shadow: 0 4px 14px var(--crimson-glow);
 }
 
-/* 🟡 Check / Call: Gold */
+/* Row 1: Check/Call (Gold, right) */
 .btn-call {
   background: linear-gradient(135deg, #FFF099 0%, #FFD700 50%, #B8860B 100%);
   color: #0a0a0a;
   box-shadow: 0 4px 14px var(--gold-glow);
 }
 
-/* 🟢 Raise: Emerald Green */
+/* Row 2: Raise (Emerald Green, full width) */
 .btn-raise {
   background: linear-gradient(135deg, #00E676 0%, #00C851 50%, #007E33 100%);
   color: #FFFFFF;
   box-shadow: 0 4px 14px var(--emerald-glow);
 }
 
-/* ⚪ All-In: White with shimmering gold border */
+/* Row 3: All-In (White with dark text & shimmering border) */
 .btn-allin {
   background: linear-gradient(135deg, #FFFFFF 0%, #F4F4F5 100%);
   color: #0a0a0a;
@@ -1311,33 +1533,33 @@ html, body {
   box-shadow: 0 4px 16px rgba(255, 255, 255, 0.4), 0 0 12px var(--gold-glow);
 }
 
-/* Raise Drawer */
+/* Custom Inline Raise Slider Drawer */
 .raise-drawer-panel {
-  margin-top: 10px;
+  margin-top: 6px;
   background: #0f0f0f;
   border: 1px solid var(--border-gold);
   border-radius: var(--radius-card);
-  padding: 12px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   animation: slideUp 0.2s ease-out;
 }
 
 .raise-presets-row {
   display: flex;
-  gap: 6px;
+  gap: 4px;
   overflow-x: auto;
 }
 
 .preset-pill {
   flex: 1;
-  min-height: 34px;
+  min-height: 36px;
   background: var(--bg-surface-elevated);
   border: 1px solid var(--border-subtle);
   color: var(--text-primary);
   border-radius: var(--radius-pill);
-  font-size: 0.74rem;
+  font-size: 0.75rem;
   font-weight: 800;
   cursor: pointer;
   white-space: nowrap;
@@ -1352,17 +1574,17 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .stepper-circle {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: var(--bg-surface-elevated);
   border: 1px solid var(--border-subtle);
   color: var(--text-primary);
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   font-weight: 800;
   cursor: pointer;
 }
@@ -1387,15 +1609,16 @@ html, body {
   background: transparent;
   border: none;
   color: var(--gold);
-  font-size: 1.3rem;
+  font-size: 1.25rem !important;
   font-weight: 900;
-  width: 100px;
+  width: 90px;
   text-align: center;
   outline: none;
 }
 
 .custom-gold-slider {
   width: 100%;
+  height: 6px;
   accent-color: var(--gold);
   cursor: pointer;
 }
@@ -1403,7 +1626,7 @@ html, body {
 .raise-confirm-footer {
   display: flex;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
 }
 
 .waiting-dock-message {
@@ -1411,9 +1634,9 @@ html, body {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 12px;
+  padding: 16px;
   color: var(--text-muted);
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   font-weight: 700;
 }
 
@@ -1426,10 +1649,10 @@ html, body {
   animation: pulse-dot 1.4s infinite;
 }
 
-/* Floating Host FAB Strip */
+/* Floating Host FAB Strip (Placed right above 180px dock) */
 .host-fab-strip {
   position: fixed;
-  bottom: 96px;
+  bottom: calc(var(--dock-height) + var(--safe-bottom) + 8px);
   right: 12px;
   display: flex;
   gap: 6px;
@@ -1459,32 +1682,60 @@ html, body {
 }
 
 /* ==========================================================================
-   5. SLIDE-IN GAME LOG & CHAT DRAWER (Right Side Glass)
+   5. MOBILE GAME LOG: SLIDE-UP BOTTOM SHEET (Replacing side panel)
    ========================================================================== */
-.glass-drawer {
+.sheet-backdrop {
   position: fixed;
-  top: 58px;
-  right: 0;
-  bottom: 0;
-  width: 320px;
-  max-width: 88vw;
-  background: rgba(14, 14, 14, 0.94);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-left: 1px solid var(--border-subtle);
-  z-index: 120;
-  display: flex;
-  flex-direction: column;
-  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.8);
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 150;
+  transition: opacity 0.3s ease;
 }
 
-.glass-drawer.closed {
-  transform: translateX(100%);
+.bottom-sheet-drawer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-width: 500px;
+  margin: 0 auto;
+  height: 68vh;
+  background: rgba(14, 14, 14, 0.96);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border-top: 1px solid var(--border-gold);
+  border-radius: 20px 20px 0 0;
+  z-index: 160;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 -8px 36px rgba(0, 0, 0, 0.9);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  padding-bottom: var(--safe-bottom);
+}
+
+.bottom-sheet-drawer.closed {
+  transform: translateY(105%);
+}
+
+.sheet-drag-handle-bar {
+  width: 100%;
+  padding: 8px 0 4px 0;
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.drag-handle-pill {
+  width: 40px;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.25);
 }
 
 .drawer-header {
-  padding: 14px 18px;
+  padding: 8px 18px 12px 18px;
   border-bottom: 1px solid var(--border-subtle);
   display: flex;
   justify-content: space-between;
@@ -1498,7 +1749,7 @@ html, body {
 }
 
 .drawer-title h3 {
-  font-size: 0.92rem;
+  font-size: 0.95rem;
   font-weight: 800;
   color: var(--text-primary);
 }
@@ -1507,21 +1758,22 @@ html, body {
   background: transparent;
   border: none;
   color: var(--text-muted);
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   cursor: pointer;
 }
 
 .drawer-messages-body {
   flex: 1;
   overflow-y: auto;
-  padding: 14px;
+  -webkit-overflow-scrolling: touch;
+  padding: 12px 16px;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
 .log-entry {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   padding: 8px 12px;
   border-radius: var(--radius-sm);
   background: rgba(255, 255, 255, 0.03);
@@ -1534,10 +1786,10 @@ html, body {
 .log-entry.log-action-call { border-left-color: var(--gold); color: #ffe277; }
 .log-entry.log-action-win { border-left-color: var(--gold); background: rgba(255, 215, 0, 0.1); color: var(--gold); font-weight: 800; }
 .log-entry.log-chat { border-left-color: #a78bfa; }
-.log-entry.log-system { border-left-color: var(--text-muted); color: var(--text-muted); font-size: 0.74rem; }
+.log-entry.log-system { border-left-color: var(--text-muted); color: var(--text-muted); font-size: 0.78rem; }
 
 .drawer-chat-footer {
-  padding: 10px 14px calc(10px + var(--safe-bottom)) 14px;
+  padding: 8px 16px;
   border-top: 1px solid var(--border-subtle);
 }
 
@@ -1548,12 +1800,12 @@ html, body {
 
 .drawer-chat-footer input {
   flex: 1;
+  min-height: 48px;
   background: #000000;
   border: 1px solid var(--border-subtle);
   color: var(--text-primary);
-  padding: 10px 12px;
+  padding: 8px 14px;
   border-radius: var(--radius-pill);
-  font-size: 0.85rem;
   outline: none;
 }
 
@@ -1565,42 +1817,124 @@ html, body {
   padding: 0 16px;
   border-radius: var(--radius-pill);
   cursor: pointer;
+  min-height: 48px;
 }
 
 /* ==========================================================================
-   6. FULLSCREEN WINNER ANNOUNCEMENT OVERLAY
+   6. PWA INSTALL BANNER
+   ========================================================================== */
+.pwa-install-banner {
+  position: fixed;
+  bottom: calc(12px + var(--safe-bottom));
+  left: 12px;
+  right: 12px;
+  max-width: 480px;
+  margin: 0 auto;
+  background: rgba(18, 18, 18, 0.95);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--radius-card);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  z-index: 180;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.9);
+  animation: slideUp 0.3s ease-out;
+}
+
+.pwa-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pwa-banner-chip {
+  font-size: 1.5rem;
+  color: var(--gold);
+  filter: drop-shadow(0 0 6px var(--gold-glow));
+}
+
+.pwa-banner-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.pwa-banner-text strong {
+  font-size: 0.85rem;
+  color: #ffffff;
+}
+
+.pwa-banner-text span {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.pwa-banner-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-pwa-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 4px;
+}
+
+/* ==========================================================================
+   7. FULLSCREEN WINNER ANNOUNCEMENT OVERLAY (Mobile z-index 9999)
+   - Full screen takeover overlay: position: fixed, z-index: 9999
+   - CSS confetti: 50 colored particles
+   - Center: trophy emoji large + winner name + amount won
+   - Subtle gold radial glow behind text
+   - Auto-dismiss after 4 seconds or tap to continue
    ========================================================================== */
 .celebration-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(5, 5, 5, 0.92);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  z-index: 300;
+  background: rgba(5, 5, 5, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  z-index: 9999; /* Strict mobile z-index 9999 */
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 1.5rem;
+  cursor: pointer; /* Tap anywhere to dismiss */
   animation: fadeIn 0.3s ease-out;
 }
 
+.celebration-backdrop-glow {
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.22) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 9998;
+}
+
 .celebration-glass-card {
-  background: linear-gradient(135deg, rgba(28, 28, 28, 0.95) 0%, rgba(14, 14, 14, 0.95) 100%);
+  background: linear-gradient(135deg, rgba(28, 28, 28, 0.96) 0%, rgba(14, 14, 14, 0.96) 100%);
   border: 2px solid var(--gold);
   border-radius: var(--radius-card);
-  padding: 36px 24px;
+  padding: 2.2rem 1.5rem;
   text-align: center;
-  max-width: 400px;
+  max-width: 380px;
   width: 100%;
   box-shadow: 0 0 50px var(--gold-glow);
   position: relative;
-  z-index: 310;
+  z-index: 10000;
   animation: popIn 0.35s cubic-bezier(0.18, 0.9, 0.3, 1.2);
 }
 
 .celebration-trophy {
-  font-size: 4rem;
-  margin-bottom: 8px;
+  font-size: 3.8rem;
+  margin-bottom: 0.5rem;
   animation: trophy-bounce 1s infinite alternate;
 }
 
@@ -1611,47 +1945,53 @@ html, body {
   letter-spacing: 3px;
   color: var(--gold);
   text-shadow: 0 0 20px var(--gold-glow);
-  margin-bottom: 8px;
+  margin-bottom: 0.5rem;
 }
 
 .celebration-desc {
   font-size: 1.15rem;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--text-primary);
-  margin-bottom: 18px;
+  margin-bottom: 1.2rem;
 }
 
 .celebration-chips-stack {
-  min-height: 50px;
+  min-height: 48px;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 1.25rem;
 }
 
-/* CSS Confetti Particle Overlay */
+.celebration-dismiss-hint {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+/* CSS Confetti Overlay */
 .confetti-particles-container {
   position: absolute;
   inset: 0;
   pointer-events: none;
   overflow: hidden;
-  z-index: 305;
+  z-index: 9999;
 }
 
 /* ==========================================================================
-   7. END OF NIGHT SUMMARY SCREEN
+   8. END OF NIGHT SUMMARY SCREEN
    ========================================================================== */
 #view-summary {
-  padding: 24px 16px calc(24px + var(--safe-bottom)) 16px;
+  padding: 1.5rem 1rem calc(1.5rem + var(--safe-bottom)) 1rem;
   align-items: center;
 }
 
 .summary-container {
   width: 100%;
-  max-width: 540px;
+  max-width: 440px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 1.25rem;
 }
 
 .summary-header {
@@ -1659,9 +1999,9 @@ html, body {
 }
 
 .giant-trophy {
-  font-size: 3.5rem;
+  font-size: 3.2rem;
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: 0.25rem;
 }
 
 .summary-subtitle {
@@ -1670,13 +2010,13 @@ html, body {
 }
 
 .summary-table-card {
-  padding: 16px;
+  padding: 1rem;
 }
 
 .summary-player-cards {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0.65rem;
 }
 
 .summary-row-card {
@@ -1686,7 +2026,7 @@ html, body {
   background: #0d0d0d;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
-  padding: 12px 16px;
+  padding: 10px 14px;
 }
 
 .summary-row-card.rank-1 {
@@ -1697,11 +2037,11 @@ html, body {
 .summary-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .rank-badge-icon {
-  font-size: 1.4rem;
+  font-size: 1.3rem;
 }
 
 .player-final-name {
@@ -1737,12 +2077,12 @@ html, body {
 
 .summary-actions-row {
   display: flex;
-  gap: 12px;
+  gap: 0.75rem;
   justify-content: center;
 }
 
 /* ==========================================================================
-   8. MODALS & TOASTS
+   9. MODALS & TOASTS
    ========================================================================== */
 .modal-backdrop {
   position: fixed;
@@ -1754,7 +2094,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  padding: 1rem;
   animation: fadeIn 0.2s ease-out;
 }
 
@@ -1763,18 +2103,18 @@ html, body {
   border: 1px solid var(--border-gold);
   border-radius: var(--radius-card);
   width: 100%;
-  max-width: 420px;
+  max-width: 400px;
   box-shadow: 0 14px 40px rgba(0, 0, 0, 0.9);
   overflow: hidden;
   animation: popIn 0.25s cubic-bezier(0.18, 0.9, 0.3, 1.2);
 }
 
 .modal-card-wide {
-  max-width: 500px;
+  max-width: 480px;
 }
 
 .modal-top {
-  padding: 16px 20px;
+  padding: 14px 18px;
   border-bottom: 1px solid var(--border-subtle);
   display: flex;
   justify-content: space-between;
@@ -1792,27 +2132,27 @@ html, body {
   background: transparent;
   border: none;
   color: var(--text-muted);
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   cursor: pointer;
 }
 
 .modal-center-qr {
-  padding: 20px;
+  padding: 16px;
   text-align: center;
 }
 
 .qr-glow-frame {
   background: #ffffff;
-  padding: 12px;
+  padding: 10px;
   border-radius: var(--radius-sm);
   display: inline-block;
   box-shadow: 0 0 25px var(--gold-glow);
-  margin: 12px 0;
+  margin: 10px 0;
 }
 
 .qr-glow-frame img {
   display: block;
-  max-width: 200px;
+  max-width: 180px;
 }
 
 .url-copy-chip {
@@ -1825,7 +2165,7 @@ html, body {
   border-radius: var(--radius-pill);
   font-size: 0.8rem;
   color: var(--gold);
-  margin-top: 10px;
+  margin-top: 8px;
 }
 
 .btn-copy-chip {
@@ -1839,32 +2179,43 @@ html, body {
   cursor: pointer;
 }
 
+.modal-code-tag {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.modal-code-tag strong {
+  color: var(--gold);
+  letter-spacing: 0.15em;
+}
+
 .modal-bottom {
-  padding: 14px 20px;
+  padding: 12px 18px;
   border-top: 1px solid var(--border-subtle);
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 8px;
 }
 
 .modal-body-fields {
-  padding: 20px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 
 .presets-row {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   margin-bottom: 6px;
 }
 
 .showdown-pots-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  max-height: 48vh;
+  gap: 10px;
+  max-height: 45vh;
   overflow-y: auto;
 }
 
@@ -1872,7 +2223,7 @@ html, body {
   background: #0d0d0d;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
-  padding: 12px;
+  padding: 10px;
 }
 
 .pot-select-header {
@@ -1902,49 +2253,93 @@ html, body {
 
 .pot-player-label input {
   accent-color: var(--gold);
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
 }
 
-/* Toast Container */
+/* ==========================================================================
+   MOBILE VISUAL TOAST NOTIFICATIONS (Slide in from top, 3s auto-hide)
+   - "Your turn!" — gold
+   - "Rahul raised to 500" — white
+   - "Priya folded" — grey
+   - "You won ₹1200!" — gold with glow
+   ========================================================================== */
 .toast-stack {
   position: fixed;
-  top: 68px;
+  top: calc(64px + var(--safe-top));
   left: 50%;
   transform: translateX(-50%);
-  z-index: 400;
+  z-index: 500;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
+  width: 90%;
+  max-width: 360px;
   pointer-events: none;
 }
 
 .toast-pill {
-  background: rgba(18, 18, 18, 0.95);
-  border: 1px solid var(--border-gold);
-  color: #ffffff;
-  padding: 8px 18px;
+  padding: 10px 18px;
   border-radius: var(--radius-pill);
-  font-size: 0.85rem;
-  font-weight: 700;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8);
+  font-size: 0.875rem;
+  font-weight: 800;
+  text-align: center;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.9);
   animation: toastIn 0.25s ease-out;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
-.toast-pill.toast-success { border-color: var(--emerald); color: #7cf8a4; }
-.toast-pill.toast-error { border-color: var(--crimson); color: #ff8e8e; }
+/* Toast Color Themes */
+.toast-pill.toast-gold {
+  background: rgba(25, 20, 0, 0.95);
+  border: 1.5px solid var(--gold);
+  color: var(--gold);
+  box-shadow: 0 0 16px var(--gold-glow);
+}
 
-/* Responsive adjustments */
+.toast-pill.toast-white {
+  background: rgba(24, 24, 27, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+}
+
+.toast-pill.toast-grey {
+  background: rgba(20, 20, 20, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #a1a1aa;
+}
+
+.toast-pill.toast-gold-glow {
+  background: rgba(30, 24, 0, 0.98);
+  border: 2px solid var(--gold);
+  color: #ffffff;
+  text-shadow: 0 0 10px var(--gold);
+  box-shadow: 0 0 25px var(--gold);
+}
+
+.toast-pill.toast-success {
+  background: rgba(0, 30, 12, 0.95);
+  border: 1.5px solid var(--emerald);
+  color: #7cf8a4;
+}
+
+.toast-pill.toast-error {
+  background: rgba(30, 5, 5, 0.95);
+  border: 1.5px solid var(--crimson);
+  color: #ff8e8e;
+}
+
+/* ==========================================================================
+   DESKTOP / WIDE SCREEN RESPONSIVE BOUNDARIES
+   ========================================================================== */
 @media (min-width: 640px) {
-  .poker-table-felt {
-    min-height: 530px;
+  #app-container {
+    border-left: 1px solid var(--border-subtle);
+    border-right: 1px solid var(--border-subtle);
   }
 
-  .glass-action-dock {
-    max-width: 580px;
-    margin: 0 auto;
-    border-radius: var(--radius-card) var(--radius-card) 0 0;
-    border-left: 1px solid rgba(255, 215, 0, 0.2);
-    border-right: 1px solid rgba(255, 215, 0, 0.2);
+  .poker-table-felt {
+    min-height: 480px;
   }
 }

@@ -1,11 +1,59 @@
 // ==========================================================================
-// POKER NIGHT - HIGH-STAKES CASINO FRONTEND CONTROLLER
+// POKER NIGHT - MOBILE-FIRST CASINO PROGRESSIVE WEB APP (PWA)
 // UI/UX Pro Max Engine
 // ==========================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
   const client = window.pokerClient;
   const audio = window.pokerAudio;
+
+  // --- PWA SERVICE WORKER & SPLASH SCREEN ---
+  const elPwaSplash = document.getElementById('pwa-splash');
+  const elPwaInstallBanner = document.getElementById('pwa-install-banner');
+  const elBtnPwaInstall = document.getElementById('btn-pwa-install');
+  const elBtnPwaDismiss = document.getElementById('btn-pwa-dismiss');
+  let deferredInstallPrompt = null;
+
+  // Dismiss splash after brief luxury intro
+  setTimeout(() => {
+    elPwaSplash?.classList.add('splash-faded');
+  }, 450);
+
+  // Register Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js').then((reg) => {
+        console.log('[PWA] ServiceWorker registered:', reg.scope);
+      }).catch((err) => {
+        console.warn('[PWA] ServiceWorker registration failed:', err);
+      });
+    });
+  }
+
+  // Handle PWA Install Prompt
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    if (!isStandalone && !sessionStorage.getItem('pwa_dismissed')) {
+      elPwaInstallBanner?.classList.remove('hidden');
+    }
+  });
+
+  elBtnPwaInstall?.addEventListener('click', async () => {
+    if (deferredInstallPrompt) {
+      deferredInstallPrompt.prompt();
+      const { outcome } = await deferredInstallPrompt.userChoice;
+      console.log('[PWA] Install prompt outcome:', outcome);
+      deferredInstallPrompt = null;
+      elPwaInstallBanner?.classList.add('hidden');
+    }
+  });
+
+  elBtnPwaDismiss?.addEventListener('click', () => {
+    elPwaInstallBanner?.classList.add('hidden');
+    sessionStorage.setItem('pwa_dismissed', 'true');
+  });
 
   // DOM Elements - Header
   const elHeaderRoomCode = document.getElementById('header-room-code');
@@ -16,11 +64,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const elBtnLogToggle = document.getElementById('btn-log-toggle');
   const elUnreadLogBadge = document.getElementById('unread-log-badge');
   const elDrawerLog = document.getElementById('drawer-log');
+  const elBottomSheetBackdrop = document.getElementById('bottom-sheet-backdrop');
   const elBtnCloseLog = document.getElementById('btn-close-log');
   const elChatForm = document.getElementById('chat-form');
   const elChatInput = document.getElementById('chat-input');
   const elGameLogMessages = document.getElementById('game-log-messages');
   const elScreenFlashOverlay = document.getElementById('screen-flash-overlay');
+  const elTopTurnProgressBar = document.getElementById('top-turn-progress-bar');
+  const elTopTurnFill = document.getElementById('top-turn-fill');
 
   // Views
   const views = {
@@ -68,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const elBtnNextHand = document.getElementById('btn-next-hand');
   const elPokerPlayersLayer = document.getElementById('poker-players-layer');
 
-  // Turn Controls Dock
+  // Turn Controls Dock (Fixed 180px Mobile Panel)
   const elTurnTimerBar = document.getElementById('turn-timer-bar');
   const elTimerPlayerName = document.getElementById('timer-player-name');
   const elTimerSecondsLeft = document.getElementById('timer-seconds-left');
@@ -76,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const elWaitingDock = document.getElementById('waiting-dock');
   const elWaitingStatusText = document.getElementById('waiting-status-text');
 
-  // Action Buttons
+  // Action Buttons (2x2 Grid)
   const elBtnActionFold = document.getElementById('btn-action-fold');
   const elBtnActionCheckCall = document.getElementById('btn-action-check-call');
   const elBtnCheckCallText = document.getElementById('btn-check-call-text');
@@ -135,28 +186,49 @@ document.addEventListener('DOMContentLoaded', () => {
   let isRaiseDrawerOpen = false;
   let lastWinnerResult = null;
   let wakeLockSentinel = null;
+  let winnerDismissTimer = null;
+  let wasMyTurn = false;
+  let lastSecondVibrated = null;
 
-  // Vibrant Casino Avatar Gradients
-  const AVATAR_GRADIENTS = [
-    'linear-gradient(135deg, #3B82F6, #1D4ED8)', // Sapphire
-    'linear-gradient(135deg, #10B981, #047857)', // Emerald
-    'linear-gradient(135deg, #F59E0B, #B45309)', // Amber
-    'linear-gradient(135deg, #EC4899, #BE185D)', // Ruby
-    'linear-gradient(135deg, #8B5CF6, #6D28D9)', // Amethyst
-    'linear-gradient(135deg, #06B6D4, #0E7490)', // Diamond
-    'linear-gradient(135deg, #F97316, #C2410C)', // Topaz
-    'linear-gradient(135deg, #64748B, #334155)'  // Onyx
+  // Unique Pastel Palette for Mobile Avatars
+  const PASTEL_PALETTE = [
+    { bg: '#FFB3BA', color: '#4A151B' }, // Pastel Rose
+    { bg: '#BAFFC9', color: '#143D1F' }, // Pastel Mint
+    { bg: '#BAE1FF', color: '#133352' }, // Pastel Sky
+    { bg: '#FFFFBA', color: '#524B13' }, // Pastel Butter
+    { bg: '#E8BAFF', color: '#3E1352' }, // Pastel Lilac
+    { bg: '#FFDFBA', color: '#523013' }, // Pastel Peach
+    { bg: '#BFFCC6', color: '#114720' }, // Pastel Pistachio
+    { bg: '#D5BAFF', color: '#2B1352' }  // Pastel Violet
   ];
 
-  function getAvatarGradient(id) {
-    if (!id) return AVATAR_GRADIENTS[0];
+  function getPastelTheme(id) {
+    if (!id) return PASTEL_PALETTE[0];
     let hash = 0;
     for (let i = 0; i < id.length; i++) {
       hash = (hash << 5) - hash + id.charCodeAt(i);
       hash |= 0;
     }
-    const idx = Math.abs(hash) % AVATAR_GRADIENTS.length;
-    return AVATAR_GRADIENTS[idx];
+    const idx = Math.abs(hash) % PASTEL_PALETTE.length;
+    return PASTEL_PALETTE[idx];
+  }
+
+  // Truncate player name at 8 characters with ellipsis (spec requirement)
+  function truncateName(name, maxChars = 8) {
+    if (!name) return 'Player';
+    if (name.length > maxChars) {
+      return name.slice(0, maxChars) + '...';
+    }
+    return name;
+  }
+
+  // Mobile Vibration API Helper
+  function vibrateDevice(pattern) {
+    if ('vibrate' in navigator) {
+      try {
+        navigator.vibrate(pattern);
+      } catch (e) {}
+    }
   }
 
   // Prepopulate saved player name
@@ -182,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
   elBtnSoundToggle.addEventListener('click', () => {
     const isNowOn = audio.toggle();
     updateSoundIcon();
-    showToast(isNowOn ? 'Sound enabled' : 'Sound muted');
+    showToast(isNowOn ? 'Sound enabled' : 'Sound muted', 'white');
   });
 
   // Screen Wake Lock API
@@ -233,22 +305,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Toast Notification
-  function showToast(message, type = 'info') {
+  // Visual Toast Notifications (Slide in from top, 3s auto-hide)
+  // Types: gold, white, grey, gold-glow, success, error
+  function showToast(message, type = 'gold') {
     const toast = document.createElement('div');
     toast.className = `toast-pill toast-${type}`;
     toast.textContent = message;
     elToastContainer.appendChild(toast);
     setTimeout(() => {
       toast.remove();
-    }, 2800);
+    }, 3000);
   }
 
   // Copy Link Helper
   function copyTextToClipboard(text, successMsg = 'Link copied to clipboard!') {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(() => {
-        showToast(successMsg, 'success');
+        showToast(successMsg, 'gold');
       }).catch(() => fallbackCopy(text, successMsg));
     } else {
       fallbackCopy(text, successMsg);
@@ -262,7 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ta.select();
     document.execCommand('copy');
     ta.remove();
-    showToast(successMsg, 'success');
+    showToast(successMsg, 'gold');
   }
 
   // Fetch WiFi info on home view
@@ -287,7 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Animated Number Roll Counter
-  function animateNumber(element, start, end, duration = 400) {
+  function animateNumber(element, start, end, duration = 350) {
     if (!element || start === end) return;
     const startTime = performance.now();
     const diff = end - start;
@@ -322,7 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
       elBtnCreateGame.disabled = true;
       const res = await client.createGame(name, config);
       elBtnCreateGame.disabled = false;
-      showToast(`Table created! Room: ${res.roomId}`, 'success');
+      showToast(`Table created! Room: ${res.roomId}`, 'gold');
       loadNetworkInfo(res.roomId);
     } catch (err) {
       elBtnCreateGame.disabled = false;
@@ -404,7 +477,8 @@ document.addEventListener('DOMContentLoaded', () => {
     copyTextToClipboard(elModalShareUrl.textContent, 'WiFi URL copied!');
   });
 
-  // --- ACTION CONTROLS ---
+  // --- 2x2 ACTION CONTROLS ---
+  // Row 1 Left: Fold
   elBtnActionFold.addEventListener('click', async () => {
     try {
       audio.playFold();
@@ -414,6 +488,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Row 1 Right: Check / Call
   elBtnActionCheckCall.addEventListener('click', async () => {
     try {
       const opts = client.currentState?.playerTurnOptions;
@@ -431,6 +506,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Row 2: Raise Toggle & Drawer
+  elBtnToggleRaise.addEventListener('click', () => {
+    isRaiseDrawerOpen = !isRaiseDrawerOpen;
+    elRaiseDrawer.classList.toggle('hidden', !isRaiseDrawerOpen);
+    if (isRaiseDrawerOpen) {
+      syncRaiseInputs();
+    }
+  });
+
+  // Row 3: All-In
   elBtnActionAllIn.addEventListener('click', async () => {
     try {
       triggerScreenFlash();
@@ -438,15 +523,6 @@ document.addEventListener('DOMContentLoaded', () => {
       await client.sendAction('allin');
     } catch (err) {
       showToast(err.message, 'error');
-    }
-  });
-
-  // Raise Drawer Toggle & Slider
-  elBtnToggleRaise.addEventListener('click', () => {
-    isRaiseDrawerOpen = !isRaiseDrawerOpen;
-    elRaiseDrawer.classList.toggle('hidden', !isRaiseDrawerOpen);
-    if (isRaiseDrawerOpen) {
-      syncRaiseInputs();
     }
   });
 
@@ -569,7 +645,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       await client.rebuy(targetPlayerId, amount);
       elModalRebuy.classList.add('hidden');
-      showToast('Chips added successfully!', 'success');
+      showToast('Chips added successfully!', 'gold');
     } catch (err) {
       showToast(err.message, 'error');
     }
@@ -598,19 +674,29 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  elBtnCloseCelebration.addEventListener('click', () => {
-    elCelebrationOverlay.classList.add('hidden');
-  });
-
-  // Game Log Drawer
-  elBtnLogToggle.addEventListener('click', () => {
-    elDrawerLog.classList.toggle('closed');
+  // --- MOBILE BOTTOM SHEET GAME LOG & CHAT ---
+  function openLogDrawer() {
+    elDrawerLog.classList.remove('closed');
+    elBottomSheetBackdrop.classList.remove('hidden');
     elUnreadLogBadge.classList.add('hidden');
+  }
+
+  function closeLogDrawer() {
+    elDrawerLog.classList.add('closed');
+    elBottomSheetBackdrop.classList.add('hidden');
+  }
+
+  elBtnLogToggle.addEventListener('click', () => {
+    if (elDrawerLog.classList.contains('closed')) {
+      openLogDrawer();
+    } else {
+      closeLogDrawer();
+    }
   });
 
-  elBtnCloseLog.addEventListener('click', () => {
-    elDrawerLog.classList.add('closed');
-  });
+  elBtnCloseLog.addEventListener('click', closeLogDrawer);
+  elBottomSheetBackdrop.addEventListener('click', closeLogDrawer);
+  document.querySelector('.sheet-drag-handle-bar')?.addEventListener('click', closeLogDrawer);
 
   elChatForm.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -687,11 +773,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const initial = p.name ? p.name.charAt(0).toUpperCase() : '?';
       const isHost = p.id === state.hostId;
-      const grad = getAvatarGradient(p.id);
+      const theme = getPastelTheme(p.id);
 
       item.innerHTML = `
         <div class="roster-left">
-          <div class="user-avatar-circle" style="background: ${grad}">${initial}</div>
+          <div class="user-avatar-circle" style="background: ${theme.bg}; color: ${theme.color};">${initial}</div>
           <div>
             <span class="roster-name">${escapeHtml(p.name)}</span>
             ${isHost ? '<span class="tag-host">👑 Host</span>' : ''}
@@ -763,7 +849,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Render Seated Players Around the Oval Table with SVG Circular Timer Ring
+  // Render Seated Players Around the Oval Table
+  // Geometry: Top row = opponents, Bottom = current player info, Center = Pot
   function renderTablePlayers(state) {
     elPokerPlayersLayer.innerHTML = '';
     const players = state.players || [];
@@ -778,10 +865,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const cx = 50;
     const cy = 50;
 
-    // SVG Timer Circumference for r=26: 2 * PI * 26 ≈ 163.36
-    const CIRCUMFERENCE = 163.36;
+    // SVG Timer Circumference for r=32: 2 * Math.PI * 32 ≈ 201.06
+    const CIRCUMFERENCE = 201.06;
 
     players.forEach((player, idx) => {
+      // Seat offset places current player ("you") at bottom (angle = PI/2)
       const seatOffset = (idx - youIndex + count) % count;
       const angle = (Math.PI / 2) + (seatOffset * (2 * Math.PI / count));
 
@@ -800,7 +888,8 @@ document.addEventListener('DOMContentLoaded', () => {
       card.style.top = `${posY}%`;
 
       const initial = player.name ? player.name.charAt(0).toUpperCase() : '?';
-      const grad = getAvatarGradient(player.id);
+      const theme = getPastelTheme(player.id);
+      const displayName = truncateName(player.name, 8); // Truncate at 8 chars with ellipsis
 
       // Role Chip Badge (D, SB, BB)
       let roleHtml = '';
@@ -811,6 +900,10 @@ document.addEventListener('DOMContentLoaded', () => {
       } else if (player.role === 'bb') {
         roleHtml = `<div class="role-chip-badge badge-bb" title="Big Blind">BB</div>`;
       }
+
+      // All-In Badge (Small red pill on avatar)
+      const isAllIn = player.isAllIn || (player.chips === 0 && player.currentBet > 0 && !player.isFolded);
+      const allInHtml = isAllIn ? `<div class="badge-allin-pill">ALL IN</div>` : '';
 
       // Action pill styling
       let actionClass = 'action-check';
@@ -825,19 +918,21 @@ document.addEventListener('DOMContentLoaded', () => {
       card.innerHTML = `
         <div class="avatar-wrapper">
           <!-- Circular SVG Countdown Ring -->
-          <svg class="timer-ring-svg" viewBox="0 0 60 60">
-            <circle class="timer-ring-bg" cx="30" cy="30" r="26" fill="transparent" stroke-width="3" />
-            <circle id="timer-ring-progress-${player.id}" class="timer-ring-progress" cx="30" cy="30" r="26" fill="transparent" stroke-width="3"
+          <svg class="timer-ring-svg" viewBox="0 0 72 72">
+            <circle class="timer-ring-bg" cx="36" cy="36" r="32" fill="transparent" stroke-width="3.5" />
+            <circle id="timer-ring-progress-${player.id}" class="timer-ring-progress" cx="36" cy="36" r="32" fill="transparent" stroke-width="3.5"
               stroke-dasharray="${CIRCUMFERENCE}" stroke-dashoffset="${player.isTurn ? 0 : CIRCUMFERENCE}" />
           </svg>
 
-          <div class="player-avatar-circle" style="background: ${grad}">${initial}</div>
+          <!-- 64x64px Circle Avatar with Initials & Pastel Color -->
+          <div class="player-avatar-circle" style="background: ${theme.bg}; color: ${theme.color};">${initial}</div>
           ${roleHtml}
+          ${allInHtml}
         </div>
 
         <div class="player-meta-box">
           <div class="player-name-line">
-            <span>${escapeHtml(player.name)}</span>
+            <span>${escapeHtml(displayName)}</span>
             ${player.isYou ? '<span class="you-tag">(YOU)</span>' : ''}
           </div>
           <div class="player-chip-counter">
@@ -867,17 +962,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- RENDER TURN CONTROLS & SVG CIRCULAR TIMER RING ---
+  // --- RENDER TURN CONTROLS, SVG TIMER & HAPTIC VIBRATIONS ---
   function renderTurnDock(state) {
     const isYourTurn = state.currentTurnPlayerId && state.players.some(p => p.id === state.currentTurnPlayerId && p.isYou);
     const turnPlayer = state.players.find(p => p.id === state.currentTurnPlayerId);
 
-    clearInterval(timerInterval);
+    // Turn transition vibration: Your turn starts -> long vibrate [100, 50, 100]
+    if (isYourTurn && !wasMyTurn) {
+      vibrateDevice([100, 50, 100]);
+      showToast('Your turn!', 'gold');
+    }
+    wasMyTurn = isYourTurn;
 
-    const CIRCUMFERENCE = 163.36;
+    clearInterval(timerInterval);
+    const CIRCUMFERENCE = 201.06;
 
     if (state.turnExpiresAt && state.currentTurnPlayerId) {
       elTurnTimerBar.parentElement.classList.remove('hidden');
+      elTopTurnProgressBar.classList.remove('hidden');
 
       const updateTimer = () => {
         const remainingMs = Math.max(0, state.turnExpiresAt - Date.now());
@@ -885,12 +987,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const totalDuration = (state.turnTimeLimit || 30) * 1000;
         const pct = Math.max(0, Math.min(100, (remainingMs / totalDuration) * 100));
 
-        // Update bottom timer bar
+        // Update bottom dock timer bar
         elTurnTimerBar.style.width = `${pct}%`;
         elTimerSecondsLeft.textContent = `${seconds}s`;
-        elTimerPlayerName.textContent = isYourTurn ? 'Your Turn to Act!' : `${turnPlayer?.name || 'Player'}'s turn`;
+        elTimerPlayerName.textContent = isYourTurn ? 'Your Turn to Act!' : `${truncateName(turnPlayer?.name || 'Player', 8)}'s turn`;
 
-        // Update active player's circular SVG timer ring
+        // Update top screen thin progress bar
+        elTopTurnFill.style.width = `${pct}%`;
+
+        // Update active player's circular SVG countdown ring
         const ringCircle = document.getElementById(`timer-ring-progress-${state.currentTurnPlayerId}`);
         const seatCard = document.getElementById(`player-seat-${state.currentTurnPlayerId}`);
 
@@ -898,17 +1003,27 @@ document.addEventListener('DOMContentLoaded', () => {
           const offset = CIRCUMFERENCE * (1 - pct / 100);
           ringCircle.style.strokeDashoffset = offset;
 
-          // Color Transition: Gold -> Orange -> Crimson
+          // Colors: Gold (30s) -> Orange (15s) -> Red (5s)
           if (seconds > 15) {
             ringCircle.style.stroke = '#FFD700';
+            elTopTurnFill.style.backgroundColor = '#FFD700';
             seatCard?.classList.remove('urgent-turn-pulse');
           } else if (seconds > 5) {
             ringCircle.style.stroke = '#FF8800';
+            elTopTurnFill.style.backgroundColor = '#FF8800';
             seatCard?.classList.remove('urgent-turn-pulse');
           } else {
+            // At 5s: avatar pulses with red glow
             ringCircle.style.stroke = '#FF4444';
+            elTopTurnFill.style.backgroundColor = '#FF4444';
             seatCard?.classList.add('urgent-turn-pulse');
             audio.playTimerTick();
+
+            // Mobile Haptic Feedback: Timer warning (5s left) -> short pulse [50] every second
+            if (seconds !== lastSecondVibrated && seconds <= 5 && seconds > 0) {
+              lastSecondVibrated = seconds;
+              vibrateDevice([50]);
+            }
           }
         }
       };
@@ -917,9 +1032,10 @@ document.addEventListener('DOMContentLoaded', () => {
       timerInterval = setInterval(updateTimer, 150);
     } else {
       elTurnTimerBar.parentElement.classList.add('hidden');
+      elTopTurnProgressBar.classList.add('hidden');
     }
 
-    // Toggle Action Dock
+    // Toggle 2x2 Action Dock
     if (isYourTurn && state.playerTurnOptions) {
       elTurnControls.classList.remove('hidden');
       elWaitingDock.classList.add('hidden');
@@ -942,7 +1058,7 @@ document.addEventListener('DOMContentLoaded', () => {
       elTurnControls.classList.add('hidden');
       elWaitingDock.classList.remove('hidden');
       if (turnPlayer) {
-        elWaitingStatusText.textContent = `Waiting for ${turnPlayer.name} to act...`;
+        elWaitingStatusText.textContent = `Waiting for ${truncateName(turnPlayer.name, 10)} to act...`;
       } else if (state.street === 'showdown') {
         elWaitingStatusText.textContent = 'Showdown! Host is awarding the pot...';
       } else if (state.street === 'hand_ended') {
@@ -1014,11 +1130,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // --- FULLSCREEN WINNER ANNOUNCEMENT & CONFETTI ---
+  // --- FULLSCREEN WINNER ANNOUNCEMENT & CONFETTI (Mobile z-index 9999) ---
   function spawnConfetti() {
     elConfettiContainer.innerHTML = '';
-    const colors = ['#FFD700', '#00C851', '#FF4444', '#FFFFFF', '#FFE55C'];
-    for (let i = 0; i < 40; i++) {
+    const colors = ['#FFD700', '#00C851', '#FF4444', '#FFFFFF', '#FFE55C', '#38BDF8'];
+    // 50 CSS colored confetti particles (per mobile spec)
+    for (let i = 0; i < 50; i++) {
       const piece = document.createElement('div');
       piece.className = 'confetti-piece';
       piece.style.left = `${Math.random() * 100}%`;
@@ -1026,7 +1143,7 @@ document.addEventListener('DOMContentLoaded', () => {
       piece.style.setProperty('--drift', `${(Math.random() - 0.5) * 160}px`);
       piece.style.setProperty('--rot', `${Math.random() * 720}deg`);
       piece.style.animationDelay = `${Math.random() * 1.5}s`;
-      piece.style.animationDuration = `${2.5 + Math.random() * 1.5}s`;
+      piece.style.animationDuration = `${2.4 + Math.random() * 1.6}s`;
       elConfettiContainer.appendChild(piece);
     }
   }
@@ -1037,6 +1154,15 @@ document.addEventListener('DOMContentLoaded', () => {
     lastWinnerResult = handNum;
 
     audio.playWinFanfare();
+
+    // Check if current user is one of the winners
+    const youWon = result.winners?.some(w => w.id === client.playerId);
+    if (youWon) {
+      // You win pot -> celebration vibrate [200, 100, 200, 100, 400]
+      vibrateDevice([200, 100, 200, 100, 400]);
+      showToast(`You won 🪙 ${result.winners.find(w => w.id === client.playerId)?.amount || ''}!`, 'gold-glow');
+    }
+
     elWinnerCelebrationDesc.textContent = result.message || 'Pot awarded to winner!';
 
     const totalChips = result.winners?.reduce((sum, w) => sum + w.amount, 0) || 500;
@@ -1044,7 +1170,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     spawnConfetti();
     elCelebrationOverlay.classList.remove('hidden');
+
+    // Auto-dismiss after 4 seconds per mobile spec
+    clearTimeout(winnerDismissTimer);
+    winnerDismissTimer = setTimeout(() => {
+      elCelebrationOverlay.classList.add('hidden');
+    }, 4000);
   }
+
+  // Tap anywhere on celebration overlay to continue
+  elCelebrationOverlay.addEventListener('click', () => {
+    clearTimeout(winnerDismissTimer);
+    elCelebrationOverlay.classList.add('hidden');
+  });
+
+  elBtnCloseCelebration.addEventListener('click', (e) => {
+    e.stopPropagation();
+    clearTimeout(winnerDismissTimer);
+    elCelebrationOverlay.classList.add('hidden');
+  });
 
   // --- END OF NIGHT SUMMARY LEDGER ---
   function renderLeaderboard(leaderboard) {
@@ -1079,7 +1223,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- ACTION LOG DRAWER ---
+  // --- ACTION LOG DRAWER & MOBILE VISUAL TOASTS ---
   function renderActionLogs(logs) {
     if (!Array.isArray(logs) || logs.length === 0) return;
 
@@ -1091,12 +1235,23 @@ document.addEventListener('DOMContentLoaded', () => {
         elUnreadLogBadge.classList.remove('hidden');
       }
 
+      const text = latest.text.toLowerCase();
+
+      // Parse and display mobile visual toast
+      if (text.includes('raised to') || text.includes('all-in')) {
+        showToast(latest.text, 'white');
+      } else if (text.includes('folded')) {
+        showToast(latest.text, 'grey');
+      } else if (text.includes('won') || latest.type === 'win') {
+        showToast(latest.text, 'gold-glow');
+      }
+
       if (['action', 'win'].includes(latest.type)) {
         elBannerText.textContent = latest.text;
         elTableActionBanner.classList.remove('hidden');
         setTimeout(() => {
           elTableActionBanner.classList.add('hidden');
-        }, 3500);
+        }, 3200);
       }
     }
 
@@ -1130,6 +1285,6 @@ document.addEventListener('DOMContentLoaded', () => {
               .replace(/'/g, '&#039;');
   }
 
-  // Initialize socket client
+  // Initialize socket client (handles auto-reconnect from localStorage)
   client.init();
 });
