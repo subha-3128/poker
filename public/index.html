@@ -7,7 +7,7 @@
   
   <!-- PWA Metadata & Standalone Mode -->
   <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#FFD700">
+  <meta name="theme-color" content="#0a0a0a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,10 +15,10 @@
   <link rel="apple-touch-icon" href="/icons/icon-192.png">
   <link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512.png">
 
-  <!-- Google Fonts: Playfair Display (Serif) & Inter (Sans-serif) -->
+  <!-- Google Fonts: Cinzel (High-Roller Roman Serif), Playfair Display (Luxury Accent) & Inter (Precision Sans) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;0,800;0,900;1,600;1,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;0,800;0,900;1,600;1,700&display=swap" rel="stylesheet">
   
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/animations.css">
@@ -28,9 +28,21 @@
   <!-- PWA Initial Splash Screen (Fades out when app is ready) -->
   <div id="pwa-splash" class="pwa-splash-screen">
     <div class="splash-inner">
-      <div class="splash-chip-emblem">♠</div>
+      <div class="splash-chip-emblem">
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="url(#goldGradSplash)">
+          <defs>
+            <linearGradient id="goldGradSplash" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FFE58F"/>
+              <stop offset="50%" stop-color="#C59B27"/>
+              <stop offset="100%" stop-color="#8C6212"/>
+            </linearGradient>
+          </defs>
+          <path d="M12 2C9.5 7 4 11 4 15.5C4 18.5 6.5 21 9.5 21C10.5 21 11.4 20.6 12 20C12.6 20.6 13.5 21 14.5 21C17.5 21 20 18.5 20 15.5C20 11 14.5 7 12 2Z"/>
+          <path d="M10 21H14V23H10V21Z"/>
+        </svg>
+      </div>
       <h1 class="splash-brand-title">POKER NIGHT</h1>
-      <p class="splash-tag">HIGH-STAKES CASINO APP</p>
+      <p class="splash-tag">HIGH-STAKES PRIVATE SALON</p>
       <div class="splash-loading-bar">
         <div class="splash-loading-fill"></div>
       </div>
@@ -40,9 +52,16 @@
   <!-- Mobile Landscape Warning Overlay (Prompts user to rotate to portrait) -->
   <div id="landscape-warning" class="landscape-blocker">
     <div class="landscape-card">
-      <div class="rotate-phone-anim">📱</div>
+      <div class="rotate-phone-anim">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#C59B27" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="2" width="16" height="20" rx="3" ry="3"/>
+          <line x1="12" y1="18" x2="12.01" y2="18"/>
+          <path d="M2 8L4 5L6 8"/>
+          <path d="M22 16L20 19L18 16"/>
+        </svg>
+      </div>
       <h2>Please Rotate to Portrait</h2>
-      <p>Poker Night is tailored for portrait mode on mobile devices for the best casino experience.</p>
+      <p>Poker Night is tailored for portrait mode on mobile devices for the most immersive casino experience.</p>
     </div>
   </div>
 
@@ -60,30 +79,48 @@
     <header id="app-header" class="casino-header">
       <div class="header-left">
         <div class="brand-logo">
-          <span class="gold-crown">👑</span>
+          <svg class="gold-crown-svg" width="20" height="20" viewBox="0 0 24 24" fill="url(#crownGold)">
+            <defs>
+              <linearGradient id="crownGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FFE899"/>
+                <stop offset="50%" stop-color="#D4AF37"/>
+                <stop offset="100%" stop-color="#997A15"/>
+              </linearGradient>
+            </defs>
+            <path d="M3 16L5 8L9.5 12L12 5L14.5 12L19 8L21 16H3Z"/>
+            <path d="M3 18H21V20H3V18Z"/>
+          </svg>
           <span class="logo-title">POKER NIGHT</span>
         </div>
         <div id="room-code-badge" class="room-code-pill hidden" title="Click to copy invite link">
           <span class="pill-dot"></span>
           <span>ROOM <strong id="header-room-code">----</strong></span>
-          <span class="pill-copy">📋</span>
+          <svg class="pill-copy-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
         </div>
       </div>
       <div class="header-right">
         <button id="btn-qr-modal" class="header-btn" title="Scan QR Code to Join on WiFi" aria-label="QR Code">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="3" width="7" height="7"></rect>
-            <rect x="14" y="3" width="7" height="7"></rect>
-            <rect x="14" y="14" width="7" height="7"></rect>
-            <rect x="3" y="14" width="7" height="7"></rect>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+            <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+            <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+            <rect x="3" y="14" width="7" height="7" rx="1"></rect>
           </svg>
           <span class="wifi-tag">WIFI</span>
         </button>
         <button id="btn-sound-toggle" class="header-btn" title="Toggle Sound" aria-label="Sound Toggle">
-          <span id="sound-icon">🔊</span>
+          <svg id="sound-icon-svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
         </button>
         <button id="btn-log-toggle" class="header-btn" title="Game History & Chat" aria-label="Logs & Chat">
-          <span>💬</span>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
           <span id="unread-log-badge" class="badge-dot hidden"></span>
         </button>
       </div>
@@ -94,20 +131,23 @@
       <!-- 1. HOME SCREEN: Ultra-Premium Dark Casino Landing -->
       <section id="view-home" class="view-section active">
         <div class="home-hero-container">
-          <!-- CSS-Only Glowing Poker Table Art -->
+          <!-- CSS-Only High-End Poker Table Artwork with Gold Bevel -->
           <div class="poker-table-art">
             <div class="art-outer-rail">
-              <div class="art-felt">
-                <div class="art-center-suits">♠ ♥ ♦ ♣</div>
-                <div class="art-chip-stack stack-left">
-                  <div class="art-chip c-gold"></div>
-                  <div class="art-chip c-emerald"></div>
-                  <div class="art-chip c-crimson"></div>
-                </div>
-                <div class="art-chip-stack stack-right">
-                  <div class="art-chip c-crimson"></div>
-                  <div class="art-chip c-gold"></div>
-                  <div class="art-chip c-white"></div>
+              <div class="art-inner-rim">
+                <div class="art-felt">
+                  <div class="art-inner-track"></div>
+                  <div class="art-center-suits">♠ &nbsp; ♥ &nbsp; ♦ &nbsp; ♣</div>
+                  <div class="art-chip-stack stack-left">
+                    <div class="art-chip c-gold"></div>
+                    <div class="art-chip c-emerald"></div>
+                    <div class="art-chip c-crimson"></div>
+                  </div>
+                  <div class="art-chip-stack stack-right">
+                    <div class="art-chip c-crimson"></div>
+                    <div class="art-chip c-gold"></div>
+                    <div class="art-chip c-white"></div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -124,7 +164,12 @@
             <div class="form-field">
               <label for="input-player-name">Player Alias</label>
               <div class="input-wrapper">
-                <span class="input-icon">👤</span>
+                <span class="input-icon">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#A18238" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                </span>
                 <input type="text" id="input-player-name" placeholder="Enter your name" maxlength="15" autocomplete="off" style="font-size: 16px;">
               </div>
             </div>
@@ -133,7 +178,10 @@
             <div class="home-action-buttons">
               <button id="btn-create-game" class="btn btn-luxury-gold btn-block">
                 <span class="btn-shine"></span>
-                <span class="btn-icon">👑</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M3 16L5 8L9.5 12L12 5L14.5 12L19 8L21 16H3Z"/>
+                  <path d="M3 18H21V20H3V18Z"/>
+                </svg>
                 <span class="btn-text">Create Table</span>
               </button>
 
@@ -142,7 +190,7 @@
               </div>
 
               <div class="join-input-group">
-                <input type="text" id="input-room-code" class="room-code-input" placeholder="4-digit code" maxlength="4" pattern="[0-9]*" inputmode="numeric" style="font-size: 16px;">
+                <input type="text" id="input-room-code" class="room-code-input" placeholder="••••" maxlength="4" pattern="[0-9]*" inputmode="numeric" style="font-size: 16px;">
                 <button id="btn-join-game" class="btn btn-luxury-emerald">
                   <span>Join Table</span>
                 </button>
@@ -151,7 +199,7 @@
 
             <div class="wifi-status-card">
               <span class="emerald-pulse"></span>
-              <span id="wifi-address-text">Connecting to local WiFi...</span>
+              <span id="wifi-address-text">Connecting to local salon...</span>
             </div>
           </div>
         </div>
@@ -165,7 +213,11 @@
               <span class="gold-label">TABLE CODE</span>
               <h2 id="lobby-room-code" class="huge-gold-code">----</h2>
               <button id="btn-copy-link" class="btn btn-sm btn-glass">
-                <span>📋 Copy Table Link</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span>Copy Table Link</span>
               </button>
             </div>
             <div class="lobby-qr-box" id="lobby-qr-click" title="Click to view full QR code">
@@ -177,8 +229,8 @@
           <!-- Host Settings -->
           <div id="lobby-host-settings" class="luxury-card host-only">
             <div class="card-header-row">
-              <h3>Table Rules (Host Only)</h3>
-              <span class="badge-role">HOST</span>
+              <h3>Table Rules</h3>
+              <span class="badge-role">HOST CONTROL</span>
             </div>
             <div class="settings-inputs-grid">
               <div class="form-field">
@@ -231,17 +283,20 @@
           <div class="lobby-action-row">
             <button id="btn-start-game" class="btn btn-luxury-emerald btn-large btn-block host-only" disabled>
               <span class="btn-shine"></span>
-              <span>Deal In Players 🚀</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L15 8L21 9L17 14L18 20L12 17L6 20L7 14L3 9L9 8L12 2Z"/>
+              </svg>
+              <span>Deal in Players</span>
             </button>
             <div class="guest-waiting-banner guest-only">
               <div class="gold-spinner"></div>
-              <span>Waiting for host to start the game...</span>
+              <span>Waiting for host to begin the hand...</span>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- 3. GAME TABLE SCREEN: Mobile-First Layout -->
+      <!-- 3. GAME TABLE SCREEN: Master-Crafted Mobile Layout -->
       <section id="view-table" class="view-section hidden">
         <!-- Top Status Bar -->
         <div class="table-top-bar">
@@ -252,7 +307,11 @@
 
           <!-- Central Pot Pill in Header -->
           <div class="header-pot-pill">
-            <span class="pot-currency">🪙</span>
+            <svg class="gold-chip-glyph" width="16" height="16" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" fill="url(#chipGoldGrad)" stroke="#B8860B" stroke-width="1.5"/>
+              <circle cx="12" cy="12" r="6" fill="none" stroke="#FFE58F" stroke-width="1" stroke-dasharray="2,2"/>
+              <text x="12" y="15" text-anchor="middle" font-size="8" font-family="'Cinzel', serif" font-weight="900" fill="#1C1405">P</text>
+            </svg>
             <span class="pot-val" id="total-pot-amount">0</span>
           </div>
         </div>
@@ -266,36 +325,44 @@
         <div class="table-stage-scroll-wrapper">
           <div class="table-stage">
             <div class="poker-table-bezel">
-              <div class="poker-table-felt">
-                <div class="felt-pattern-grid"></div>
-                <div class="felt-luxury-crest">POKER NIGHT</div>
+              <div class="poker-table-wood-rail">
+                <div class="poker-table-brass-inlay">
+                  <div class="poker-table-felt">
+                    <div class="felt-inner-betting-track"></div>
+                    <div class="felt-luxury-crest">POKER NIGHT</div>
 
-                <!-- Table Center: Pot & Action Controls -->
-                <div class="felt-center-content">
-                  <div class="pot-display-center">
-                    <span class="pot-title-label">TOTAL POT</span>
-                    <div class="pot-number-glow">
-                      <span class="currency-symbol">🪙</span>
-                      <span id="center-pot-val">0</span>
+                    <!-- Table Center: Pot & Action Controls -->
+                    <div class="felt-center-content">
+                      <div class="pot-display-center">
+                        <span class="pot-title-label">TOTAL POT</span>
+                        <div class="pot-number-glow">
+                          <svg class="pot-chip-icon" width="20" height="20" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" fill="url(#chipGoldGrad)" stroke="#C59B27" stroke-width="1.5"/>
+                            <circle cx="12" cy="12" r="6.5" fill="none" stroke="#FFE58F" stroke-width="1.2" stroke-dasharray="2.5,2"/>
+                            <circle cx="12" cy="12" r="3" fill="#D4AF37"/>
+                          </svg>
+                          <span id="center-pot-val">0</span>
+                        </div>
+                        <div id="center-pot-chips" class="center-chips-row"></div>
+                      </div>
+
+                      <!-- Last Action Status Banner -->
+                      <div id="table-action-banner" class="status-banner hidden">
+                        <span id="banner-text">Rahul raised to 200</span>
+                      </div>
+
+                      <!-- Host Quick Controls inside Table Center -->
+                      <div id="center-host-actions" class="center-host-bar host-only hidden">
+                        <button id="btn-showdown-award" class="btn btn-sm btn-luxury-gold">Award Pot</button>
+                        <button id="btn-next-hand" class="btn btn-sm btn-luxury-emerald">Next Hand ▶</button>
+                      </div>
                     </div>
-                    <div id="center-pot-chips" class="center-chips-row"></div>
-                  </div>
 
-                  <!-- Last Action Status Banner -->
-                  <div id="table-action-banner" class="status-banner hidden">
-                    <span id="banner-text">Rahul raised to 200</span>
+                    <!-- Seated Players Ring (Top opponents, Center pot, Bottom current player) -->
+                    <div id="poker-players-layer" class="table-seats-ring">
+                      <!-- Seated player elements injected here -->
+                    </div>
                   </div>
-
-                  <!-- Host Quick Controls inside Table Center -->
-                  <div id="center-host-actions" class="center-host-bar host-only hidden">
-                    <button id="btn-showdown-award" class="btn btn-sm btn-luxury-gold">🏆 Award Pot</button>
-                    <button id="btn-next-hand" class="btn btn-sm btn-luxury-emerald">Next Hand ▶</button>
-                  </div>
-                </div>
-
-                <!-- Seated Players Ring (Top opponents, Center pot, Bottom current player) -->
-                <div id="poker-players-layer" class="table-seats-ring">
-                  <!-- Seated player elements injected here -->
                 </div>
               </div>
             </div>
@@ -319,7 +386,7 @@
               <!-- Row 1: Fold (Crimson Red, left) | Check/Call (Gold, right) -->
               <div class="action-row-split">
                 <button id="btn-action-fold" class="btn-pill btn-fold">
-                  <span class="btn-subtext">FORFEIT</span>
+                  <span class="btn-subtext">SURRENDER</span>
                   <span class="btn-maintext">FOLD</span>
                 </button>
                 <button id="btn-action-check-call" class="btn-pill btn-call">
@@ -331,15 +398,15 @@
               <!-- Row 2: Raise (Emerald Green, full width) -->
               <div class="action-row-full">
                 <button id="btn-toggle-raise" class="btn-pill btn-raise">
-                  <span class="btn-subtext">EXPAND SLIDER</span>
+                  <span class="btn-subtext">CUSTOM BET</span>
                   <span class="btn-maintext" id="btn-raise-text">RAISE</span>
                 </button>
               </div>
 
-              <!-- Row 3: All-In (White shimmer, full width) -->
+              <!-- Row 3: All-In (Diamond Platinum, full width) -->
               <div class="action-row-full">
                 <button id="btn-action-allin" class="btn-pill btn-allin">
-                  <span class="btn-subtext">ALL CHIPS</span>
+                  <span class="btn-subtext">PUSH STACK</span>
                   <span class="btn-maintext">ALL-IN</span>
                 </button>
               </div>
@@ -359,7 +426,10 @@
               <div class="raise-stepper-row">
                 <button id="btn-raise-minus" class="stepper-circle">-</button>
                 <div class="raise-display-box">
-                  <span class="raise-currency">🪙</span>
+                  <svg width="18" height="18" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" fill="url(#chipGoldGrad)" stroke="#C59B27" stroke-width="1.5"/>
+                    <text x="12" y="15" text-anchor="middle" font-size="8" font-family="'Cinzel', serif" font-weight="900" fill="#1C1405">P</text>
+                  </svg>
                   <input type="number" id="raise-input-number" min="0" max="50000" step="5" style="font-size: 16px;">
                 </div>
                 <button id="btn-raise-plus" class="stepper-circle">+</button>
@@ -386,16 +456,16 @@
         <!-- Floating Host Actions Button Bar -->
         <div id="host-floating-bar" class="host-fab-strip host-only">
           <button id="fab-rebuy" class="fab-pill" title="Player Rebuy">
-            <span>➕ Rebuy</span>
+            <span>+ Rebuy</span>
           </button>
           <button id="fab-award" class="fab-pill" title="Award Pot">
-            <span>🏆 Winner</span>
+            <span>Award Pot</span>
           </button>
           <button id="fab-next" class="fab-pill" title="Next Hand">
             <span>Next Hand ▶</span>
           </button>
           <button id="fab-end-game" class="fab-pill fab-danger" title="End Night">
-            <span>🌙 End Night</span>
+            <span>End Session</span>
           </button>
         </div>
       </section>
@@ -404,9 +474,20 @@
       <section id="view-summary" class="view-section hidden">
         <div class="summary-container">
           <div class="summary-header">
-            <span class="giant-trophy">🏆</span>
-            <h2 class="shimmer-title">NIGHT SUMMARY</h2>
-            <p class="summary-subtitle">Final Player Ledger &amp; Profit / Loss</p>
+            <div class="giant-trophy-svg">
+              <svg width="68" height="68" viewBox="0 0 24 24" fill="url(#trophyGoldGrad)">
+                <defs>
+                  <linearGradient id="trophyGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#FFF3B0"/>
+                    <stop offset="45%" stop-color="#D4AF37"/>
+                    <stop offset="100%" stop-color="#8C6212"/>
+                  </linearGradient>
+                </defs>
+                <path d="M19 4H18V2H6V4H5C3.34 4 2 5.34 2 7V8C2 10.21 3.79 12 6 12H6.71C7.4 13.56 8.78 14.77 10.47 15.22L10 19H8V21H16V19H14L13.53 15.22C15.22 14.77 16.6 13.56 17.29 12H18C20.21 12 22 10.21 22 8V7C22 5.34 20.66 4 19 4ZM4 8V7C4 6.45 4.45 6 5 6H6V10H6C4.9 10 4 9.1 4 8ZM20 8C20 9.1 19.1 10 18 10H18V6H19C19.55 6 20 6.45 20 7V8Z"/>
+              </svg>
+            </div>
+            <h2 class="shimmer-title">SALON SUMMARY</h2>
+            <p class="summary-subtitle">Final High-Roller Ledger &amp; Profit / Loss</p>
           </div>
 
           <div class="luxury-card summary-table-card">
@@ -416,7 +497,7 @@
           </div>
 
           <div class="summary-actions-row">
-            <button id="btn-resume-game" class="btn btn-luxury-gold host-only">Resume Table ♠</button>
+            <button id="btn-resume-game" class="btn btn-luxury-gold host-only">Resume Table</button>
             <button id="btn-summary-home" class="btn btn-glass">Exit to Lobby</button>
           </div>
         </div>
@@ -431,8 +512,10 @@
       </div>
       <div class="drawer-header">
         <div class="drawer-title">
-          <span>💬</span>
-          <h3>Table Log &amp; Chat</h3>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+          <h3>Table Log &amp; Banter</h3>
         </div>
         <button id="btn-close-log" class="drawer-close-btn" aria-label="Close Logs">&times;</button>
       </div>
@@ -441,7 +524,7 @@
       </div>
       <div class="drawer-chat-footer">
         <form id="chat-form">
-          <input type="text" id="chat-input" placeholder="Type message..." maxlength="100" autocomplete="off" style="font-size: 16px;">
+          <input type="text" id="chat-input" placeholder="Table message..." maxlength="100" autocomplete="off" style="font-size: 16px;">
           <button type="submit" class="btn-chat-send">Send</button>
         </form>
       </div>
@@ -450,10 +533,15 @@
     <!-- PWA "Add to Home Screen" Banner -->
     <div id="pwa-install-banner" class="pwa-install-banner hidden">
       <div class="pwa-banner-left">
-        <div class="pwa-banner-chip">♠</div>
+        <div class="pwa-banner-chip">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="url(#chipGoldGrad)">
+            <circle cx="12" cy="12" r="10" fill="url(#chipGoldGrad)" stroke="#B8860B" stroke-width="1.5"/>
+            <circle cx="12" cy="12" r="6" fill="none" stroke="#FFE58F" stroke-width="1" stroke-dasharray="2,2"/>
+          </svg>
+        </div>
         <div class="pwa-banner-text">
           <strong>Install Poker Night</strong>
-          <span>Add to Home Screen for fullscreen casino feel</span>
+          <span>Add to Home Screen for fullscreen salon experience</span>
         </div>
       </div>
       <div class="pwa-banner-right">
@@ -466,11 +554,11 @@
     <div id="modal-qr" class="modal-backdrop hidden">
       <div class="modal-luxury-card">
         <div class="modal-top">
-          <h3>Invite Friends on WiFi</h3>
+          <h3>Invite Table Guests</h3>
           <button class="modal-x-btn" data-close="modal-qr">&times;</button>
         </div>
         <div class="modal-center-qr">
-          <p class="modal-sub">Connect to the <strong>same WiFi</strong> and scan:</p>
+          <p class="modal-sub">Connect to the <strong>same Wi-Fi</strong> and scan:</p>
           <div class="qr-glow-frame">
             <img id="modal-qr-image" src="" alt="Room QR Code">
           </div>
@@ -478,7 +566,7 @@
             <span id="modal-share-url">http://...</span>
             <button id="btn-modal-copy-url" class="btn-copy-chip">Copy</button>
           </div>
-          <div class="modal-code-tag">Room Code: <strong id="modal-room-code-text">----</strong></div>
+          <div class="modal-code-tag">Table Code: <strong id="modal-room-code-text">----</strong></div>
         </div>
         <div class="modal-bottom">
           <button class="btn btn-glass btn-block" data-close="modal-qr">Close</button>
@@ -490,7 +578,7 @@
     <div id="modal-rebuy" class="modal-backdrop hidden">
       <div class="modal-luxury-card">
         <div class="modal-top">
-          <h3>Player Rebuy</h3>
+          <h3>Add Chips (Rebuy)</h3>
           <button class="modal-x-btn" data-close="modal-rebuy">&times;</button>
         </div>
         <div class="modal-body-fields">
@@ -510,7 +598,7 @@
         </div>
         <div class="modal-bottom">
           <button class="btn btn-glass" data-close="modal-rebuy">Cancel</button>
-          <button id="btn-confirm-rebuy" class="btn btn-luxury-emerald">Add Chips</button>
+          <button id="btn-confirm-rebuy" class="btn btn-luxury-emerald">Transfer Chips</button>
         </div>
       </div>
     </div>
@@ -519,16 +607,16 @@
     <div id="modal-showdown" class="modal-backdrop hidden">
       <div class="modal-luxury-card modal-card-wide">
         <div class="modal-top">
-          <h3>Award Pot Winner(s) 🏆</h3>
+          <h3>Award Pot Winner(s)</h3>
           <button class="modal-x-btn" data-close="modal-showdown">&times;</button>
         </div>
         <div class="modal-body-fields">
-          <p class="modal-sub">Verify physical cards on table and select winning player(s) for each pot:</p>
+          <p class="modal-sub">Verify table showdown cards and designate pot winners:</p>
           <div id="showdown-pots-list" class="showdown-pots-list"></div>
         </div>
         <div class="modal-bottom">
           <button class="btn btn-glass" data-close="modal-showdown">Cancel</button>
-          <button id="btn-confirm-award" class="btn btn-luxury-gold">Confirm &amp; Transfer Chips 🪙</button>
+          <button id="btn-confirm-award" class="btn btn-luxury-gold">Award Chips</button>
         </div>
       </div>
     </div>
@@ -541,15 +629,30 @@
       <div class="confetti-particles-container" id="confetti-container"></div>
       <div class="celebration-backdrop-glow"></div>
       <div class="celebration-glass-card">
-        <div class="celebration-trophy">🏆</div>
-        <h2 id="winner-celebration-title" class="celebration-title">WINNER!</h2>
+        <div class="celebration-trophy">
+          <svg width="72" height="72" viewBox="0 0 24 24" fill="url(#trophyGoldGrad)">
+            <path d="M19 4H18V2H6V4H5C3.34 4 2 5.34 2 7V8C2 10.21 3.79 12 6 12H6.71C7.4 13.56 8.78 14.77 10.47 15.22L10 19H8V21H16V19H14L13.53 15.22C15.22 14.77 16.6 13.56 17.29 12H18C20.21 12 22 10.21 22 8V7C22 5.34 20.66 4 19 4ZM4 8V7C4 6.45 4.45 6 5 6H6V10H6C4.9 10 4 9.1 4 8ZM20 8C20 9.1 19.1 10 18 10H18V6H19C19.55 6 20 6.45 20 7V8Z"/>
+          </svg>
+        </div>
+        <h2 id="winner-celebration-title" class="celebration-title">VICTORY</h2>
         <div id="winner-celebration-desc" class="celebration-desc">Rahul won 850 chips!</div>
         <div id="celebration-chips-stack" class="celebration-chips-stack"></div>
-        <p class="celebration-dismiss-hint">Tap anywhere or wait 4s to continue</p>
-        <button id="btn-close-celebration" class="btn btn-luxury-gold btn-large">Continue Playing ▶</button>
+        <p class="celebration-dismiss-hint">Tap anywhere to continue</p>
+        <button id="btn-close-celebration" class="btn btn-luxury-gold btn-large">Continue ▶</button>
       </div>
     </div>
   </div>
+
+  <!-- Global SVG Gradients Definition -->
+  <svg width="0" height="0" style="position:absolute;visibility:hidden;">
+    <defs>
+      <linearGradient id="chipGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#FFE899"/>
+        <stop offset="50%" stop-color="#D4AF37"/>
+        <stop offset="100%" stop-color="#997A15"/>
+      </linearGradient>
+    </defs>
+  </svg>
 
   <!-- Socket.IO library & JS Controllers -->
   <script src="/socket.io/socket.io.js"></script>

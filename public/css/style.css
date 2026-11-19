@@ -1,74 +1,80 @@
 /* ==========================================================================
-   POKER NIGHT - MOBILE-FIRST CASINO PROGRESSIVE WEB APP (PWA)
-   Base Design Width: 390px (iPhone 14 / modern standard)
+   POKER NIGHT — HIGH-STAKES LUXURY CASINO PROGRESSIVE WEB APP (PWA)
+   Aesthetic: Exclusive Monte Carlo Private Salon (Obsidian, 24k Gold, Imperial Green)
+   Typography: Cinzel (High-Roller Roman Serif) + Inter (Precision Tabular Sans)
+   Base Screen Width: 390px (iPhone 14 / modern flagship standard)
    Dynamic Viewport Height: 100dvh
-   Base Font Size: 16px (1rem = 16px, zero iOS auto-zoom on inputs)
-   Palette: Deep Black #0a0a0a, Gold #FFD700, Emerald #00C851, Crimson #FF4444
    ========================================================================== */
 
 :root {
-  --bg-black: #0a0a0a;
-  --bg-surface: #121212;
-  --bg-surface-elevated: #1a1a1a;
-  --bg-glass: rgba(18, 18, 18, 0.85);
-  --bg-glass-heavy: rgba(10, 10, 10, 0.94);
+  /* Obsidian OLED Background Hierarchy */
+  --bg-black: #08080a;
+  --bg-surface: #101014;
+  --bg-surface-elevated: #16161c;
+  --bg-glass: rgba(16, 16, 20, 0.88);
+  --bg-glass-heavy: rgba(10, 10, 12, 0.94);
 
-  /* Primary Casino Accents */
-  --gold: #FFD700;
-  --gold-light: #FFE55C;
-  --gold-dark: #B8860B;
-  --gold-glow: rgba(255, 215, 0, 0.45);
-  --gold-glow-soft: rgba(255, 215, 0, 0.15);
+  /* High-Roller Gold Leaf & Champagne Palette */
+  --gold: #D4AF37;
+  --gold-light: #FFF2A8;
+  --gold-champagne: #ECC863;
+  --gold-metallic: #C59B27;
+  --gold-dark: #8C6212;
+  --gold-glow: rgba(212, 175, 55, 0.35);
+  --gold-glow-soft: rgba(212, 175, 55, 0.12);
+  --border-gold: rgba(212, 175, 55, 0.28);
+  --border-gold-strong: rgba(212, 175, 55, 0.55);
 
-  --emerald: #00C851;
-  --emerald-dark: #007E33;
-  --emerald-glow: rgba(0, 200, 81, 0.4);
+  /* Luxury Enamel Accents */
+  --emerald: #10B981;
+  --emerald-dark: #064E3B;
+  --emerald-glow: rgba(16, 185, 129, 0.35);
 
-  --crimson: #FF4444;
-  --crimson-dark: #CC0000;
-  --crimson-glow: rgba(255, 68, 68, 0.4);
+  --crimson: #E11D48;
+  --crimson-dark: #881337;
+  --crimson-glow: rgba(225, 29, 72, 0.35);
 
-  /* Poker Table Felt */
-  --felt-green-center: #0e5a38;
-  --felt-green-mid: #093c25;
-  --felt-green-edge: #052114;
-  --table-wood-rim: #24140b;
-  --table-bezel-gold: #c59b27;
+  /* Authentic Monte Carlo Table Materials */
+  --table-leather-top: #25140b;
+  --table-leather-mid: #180d07;
+  --table-leather-deep: #0e0704;
+  --table-brass-inlay: #C59B27;
+  --felt-green-center: #0e5e39;
+  --felt-green-mid: #083c24;
+  --felt-green-edge: #031c11;
 
   /* Typography */
-  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-serif: 'Cinzel', 'Playfair Display', Georgia, serif;
+  --font-display: 'Playfair Display', Georgia, serif;
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
   --text-primary: #FFFFFF;
-  --text-secondary: #D4D4D8;
+  --text-secondary: #E2E8F0;
   --text-muted: #8E8E93;
-  --text-gold: #FFD700;
+  --text-gold: #ECC863;
 
-  /* Borders & Shadows */
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-gold: rgba(255, 215, 0, 0.35);
-  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.5);
-  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.8);
-  --shadow-gold: 0 0 25px rgba(255, 215, 0, 0.35);
+  /* Elevation Shadows & Glass Insets */
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.9);
+  --shadow-gold: 0 0 25px rgba(212, 175, 55, 0.3);
+  --inner-highlight: inset 0 1px 1px rgba(255, 255, 255, 0.1);
 
-  /* Radius */
+  /* Radii */
   --radius-pill: 9999px;
   --radius-card: 18px;
   --radius-button: 16px;
   --radius-sm: 10px;
 
-  /* Safe Area Insets for Notch / Dynamic Island */
+  /* Safe Area Insets */
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --safe-left: env(safe-area-inset-left, 0px);
-  --safe-right: env(safe-area-inset-right, 0px);
 
-  /* Action Dock Fixed Height */
+  /* Dock Fixed Height */
   --dock-height: 180px;
 }
 
 /* ==========================================================================
-   RESET & STRICT MOBILE RULES
+   RESET & MOBILE BASELINE
    ========================================================================== */
 * {
   box-sizing: border-box;
@@ -78,7 +84,7 @@
 }
 
 html {
-  font-size: 16px; /* Base 16px throughout */
+  font-size: 16px;
   height: 100%;
   height: 100dvh;
   overscroll-behavior: none;
@@ -94,65 +100,66 @@ body {
   background-color: var(--bg-black);
   color: var(--text-primary);
   font-family: var(--font-sans);
-  font-size: 1rem; /* 16px */
+  font-size: 1rem;
   line-height: 1.4;
   user-select: none;
   -webkit-user-select: none;
   -webkit-font-smoothing: antialiased;
   overscroll-behavior: none;
+  font-variant-numeric: tabular-nums;
 }
 
-/* All inputs and selects: 16px strictly prevents iOS Safari auto-zoom */
+/* Inputs & Form Elements strictly 16px (no iOS auto-zoom) */
 input, select, textarea, button {
-  font-size: 1rem !important; /* 16px strictly */
+  font-size: 1rem !important;
   font-family: var(--font-sans);
-  touch-action: manipulation; /* Eliminate 300ms tap delay */
+  touch-action: manipulation;
 }
 
-/* Touch Targets: minimum 52px for primary interaction buttons */
 button, .btn, .btn-pill {
   touch-action: manipulation;
   -webkit-touch-callout: none;
+  font-family: var(--font-sans);
 }
 
-/* Remove hover dependency: use :active for tactile touch feedback */
+/* Tactile micro-depression feedback without hover jank */
 button:active, .btn:active, .btn-pill:active {
-  transform: scale(0.96);
-  filter: brightness(0.9);
+  transform: scale(0.97) translateY(1px);
+  filter: brightness(0.92);
 }
 
 button:disabled, .btn:disabled, .btn-pill:disabled {
-  opacity: 0.3 !important;
+  opacity: 0.28 !important;
   pointer-events: none !important;
 }
 
-/* App Viewport Shell */
+/* Viewport Root Container */
 #app-container {
   width: 100%;
-  max-width: 500px; /* Centered layout for larger screens, natural fit for 390px phones */
+  max-width: 480px;
   margin: 0 auto;
   height: 100%;
   height: 100dvh;
   display: flex;
   flex-direction: column;
   position: relative;
-  background: radial-gradient(circle at 50% 0%, #151515 0%, #0a0a0a 75%);
+  background: radial-gradient(circle at 50% 0%, #14141a 0%, #08080a 75%);
   overflow: hidden;
 }
 
 /* ==========================================================================
-   PWA SPLASH SCREEN
+   PWA LUXURY SPLASH SCREEN
    ========================================================================== */
 .pwa-splash-screen {
   position: fixed;
   inset: 0;
-  background: #0a0a0a;
+  background: #08080a;
   z-index: 10000;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  transition: opacity 0.4s ease, visibility 0.4s ease;
+  transition: opacity 0.45s ease, visibility 0.45s ease;
 }
 
 .pwa-splash-screen.splash-faded {
@@ -169,61 +176,59 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .splash-chip-emblem {
-  font-size: 3.5rem;
-  color: var(--gold);
-  filter: drop-shadow(0 0 20px var(--gold-glow));
-  margin-bottom: 1rem;
-  animation: pulse-dot 1.8s infinite ease-in-out;
+  margin-bottom: 1.25rem;
+  filter: drop-shadow(0 0 25px rgba(212, 175, 55, 0.4));
+  animation: pulse-dot 2s infinite ease-in-out;
 }
 
 .splash-brand-title {
   font-family: var(--font-serif);
   font-size: 2.2rem;
-  font-weight: 900;
-  letter-spacing: 0.25rem;
-  background: linear-gradient(135deg, #FFF099 0%, #FFD700 50%, #B8860B 100%);
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  background: linear-gradient(135deg, #FFF3B0 0%, #D4AF37 50%, #8C6212 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.35rem;
 }
 
 .splash-tag {
-  font-size: 0.8rem;
-  letter-spacing: 0.2rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
   color: var(--text-muted);
-  font-weight: 700;
+  font-weight: 600;
   margin-bottom: 2rem;
 }
 
 .splash-loading-bar {
-  width: 140px;
-  height: 4px;
-  background: rgba(255, 215, 0, 0.15);
+  width: 130px;
+  height: 3px;
+  background: rgba(212, 175, 55, 0.15);
   border-radius: var(--radius-pill);
   overflow: hidden;
 }
 
 .splash-loading-fill {
   height: 100%;
-  width: 50%;
-  background: var(--gold);
+  width: 40%;
+  background: linear-gradient(90deg, #D4AF37, #FFF3B0);
   border-radius: var(--radius-pill);
   animation: splash-sweep 1.2s infinite ease-in-out;
 }
 
 @keyframes splash-sweep {
   0% { transform: translateX(-100%); }
-  100% { transform: translateX(200%); }
+  100% { transform: translateX(250%); }
 }
 
 /* ==========================================================================
-   LANDSCAPE WARNING (PORTRAIT ONLY LOCK)
+   PORTRAIT ONLY LANDSCAPE BLOCKER
    ========================================================================== */
 .landscape-blocker {
   display: none;
   position: fixed;
   inset: 0;
-  background: #0a0a0a;
+  background: #08080a;
   z-index: 99999;
   flex-direction: column;
   align-items: center;
@@ -232,7 +237,6 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   text-align: center;
 }
 
-/* Show landscape warning if orientation is landscape on mobile / short heights */
 @media screen and (orientation: landscape) and (max-height: 580px) {
   .landscape-blocker {
     display: flex;
@@ -241,17 +245,16 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 
 .landscape-card {
   max-width: 320px;
-  background: #141414;
+  background: var(--bg-surface);
   border: 1px solid var(--border-gold);
   border-radius: var(--radius-card);
-  padding: 1.5rem;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.9);
+  padding: 1.75rem 1.5rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.95);
 }
 
 .rotate-phone-anim {
-  font-size: 3rem;
-  margin-bottom: 0.8rem;
-  animation: rotate-phone 2s infinite ease-in-out;
+  margin-bottom: 1rem;
+  animation: rotate-phone 2.4s infinite ease-in-out;
 }
 
 @keyframes rotate-phone {
@@ -262,15 +265,17 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 
 .landscape-card h2 {
   font-family: var(--font-serif);
-  font-size: 1.25rem;
-  color: var(--gold);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--gold-champagne);
   margin-bottom: 0.5rem;
 }
 
 .landscape-card p {
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   color: var(--text-secondary);
-  line-height: 1.4;
+  line-height: 1.45;
 }
 
 /* ==========================================================================
@@ -281,8 +286,8 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   top: 0;
   left: 0;
   right: 0;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.08);
+  height: 3px;
+  background: rgba(255, 255, 255, 0.05);
   z-index: 1000;
   pointer-events: none;
 }
@@ -290,26 +295,26 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 .top-turn-fill {
   height: 100%;
   width: 100%;
-  background: var(--gold);
-  box-shadow: 0 0 8px var(--gold);
+  background: var(--gold-champagne);
+  box-shadow: 0 0 10px var(--gold-champagne);
   transition: width 0.15s linear, background-color 0.3s ease;
 }
 
 /* ==========================================================================
-   HEADER
+   HEADER — EXCLUSIVE PRIVATE CLUB AESTHETIC
    ========================================================================== */
 .casino-header {
-  height: 56px;
-  min-height: 56px;
+  height: 54px;
+  min-height: 54px;
   padding: 0 1rem;
   padding-top: var(--safe-top);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(10, 10, 10, 0.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border-subtle);
+  background: rgba(10, 10, 14, 0.94);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.16);
   position: relative;
   z-index: 100;
 }
@@ -323,20 +328,19 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 .brand-logo {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.45rem;
 }
 
-.gold-crown {
-  font-size: 1.2rem;
-  filter: drop-shadow(0 0 8px var(--gold-glow));
+.gold-crown-svg {
+  filter: drop-shadow(0 0 6px rgba(212, 175, 55, 0.4));
 }
 
 .logo-title {
   font-family: var(--font-serif);
   font-weight: 800;
-  font-size: 1.1rem;
-  letter-spacing: 1.5px;
-  background: linear-gradient(135deg, #FFF099 0%, #FFD700 50%, #B8860B 100%);
+  font-size: 1.05rem;
+  letter-spacing: 0.14em;
+  background: linear-gradient(135deg, #FFF3B0 0%, #D4AF37 50%, #8C6212 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -344,49 +348,64 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 .room-code-pill {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.4rem;
   padding: 0.25rem 0.65rem;
-  background: rgba(255, 215, 0, 0.08);
+  background: rgba(212, 175, 55, 0.07);
   border: 1px solid var(--border-gold);
   border-radius: var(--radius-pill);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  color: var(--gold);
+  letter-spacing: 0.06em;
+  color: var(--gold-champagne);
   cursor: pointer;
+  transition: background 0.15s ease;
 }
 
 .room-code-pill strong {
-  letter-spacing: 0.1em;
+  font-family: var(--font-serif);
+  letter-spacing: 0.12em;
+  color: #FFFFFF;
+}
+
+.pill-copy-svg {
+  stroke: var(--gold-champagne);
+  opacity: 0.85;
 }
 
 .pill-dot {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   background: var(--emerald);
   box-shadow: 0 0 6px var(--emerald);
 }
 
 .header-btn {
-  min-height: 40px;
-  min-width: 40px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-primary);
+  min-height: 38px;
+  min-width: 38px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
   border-radius: var(--radius-pill);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.25rem;
-  padding: 0.35rem 0.65rem;
+  gap: 0.3rem;
+  padding: 0.35rem 0.6rem;
   cursor: pointer;
   position: relative;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.header-btn:active {
+  border-color: var(--gold);
+  background: rgba(212, 175, 55, 0.1);
 }
 
 .wifi-tag {
   font-size: 0.65rem;
   font-weight: 800;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.08em;
   color: var(--emerald);
 }
 
@@ -394,15 +413,15 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   position: absolute;
   top: 4px;
   right: 4px;
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--gold);
   box-shadow: 0 0 6px var(--gold);
 }
 
 /* ==========================================================================
-   MAIN VIEWS CONTAINER
+   MAIN VIEWS
    ========================================================================== */
 #main-view {
   flex: 1;
@@ -429,10 +448,10 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 /* ==========================================================================
-   1. HOME SCREEN
+   1. HOME SCREEN — BESPOKE SALON LANDING
    ========================================================================== */
 #view-home {
-  padding: 1rem 1rem calc(1rem + var(--safe-bottom)) 1rem;
+  padding: 1.25rem 1rem calc(1.25rem + var(--safe-bottom)) 1rem;
   justify-content: center;
 }
 
@@ -440,7 +459,7 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.25rem;
+  gap: 1.35rem;
   max-width: 390px;
   margin: 0 auto;
   width: 100%;
@@ -457,30 +476,48 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 .art-outer-rail {
   width: 220px;
   height: 125px;
-  background: linear-gradient(135deg, #2b180d 0%, #150a04 100%);
-  border: 4px solid #0f0703;
-  border-radius: 70px;
-  padding: 8px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9), inset 0 2px 4px rgba(255, 215, 0, 0.2);
+  background: linear-gradient(145deg, #23130a 0%, #170c06 50%, #0d0603 100%);
+  border: 3px solid #080402;
+  border-radius: 68px;
+  padding: 6px;
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.95), inset 0 2px 4px rgba(212, 175, 55, 0.25);
+}
+
+.art-inner-rim {
+  width: 100%;
+  height: 100%;
+  border: 1.5px solid rgba(212, 175, 55, 0.4);
+  border-radius: 60px;
+  padding: 3px;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.15);
 }
 
 .art-felt {
   width: 100%;
   height: 100%;
-  background: radial-gradient(ellipse at center, #0d5334 0%, #083823 65%, #04190f 100%);
-  border: 1.5px dashed rgba(255, 215, 0, 0.3);
-  border-radius: 60px;
+  background: radial-gradient(ellipse at center, #0d5c38 0%, #083c24 55%, #031c11 100%);
+  border-radius: 54px;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
+  overflow: hidden;
+}
+
+.art-inner-track {
+  position: absolute;
+  inset: 7px;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  border-radius: 46px;
+  pointer-events: none;
 }
 
 .art-center-suits {
-  font-size: 1.1rem;
-  letter-spacing: 4px;
-  color: rgba(255, 215, 0, 0.65);
-  text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+  font-size: 1rem;
+  letter-spacing: 5px;
+  color: rgba(212, 175, 55, 0.6);
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+  font-family: var(--font-serif);
 }
 
 .art-chip-stack {
@@ -493,25 +530,25 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 .art-chip-stack.stack-right { right: 16px; }
 
 .art-chip {
-  width: 18px;
-  height: 18px;
+  width: 17px;
+  height: 17px;
   border-radius: 50%;
-  margin-top: -12px;
-  border: 1px dashed #ffffff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+  margin-top: -11px;
+  border: 1px dashed rgba(255, 255, 255, 0.7);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.7);
 }
 
-.c-gold { background: #FFD700; border-color: #B8860B; }
-.c-emerald { background: #00C851; border-color: #007E33; }
-.c-crimson { background: #FF4444; border-color: #CC0000; }
-.c-white { background: #FFFFFF; border-color: #999999; }
+.c-gold { background: radial-gradient(circle, #f59e0b, #b45309); border-color: #fef3c7; }
+.c-emerald { background: radial-gradient(circle, #10b981, #047857); border-color: #d1fae5; }
+.c-crimson { background: radial-gradient(circle, #ef4444, #b91c1c); border-color: #fee2e2; }
+.c-white { background: radial-gradient(circle, #f8fafc, #94a3b8); border-color: #475569; }
 
 .art-glow {
   position: absolute;
-  width: 240px;
-  height: 140px;
+  width: 250px;
+  height: 145px;
   border-radius: 70px;
-  background: radial-gradient(ellipse at center, rgba(255, 215, 0, 0.15) 0%, transparent 70%);
+  background: radial-gradient(ellipse at center, rgba(212, 175, 55, 0.16) 0%, transparent 72%);
   z-index: -1;
   pointer-events: none;
 }
@@ -522,33 +559,35 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 
 .shimmer-title {
   font-family: var(--font-serif);
-  font-size: 2.1rem;
-  font-weight: 900;
-  letter-spacing: 3px;
-  line-height: 1.1;
-  background: linear-gradient(90deg, #FFD700 0%, #FFF5CC 25%, #FFD700 50%, #B8860B 75%, #FFD700 100%);
+  font-size: 2.15rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  line-height: 1.15;
+  background: linear-gradient(90deg, #D4AF37 0%, #FFF5CC 25%, #ECC863 50%, #997A15 75%, #D4AF37 100%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: gold-shimmer 4s linear infinite;
-  text-shadow: 0 4px 20px rgba(255, 215, 0, 0.2);
+  animation: gold-shimmer 4.5s linear infinite;
+  text-shadow: 0 4px 24px rgba(212, 175, 55, 0.25);
 }
 
 .luxury-tagline {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: var(--text-muted);
-  letter-spacing: 0.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   margin-top: 0.35rem;
 }
 
+/* Layered Dark Glass Cards */
 .luxury-card {
-  background: rgba(18, 18, 18, 0.85);
+  background: linear-gradient(180deg, rgba(22, 22, 28, 0.9) 0%, rgba(12, 12, 15, 0.96) 100%);
   border: 1px solid var(--border-gold);
   border-radius: var(--radius-card);
   padding: 1.25rem;
-  box-shadow: var(--shadow-lg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--inner-highlight), var(--shadow-lg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 .home-form-card {
@@ -563,11 +602,12 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .form-field label {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--text-secondary);
+  letter-spacing: 0.1em;
+  color: var(--gold-champagne);
+  font-family: var(--font-serif);
 }
 
 .input-wrapper {
@@ -579,15 +619,17 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 .input-icon {
   position: absolute;
   left: 14px;
-  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   pointer-events: none;
 }
 
 .form-field input, .form-field select {
   width: 100%;
-  min-height: 52px; /* Minimum 52px touch target */
-  background: #0d0d0d;
-  border: 1px solid var(--border-subtle);
+  min-height: 52px;
+  background: #09090c;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
   padding: 12px 14px;
@@ -610,11 +652,14 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   gap: 0.85rem;
 }
 
+/* Master-Crafted Buttons */
 .btn {
-  min-height: 52px; /* Strict mobile touch target */
+  min-height: 52px;
   border-radius: var(--radius-button);
   border: none;
-  font-weight: 800;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -622,40 +667,50 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   cursor: pointer;
   position: relative;
   overflow: hidden;
-  transition: transform 0.12s ease, filter 0.15s ease;
+  box-shadow: var(--inner-highlight), var(--shadow-sm);
 }
 
 .btn-block {
   width: 100%;
 }
 
+/* 24k Gold Button */
 .btn-luxury-gold {
-  background: linear-gradient(135deg, #FFF099 0%, #FFD700 50%, #B8860B 100%);
-  color: #0a0a0a;
-  box-shadow: 0 4px 16px var(--gold-glow);
+  background: linear-gradient(135deg, #FFF3B0 0%, #D4AF37 45%, #9E7811 100%);
+  color: #161002;
+  border: 1px solid #FFE58F;
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.6), 0 6px 20px rgba(212, 175, 55, 0.35);
+  font-family: var(--font-serif);
 }
 
+/* Imperial Emerald Button */
 .btn-luxury-emerald {
-  background: linear-gradient(135deg, #00E676 0%, #00C851 50%, #007E33 100%);
+  background: linear-gradient(135deg, #165b40 0%, #0c3d2a 50%, #06281b 100%);
   color: #FFFFFF;
-  box-shadow: 0 4px 16px var(--emerald-glow);
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.2), 0 6px 18px var(--emerald-glow);
 }
 
 .btn-glass {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   color: var(--text-primary);
 }
 
+.btn-glass:active {
+  background: rgba(212, 175, 55, 0.08);
+  border-color: var(--border-gold);
+}
+
 .btn-sm {
-  min-height: 44px;
+  min-height: 42px;
   padding: 0 1rem;
-  font-size: 0.875rem !important;
+  font-size: 0.8rem !important;
 }
 
 .btn-large {
   min-height: 56px;
-  font-size: 1.1rem !important;
+  font-size: 1rem !important;
 }
 
 .btn-shine {
@@ -664,9 +719,9 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   left: -100%;
   width: 50%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
   transform: skewX(-20deg);
-  animation: button-glint 3s infinite;
+  animation: button-glint 3.5s infinite;
 }
 
 .gold-divider {
@@ -674,15 +729,16 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   align-items: center;
   text-align: center;
   color: var(--text-muted);
-  font-size: 0.7rem;
-  font-weight: 800;
-  letter-spacing: 1px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  font-family: var(--font-serif);
 }
 
 .gold-divider::before, .gold-divider::after {
   content: '';
   flex: 1;
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .gold-divider span {
@@ -695,18 +751,18 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   gap: 0.5rem;
 }
 
-/* Large letter-spacing for 4-digit room code input */
 .room-code-input {
   min-height: 52px;
-  background: #0d0d0d;
-  border: 1px solid var(--border-subtle);
+  background: #09090c;
+  border: 1px solid var(--border-gold);
   border-radius: var(--radius-sm);
-  color: var(--gold);
-  font-weight: 900;
-  font-size: 1.3rem !important;
-  letter-spacing: 0.3em;
+  color: var(--gold-champagne);
+  font-family: var(--font-serif);
+  font-weight: 800;
+  font-size: 1.4rem !important;
+  letter-spacing: 0.32em;
   text-align: center;
-  padding: 8px 12px;
+  padding: 6px 10px;
   outline: none;
 }
 
@@ -724,21 +780,21 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   align-items: center;
   gap: 0.5rem;
   padding: 0.65rem 0.85rem;
-  background: rgba(0, 0, 0, 0.5);
-  border: 1px solid var(--border-subtle);
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: var(--radius-sm);
   font-size: 0.75rem;
   color: var(--text-secondary);
-  margin-top: 0.85rem;
+  margin-top: 0.75rem;
 }
 
 .emerald-pulse {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--emerald);
   box-shadow: 0 0 8px var(--emerald);
-  animation: pulse-dot 1.5s infinite;
+  animation: pulse-dot 1.6s infinite;
 }
 
 /* ==========================================================================
@@ -771,19 +827,20 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .gold-label {
-  font-size: 0.7rem;
-  font-weight: 800;
-  letter-spacing: 1.5px;
-  color: var(--gold);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--gold-champagne);
+  font-family: var(--font-serif);
 }
 
 .huge-gold-code {
   font-family: var(--font-serif);
   font-size: 2.2rem;
   font-weight: 900;
-  letter-spacing: 0.3em; /* Spec: large 0.3em letter spacing */
-  color: var(--gold);
-  text-shadow: 0 0 16px var(--gold-glow);
+  letter-spacing: 0.25em;
+  color: #FFFFFF;
+  text-shadow: 0 0 14px var(--gold-glow);
 }
 
 .lobby-qr-box {
@@ -794,7 +851,7 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   flex-direction: column;
   align-items: center;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.7);
 }
 
 .lobby-qr-box img {
@@ -804,9 +861,10 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .qr-scan-text {
-  font-size: 0.6rem;
+  font-size: 0.58rem;
   font-weight: 800;
-  color: #0a0a0a;
+  color: #08080a;
+  letter-spacing: 0.05em;
   margin-top: 2px;
 }
 
@@ -818,21 +876,23 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .card-header-row h3 {
+  font-family: var(--font-serif);
   font-size: 0.85rem;
-  font-weight: 800;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.1em;
   color: var(--text-secondary);
 }
 
 .badge-role {
-  font-size: 0.65rem;
-  font-weight: 900;
+  font-size: 0.62rem;
+  font-weight: 800;
   padding: 2px 8px;
   border-radius: var(--radius-pill);
-  background: rgba(255, 215, 0, 0.15);
-  color: var(--gold);
+  background: rgba(212, 175, 55, 0.1);
+  color: var(--gold-champagne);
   border: 1px solid var(--border-gold);
+  letter-spacing: 0.08em;
 }
 
 .settings-inputs-grid {
@@ -848,8 +908,8 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .rule-chip {
-  background: #0d0d0d;
-  border: 1px solid var(--border-subtle);
+  background: #09090c;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   padding: 6px 12px;
   border-radius: var(--radius-pill);
   font-size: 0.8rem;
@@ -857,7 +917,7 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .rule-chip strong {
-  color: var(--gold);
+  color: var(--gold-champagne);
 }
 
 .min-players-text {
@@ -875,8 +935,8 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #0d0d0d;
-  border: 1px solid var(--border-subtle);
+  background: #0a0a0d;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   padding: 0.65rem 0.85rem;
   border-radius: var(--radius-sm);
 }
@@ -894,28 +954,32 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   display: flex;
   align-items: center;
   justify-content: center;
+  font-family: var(--font-serif);
   font-weight: 800;
   font-size: 1rem;
-  color: #ffffff;
-  border: 1.5px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  color: #FFF3B0;
+  border: 1.5px solid var(--gold-metallic);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
 }
 
 .roster-name {
   font-weight: 700;
   font-size: 0.95rem;
+  color: #FFFFFF;
 }
 
 .tag-host {
   font-size: 0.65rem;
   font-weight: 800;
-  color: var(--gold);
+  letter-spacing: 0.05em;
+  color: var(--gold-champagne);
   margin-left: 4px;
 }
 
 .tag-you {
   font-size: 0.65rem;
   font-weight: 800;
+  letter-spacing: 0.05em;
   color: var(--emerald);
   margin-left: 4px;
 }
@@ -924,9 +988,9 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   background: transparent;
   border: 1px solid var(--crimson);
   color: var(--crimson);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  padding: 4px 10px;
+  padding: 3px 9px;
   border-radius: var(--radius-pill);
   cursor: pointer;
 }
@@ -937,25 +1001,24 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   justify-content: center;
   gap: 0.75rem;
   padding: 1rem;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(212, 175, 55, 0.2);
   border-radius: var(--radius-card);
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   color: var(--text-muted);
 }
 
 .gold-spinner {
-  width: 20px;
-  height: 20px;
-  border: 2px solid rgba(255, 215, 0, 0.15);
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(212, 175, 55, 0.15);
   border-top-color: var(--gold);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
 
 /* ==========================================================================
-   3. MOBILE POKER TABLE LAYOUT
-   Top half: Poker table (oval CSS shape)
-   Bottom half: Action panel fixed to bottom
+   3. MASTER-CRAFTED POKER TABLE (CSS OVAL LUXURY BAZE)
    ========================================================================== */
 #view-table {
   position: relative;
@@ -965,12 +1028,12 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .table-top-bar {
-  padding: 0.5rem 1rem;
+  padding: 0.45rem 1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(10, 10, 10, 0.88);
-  border-bottom: 1px solid var(--border-subtle);
+  background: rgba(10, 10, 14, 0.92);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.15);
   position: relative;
   z-index: 20;
 }
@@ -982,18 +1045,21 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .hand-id {
+  font-family: var(--font-serif);
   font-size: 0.8rem;
   font-weight: 700;
+  letter-spacing: 0.08em;
   color: var(--text-muted);
 }
 
 .street-pill {
-  background: rgba(255, 215, 0, 0.12);
+  background: rgba(212, 175, 55, 0.09);
   border: 1px solid var(--border-gold);
-  color: var(--gold);
-  font-size: 0.7rem;
-  font-weight: 900;
-  letter-spacing: 1px;
+  color: var(--gold-champagne);
+  font-family: var(--font-serif);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
   padding: 2px 8px;
   border-radius: var(--radius-pill);
 }
@@ -1002,17 +1068,22 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  background: rgba(18, 18, 18, 0.95);
-  border: 1px solid var(--border-gold);
-  padding: 3px 10px;
+  background: rgba(16, 16, 22, 0.96);
+  border: 1px solid var(--border-gold-strong);
+  padding: 3px 11px;
   border-radius: var(--radius-pill);
-  box-shadow: 0 0 12px var(--gold-glow-soft);
+  box-shadow: 0 0 14px var(--gold-glow-soft);
+}
+
+.gold-chip-glyph {
+  filter: drop-shadow(0 0 4px var(--gold-glow));
 }
 
 .header-pot-pill .pot-val {
+  font-family: var(--font-sans);
   font-size: 1rem;
-  font-weight: 900;
-  color: var(--gold);
+  font-weight: 800;
+  color: #FFFFFF;
 }
 
 .side-pots-strip {
@@ -1020,12 +1091,12 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   gap: 0.5rem;
   padding: 0.35rem 1rem;
   overflow-x: auto;
-  background: rgba(10, 10, 10, 0.7);
-  border-bottom: 1px solid var(--border-subtle);
+  background: rgba(8, 8, 10, 0.75);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .side-pot-badge {
-  background: #141414;
+  background: #111116;
   border: 1px solid var(--border-gold);
   padding: 2px 8px;
   border-radius: var(--radius-pill);
@@ -1035,20 +1106,20 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .side-pot-badge strong {
-  color: var(--gold);
+  color: var(--gold-champagne);
 }
 
-/* Scroll wrapper if >6 players */
+/* Scroll wrapper for table */
 .table-stage-scroll-wrapper {
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: calc(var(--dock-height) + var(--safe-bottom) + 12px);
+  padding-bottom: calc(var(--dock-height) + var(--safe-bottom) + 14px);
   display: flex;
   flex-direction: column;
 }
 
-/* Oval Poker Table Stage */
+/* Master-Crafted Oval Poker Table */
 .table-stage {
   padding: 0.75rem 0.5rem;
   display: flex;
@@ -1061,17 +1132,34 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 .poker-table-bezel {
   width: 100%;
   max-width: 420px;
-  background: linear-gradient(135deg, #2b180d 0%, #150a04 100%);
-  border: 4px solid #0f0703;
-  border-radius: 120px;
-  padding: 10px;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.95), inset 0 2px 4px rgba(255, 215, 0, 0.25);
+  background: #080402;
+  border-radius: 122px;
+  padding: 3px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.98);
   position: relative;
 }
 
+/* Padded Leather Armrest Rail */
+.poker-table-wood-rail {
+  width: 100%;
+  background: linear-gradient(145deg, #25140b 0%, #170d07 50%, #0d0603 100%);
+  border-radius: 120px;
+  padding: 8px;
+  box-shadow: inset 0 2px 4px rgba(255, 215, 0, 0.2), inset 0 -3px 8px rgba(0, 0, 0, 0.85);
+}
+
+/* Polished Brass Inlay Bead */
+.poker-table-brass-inlay {
+  width: 100%;
+  border: 1.5px solid var(--table-brass-inlay);
+  border-radius: 112px;
+  padding: 3px;
+  box-shadow: 0 0 10px rgba(197, 155, 39, 0.3);
+}
+
+/* Deep Emerald Felt with Vignette Shading */
 .poker-table-felt {
-  background: radial-gradient(ellipse at center, var(--felt-green-center) 0%, var(--felt-green-mid) 65%, var(--felt-green-edge) 100%);
-  border: 2px dashed rgba(255, 215, 0, 0.25);
+  background: radial-gradient(ellipse at 50% 50%, #0e5e39 0%, #083c24 55%, #031c11 100%);
   border-radius: 108px;
   min-height: 440px;
   position: relative;
@@ -1080,22 +1168,31 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   justify-content: center;
   align-items: center;
   padding: 1rem 0.5rem;
-  box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.7);
+  box-shadow: inset 0 0 45px rgba(0, 0, 0, 0.75);
   overflow: hidden;
+}
+
+/* Authentic Inner Gold Betting Track */
+.felt-inner-betting-track {
+  position: absolute;
+  inset: 14px 10px;
+  border: 1px solid rgba(212, 175, 55, 0.22);
+  border-radius: 96px;
+  pointer-events: none;
 }
 
 .felt-luxury-crest {
   position: absolute;
   font-family: var(--font-serif);
-  font-size: 2.2rem;
-  font-weight: 900;
-  letter-spacing: 8px;
-  color: rgba(255, 215, 0, 0.04);
+  font-size: 2.1rem;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  color: rgba(212, 175, 55, 0.04);
   text-align: center;
   pointer-events: none;
 }
 
-/* Table Center: Pot & Action status */
+/* Center Table Pot & Actions */
 .felt-center-content {
   z-index: 10;
   display: flex;
@@ -1113,28 +1210,33 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .pot-title-label {
+  font-family: var(--font-serif);
   font-size: 0.6rem;
   font-weight: 800;
-  letter-spacing: 2px;
-  color: rgba(255, 215, 0, 0.75);
+  letter-spacing: 0.2em;
+  color: rgba(236, 200, 99, 0.7);
 }
 
 .pot-number-glow {
-  background: rgba(10, 10, 10, 0.8);
-  border: 1px solid var(--border-gold);
+  background: rgba(8, 8, 12, 0.85);
+  border: 1px solid var(--border-gold-strong);
   border-radius: var(--radius-pill);
-  padding: 3px 14px;
+  padding: 4px 16px;
   display: flex;
   align-items: center;
-  gap: 0.35rem;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8), 0 0 16px var(--gold-glow-soft);
+  gap: 0.45rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.85), 0 0 18px var(--gold-glow-soft);
+}
+
+.pot-chip-icon {
+  filter: drop-shadow(0 0 5px var(--gold-glow));
 }
 
 .pot-number-glow span#center-pot-val {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 1.35rem;
   font-weight: 900;
-  color: var(--gold);
+  color: #FFFFFF;
 }
 
 .center-chips-row {
@@ -1145,21 +1247,21 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .status-banner {
-  background: rgba(18, 18, 18, 0.95);
-  border: 1px solid var(--gold);
-  padding: 3px 12px;
+  background: rgba(14, 14, 18, 0.94);
+  border: 1px solid var(--gold-champagne);
+  padding: 3px 14px;
   border-radius: var(--radius-pill);
   font-size: 0.75rem;
   font-weight: 700;
-  color: var(--gold);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+  color: var(--gold-champagne);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.8);
   animation: popIn 0.2s ease-out;
 }
 
 .center-host-bar {
   display: flex;
   gap: 0.5rem;
-  margin-top: 2px;
+  margin-top: 3px;
 }
 
 /* Seated Players Ring */
@@ -1170,14 +1272,7 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 /* ==========================================================================
-   PLAYER AVATAR CARDS (MOBILE SPEC)
-   - Compact design: 64x64px circle avatar with initials
-   - Unique pastel color per player
-   - Below avatar: name (truncated at 8 chars with ellipsis)
-   - Below name: chip count in bold gold
-   - Current turn: gold ring + scale(1.1)
-   - Folded: grayscale filter + opacity 0.4
-   - All-in badge: small red "ALL IN" pill on avatar
+   HIGH-ROLLER PLAYER AVATAR CARDS (VELVET & GEMSTONES WITH 24k GOLD BEZELS)
    ========================================================================== */
 .seated-player {
   position: absolute;
@@ -1186,12 +1281,11 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 90px;
+  width: 88px;
   transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.3s ease, filter 0.3s ease;
   z-index: 20;
 }
 
-/* 64x64px circle avatar container with SVG circular countdown ring */
 .avatar-wrapper {
   position: relative;
   width: 72px;
@@ -1201,7 +1295,7 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   justify-content: center;
 }
 
-/* Circular SVG Countdown Ring (Circumference ~ 201.06) */
+/* Circular SVG Countdown Ring (Circumference: 201.06) */
 .timer-ring-svg {
   position: absolute;
   top: 0;
@@ -1214,16 +1308,16 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .timer-ring-bg {
-  stroke: rgba(255, 255, 255, 0.12);
+  stroke: rgba(255, 255, 255, 0.1);
 }
 
 .timer-ring-progress {
-  stroke: var(--gold);
+  stroke: var(--gold-champagne);
   stroke-linecap: round;
   transition: stroke-dashoffset 0.12s linear, stroke 0.3s ease;
 }
 
-/* 64x64px circle avatar with pastel background and initials */
+/* 60x60px Rich Gemstone / Velvet Circle Avatar */
 .player-avatar-circle {
   width: 58px;
   height: 58px;
@@ -1231,57 +1325,58 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 900;
+  font-family: var(--font-serif);
+  font-weight: 800;
   font-size: 1.25rem;
-  color: #0a0a0a; /* High-contrast against pastel */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+  color: #FFF3B0;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.85);
   z-index: 4;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid var(--gold-metallic);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Current Turn: Gold Ring + Scale 1.1x */
+/* Current Turn: Polished Gold Ring + Scale 1.1x */
 .seated-player.is-turn {
   transform: translate(-50%, -50%) scale(1.1);
   z-index: 35;
 }
 
 .seated-player.is-turn .player-avatar-circle {
-  border-color: var(--gold);
-  box-shadow: 0 0 20px var(--gold-glow);
+  border-color: #FFE58F;
+  box-shadow: 0 0 22px var(--gold-glow);
 }
 
 .seated-player.is-turn .player-meta-box {
   border-color: var(--gold);
-  box-shadow: 0 0 14px var(--gold-glow);
+  box-shadow: 0 0 14px var(--gold-glow-soft);
 }
 
-/* Folded State: Grayscale + Opacity 0.4 */
+/* Folded State: Classy Muted Grey */
 .seated-player.is-folded {
-  opacity: 0.4 !important;
+  opacity: 0.35 !important;
   filter: grayscale(100%) !important;
   transform: translate(-50%, -50%) scale(0.92);
 }
 
-/* Red "ALL IN" Pill Badge on Avatar */
+/* Red Enamel "ALL IN" Badge */
 .badge-allin-pill {
   position: absolute;
-  top: -4px;
-  background: var(--crimson);
+  top: -3px;
+  background: linear-gradient(135deg, #be123c, #881337);
   color: #ffffff;
-  font-size: 0.58rem;
+  font-size: 0.55rem;
   font-weight: 900;
   padding: 1px 6px;
   border-radius: var(--radius-pill);
-  box-shadow: 0 2px 6px var(--crimson-glow);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 2px 8px var(--crimson-glow);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   z-index: 10;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  animation: pulse-dot 1.2s infinite;
 }
 
-/* Glossy Role Badges (D, SB, BB) */
+/* Enamel Role Badges (D, SB, BB) */
 .role-chip-badge {
   position: absolute;
   bottom: 0px;
@@ -1289,36 +1384,39 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  font-size: 0.68rem;
+  font-family: var(--font-serif);
+  font-size: 0.65rem;
   font-weight: 900;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
-  border: 1.5px solid #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
   z-index: 8;
 }
 
 .badge-dealer {
-  background: radial-gradient(circle, #ffffff 40%, #cbd5e1 100%);
-  color: #0a0a0a;
+  background: radial-gradient(circle, #ffffff 30%, #cbd5e1 100%);
+  color: #08080a;
+  border: 1.5px solid var(--gold-metallic);
 }
 
 .badge-sb {
-  background: radial-gradient(circle, #38bdf8 40%, #0284c7 100%);
+  background: radial-gradient(circle, #2563eb 30%, #1e40af 100%);
   color: #ffffff;
+  border: 1.5px solid #93c5fd;
 }
 
 .badge-bb {
-  background: radial-gradient(circle, #f59e0b 40%, #b45309 100%);
-  color: #0a0a0a;
+  background: radial-gradient(circle, #d97706 30%, #92400e 100%);
+  color: #ffffff;
+  border: 1.5px solid #fde68a;
 }
 
-/* Player Meta Box Below Avatar */
+/* Player Meta Plaque Below Avatar */
 .player-meta-box {
   width: 100%;
-  background: rgba(18, 18, 18, 0.94);
-  border: 1px solid var(--border-subtle);
+  background: rgba(14, 14, 18, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-sm);
   padding: 3px 4px;
   margin-top: 3px;
@@ -1326,12 +1424,12 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   flex-direction: column;
   align-items: center;
   gap: 1px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7);
 }
 
 .player-name-line {
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
@@ -1348,10 +1446,10 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 .player-chip-counter {
   display: flex;
   align-items: center;
-  gap: 2px;
-  font-size: 0.75rem;
-  font-weight: 900;
-  color: var(--gold); /* Bold gold chip count */
+  gap: 3px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--gold-champagne);
 }
 
 .player-last-action {
@@ -1360,13 +1458,15 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   padding: 1px 5px;
   border-radius: 4px;
   white-space: nowrap;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
-.action-fold { background: rgba(255, 68, 68, 0.2); color: #ff6b6b; }
-.action-check { background: rgba(255, 215, 0, 0.15); color: #ffd700; }
-.action-call { background: rgba(0, 200, 81, 0.2); color: #2ecc71; }
-.action-raise { background: rgba(255, 215, 0, 0.25); color: #ffd700; }
-.action-allin { background: rgba(255, 255, 255, 0.25); color: #ffffff; }
+.action-fold { background: rgba(225, 29, 72, 0.16); color: #fb7185; }
+.action-check { background: rgba(212, 175, 55, 0.14); color: #fde047; }
+.action-call { background: rgba(16, 185, 129, 0.16); color: #34d399; }
+.action-raise { background: rgba(212, 175, 55, 0.24); color: #facc15; }
+.action-allin { background: rgba(255, 255, 255, 0.2); color: #ffffff; }
 
 /* Current Bet on Felt */
 .player-bet-stack {
@@ -1380,63 +1480,54 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .bet-badge-pill {
-  background: rgba(10, 10, 10, 0.88);
+  background: rgba(8, 8, 12, 0.9);
   border: 1px solid var(--gold);
-  color: var(--gold);
-  font-size: 0.65rem;
-  font-weight: 900;
-  padding: 1px 6px;
+  color: #FFFFFF;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 1px 7px;
   border-radius: var(--radius-pill);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.75);
   white-space: nowrap;
 }
 
 /* ==========================================================================
-   4. MOBILE ACTION PANEL (FIXED BOTTOM DOCK)
-   - Height: 180px with safe area padding
-   - Glassmorphism: backdrop-filter: blur(20px), dark semi-transparent
-   - 2x2 grid button layout:
-     Row 1: Fold (red, left) | Check/Call (gold, right)
-     Row 2: Raise (green, full width)
-     Row 3: All-In (white shimmer, full width)
-   - Raise row has inline slider + chip amount display
-   - All buttons border-radius: 16px, large & thumb friendly
+   4. MASTER-CRAFTED MOBILE ACTION DOCK (FIXED 180PX)
    ========================================================================== */
 .glass-action-dock {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  max-width: 500px;
+  max-width: 480px;
   margin: 0 auto;
   min-height: var(--dock-height);
-  background: var(--bg-glass-heavy);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(255, 215, 0, 0.25);
+  background: rgba(10, 10, 14, 0.94);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-top: 1px solid rgba(212, 175, 55, 0.25);
   padding: 8px 12px calc(8px + var(--safe-bottom)) 12px;
   z-index: 90;
-  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.9);
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.95);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
 }
 
-/* Turn Timer Bar at top of Dock */
 .turn-timer-wrapper {
   position: relative;
-  height: 14px;
+  height: 12px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: var(--radius-pill);
   overflow: hidden;
   margin-bottom: 8px;
-  border: 1px solid var(--border-subtle);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .turn-timer-fill {
   height: 100%;
   width: 100%;
-  background: linear-gradient(90deg, var(--emerald), var(--gold), var(--crimson));
+  background: linear-gradient(90deg, var(--emerald), var(--gold-champagne), var(--crimson));
   transition: width 0.1s linear;
 }
 
@@ -1446,14 +1537,15 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 10px;
-  font-size: 0.65rem;
+  padding: 0 8px;
+  font-size: 0.62rem;
   font-weight: 800;
   color: #ffffff;
   text-shadow: 0 1px 2px #000;
+  letter-spacing: 0.04em;
 }
 
-/* 2x2 Grid Button Layout */
+/* 2x2 Grid Layout */
 .action-grid-2x2 {
   display: flex;
   flex-direction: column;
@@ -1473,9 +1565,9 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .btn-pill {
-  min-height: 52px; /* Strict 52px height */
+  min-height: 52px;
   width: 100%;
-  border-radius: var(--radius-button); /* 16px radius */
+  border-radius: var(--radius-button);
   border: none;
   display: flex;
   flex-direction: column;
@@ -1483,60 +1575,61 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   justify-content: center;
   cursor: pointer;
   padding: 4px 8px;
-  transition: transform 0.12s ease, filter 0.15s ease, opacity 0.2s;
-}
-
-.btn-pill:active {
-  transform: scale(0.96);
-  filter: brightness(0.9);
+  box-shadow: var(--inner-highlight), var(--shadow-sm);
+  transition: transform 0.12s ease, filter 0.15s ease;
 }
 
 .btn-pill .btn-subtext {
   font-size: 0.58rem;
   font-weight: 800;
-  letter-spacing: 0.5px;
-  opacity: 0.85;
+  letter-spacing: 0.08em;
+  opacity: 0.82;
 }
 
 .btn-pill .btn-maintext {
   font-size: 0.95rem;
   font-weight: 900;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.06em;
 }
 
-/* Row 1: Fold (Crimson Red, left) */
+/* Row 1 Left: Fold (Deep Garnet Enamel) */
 .btn-fold {
-  background: linear-gradient(135deg, #FF6B6B 0%, #FF4444 50%, #CC0000 100%);
-  color: #FFFFFF;
-  box-shadow: 0 4px 14px var(--crimson-glow);
+  background: linear-gradient(145deg, #421017 0%, #29080d 100%);
+  color: #FFE4E6;
+  border: 1px solid rgba(244, 63, 94, 0.4);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.2), 0 4px 14px rgba(0, 0, 0, 0.6);
 }
 
-/* Row 1: Check/Call (Gold, right) */
+/* Row 1 Right: Check / Call (Brushed Royal Gold) */
 .btn-call {
-  background: linear-gradient(135deg, #FFF099 0%, #FFD700 50%, #B8860B 100%);
-  color: #0a0a0a;
-  box-shadow: 0 4px 14px var(--gold-glow);
+  background: linear-gradient(145deg, #f3d47d 0%, #c99b2e 50%, #8f6912 100%);
+  color: #161002;
+  border: 1px solid #FFE58F;
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.6), 0 4px 16px rgba(201, 155, 46, 0.4);
+  font-family: var(--font-serif);
 }
 
-/* Row 2: Raise (Emerald Green, full width) */
+/* Row 2: Raise (British Racing Green) */
 .btn-raise {
-  background: linear-gradient(135deg, #00E676 0%, #00C851 50%, #007E33 100%);
+  background: linear-gradient(145deg, #134e37 0%, #08291c 100%);
   color: #FFFFFF;
-  box-shadow: 0 4px 14px var(--emerald-glow);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.2), 0 4px 14px rgba(0, 0, 0, 0.6);
 }
 
-/* Row 3: All-In (White with dark text & shimmering border) */
+/* Row 3: All-In (Diamond Platinum with Gold Border) */
 .btn-allin {
-  background: linear-gradient(135deg, #FFFFFF 0%, #F4F4F5 100%);
-  color: #0a0a0a;
-  border: 2px solid var(--gold);
-  box-shadow: 0 4px 16px rgba(255, 255, 255, 0.4), 0 0 12px var(--gold-glow);
+  background: linear-gradient(145deg, #ffffff 0%, #e2e8f0 60%, #cbd5e1 100%);
+  color: #0a0a0c;
+  border: 2px solid var(--gold-metallic);
+  box-shadow: inset 0 1px 2px #ffffff, 0 4px 16px rgba(255, 255, 255, 0.25), 0 0 14px var(--gold-glow);
+  font-family: var(--font-serif);
 }
 
-/* Custom Inline Raise Slider Drawer */
+/* Raise Drawer */
 .raise-drawer-panel {
   margin-top: 6px;
-  background: #0f0f0f;
+  background: #0d0d12;
   border: 1px solid var(--border-gold);
   border-radius: var(--radius-card);
   padding: 10px;
@@ -1556,7 +1649,7 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   flex: 1;
   min-height: 36px;
   background: var(--bg-surface-elevated);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   color: var(--text-primary);
   border-radius: var(--radius-pill);
   font-size: 0.75rem;
@@ -1582,7 +1675,7 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   height: 44px;
   border-radius: 50%;
   background: var(--bg-surface-elevated);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   color: var(--text-primary);
   font-size: 1.4rem;
   font-weight: 800;
@@ -1598,17 +1691,18 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   display: flex;
   align-items: center;
   background: #000000;
-  border: 2px solid var(--gold);
+  border: 1.5px solid var(--gold);
   border-radius: var(--radius-pill);
   padding: 4px 14px;
   gap: 6px;
-  box-shadow: 0 0 12px var(--gold-glow-soft);
+  box-shadow: 0 0 14px var(--gold-glow-soft);
 }
 
 .raise-display-box input {
   background: transparent;
   border: none;
-  color: var(--gold);
+  color: var(--gold-champagne);
+  font-family: var(--font-sans);
   font-size: 1.25rem !important;
   font-weight: 900;
   width: 90px;
@@ -1618,7 +1712,7 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 
 .custom-gold-slider {
   width: 100%;
-  height: 6px;
+  height: 5px;
   accent-color: var(--gold);
   cursor: pointer;
 }
@@ -1636,20 +1730,21 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   gap: 8px;
   padding: 16px;
   color: var(--text-muted);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 .gold-pulse-indicator {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--gold);
   box-shadow: 0 0 10px var(--gold);
-  animation: pulse-dot 1.4s infinite;
+  animation: pulse-dot 1.5s infinite;
 }
 
-/* Floating Host FAB Strip (Placed right above 180px dock) */
+/* Floating Host FAB Strip */
 .host-fab-strip {
   position: fixed;
   bottom: calc(var(--dock-height) + var(--safe-bottom) + 8px);
@@ -1660,16 +1755,17 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .fab-pill {
-  background: rgba(18, 18, 18, 0.94);
+  background: rgba(16, 16, 22, 0.94);
   border: 1px solid var(--border-gold);
   color: var(--text-primary);
   padding: 6px 12px;
   border-radius: var(--radius-pill);
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   cursor: pointer;
   box-shadow: var(--shadow-sm);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
 }
 
 .fab-pill:active {
@@ -1677,19 +1773,19 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .fab-danger {
-  border-color: rgba(255, 68, 68, 0.4);
-  color: #ff6b6b;
+  border-color: rgba(225, 29, 72, 0.4);
+  color: #fb7185;
 }
 
 /* ==========================================================================
-   5. MOBILE GAME LOG: SLIDE-UP BOTTOM SHEET (Replacing side panel)
+   5. SLIDE-UP BOTTOM SHEET LOG DRAWER
    ========================================================================== */
 .sheet-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
   z-index: 150;
   transition: opacity 0.3s ease;
 }
@@ -1699,10 +1795,10 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   left: 0;
   right: 0;
   bottom: 0;
-  max-width: 500px;
+  max-width: 480px;
   margin: 0 auto;
   height: 68vh;
-  background: rgba(14, 14, 14, 0.96);
+  background: rgba(14, 14, 18, 0.96);
   backdrop-filter: blur(25px);
   -webkit-backdrop-filter: blur(25px);
   border-top: 1px solid var(--border-gold);
@@ -1710,7 +1806,7 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   z-index: 160;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 -8px 36px rgba(0, 0, 0, 0.9);
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.95);
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   padding-bottom: var(--safe-bottom);
 }
@@ -1736,7 +1832,7 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 
 .drawer-header {
   padding: 8px 18px 12px 18px;
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1749,8 +1845,10 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .drawer-title h3 {
-  font-size: 0.95rem;
-  font-weight: 800;
+  font-family: var(--font-serif);
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   color: var(--text-primary);
 }
 
@@ -1777,20 +1875,20 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   padding: 8px 12px;
   border-radius: var(--radius-sm);
   background: rgba(255, 255, 255, 0.03);
-  border-left: 3px solid var(--border-subtle);
+  border-left: 3px solid rgba(255, 255, 255, 0.1);
   line-height: 1.4;
 }
 
-.log-entry.log-action-raise { border-left-color: var(--emerald); color: #7cf8a4; }
-.log-entry.log-action-fold { border-left-color: var(--crimson); color: #ff8e8e; }
-.log-entry.log-action-call { border-left-color: var(--gold); color: #ffe277; }
-.log-entry.log-action-win { border-left-color: var(--gold); background: rgba(255, 215, 0, 0.1); color: var(--gold); font-weight: 800; }
-.log-entry.log-chat { border-left-color: #a78bfa; }
+.log-entry.log-action-raise { border-left-color: var(--emerald); color: #6ee7b7; }
+.log-entry.log-action-fold { border-left-color: var(--crimson); color: #fda4af; }
+.log-entry.log-action-call { border-left-color: var(--gold); color: #fef08a; }
+.log-entry.log-action-win { border-left-color: var(--gold); background: rgba(212, 175, 55, 0.1); color: var(--gold-champagne); font-weight: 800; }
+.log-entry.log-chat { border-left-color: #a78bfa; color: #e9d5ff; }
 .log-entry.log-system { border-left-color: var(--text-muted); color: var(--text-muted); font-size: 0.78rem; }
 
 .drawer-chat-footer {
   padding: 8px 16px;
-  border-top: 1px solid var(--border-subtle);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .drawer-chat-footer form {
@@ -1801,8 +1899,8 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 .drawer-chat-footer input {
   flex: 1;
   min-height: 48px;
-  background: #000000;
-  border: 1px solid var(--border-subtle);
+  background: #09090c;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   color: var(--text-primary);
   padding: 8px 14px;
   border-radius: var(--radius-pill);
@@ -1812,7 +1910,7 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 .btn-chat-send {
   background: var(--gold);
   border: none;
-  color: #000;
+  color: #161002;
   font-weight: 800;
   padding: 0 16px;
   border-radius: var(--radius-pill);
@@ -1828,9 +1926,9 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   bottom: calc(12px + var(--safe-bottom));
   left: 12px;
   right: 12px;
-  max-width: 480px;
+  max-width: 460px;
   margin: 0 auto;
-  background: rgba(18, 18, 18, 0.95);
+  background: rgba(16, 16, 22, 0.96);
   border: 1px solid var(--border-gold);
   border-radius: var(--radius-card);
   padding: 10px 14px;
@@ -1839,7 +1937,7 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   justify-content: space-between;
   gap: 10px;
   z-index: 180;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.9);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.95);
   animation: slideUp 0.3s ease-out;
 }
 
@@ -1847,12 +1945,6 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   display: flex;
   align-items: center;
   gap: 10px;
-}
-
-.pwa-banner-chip {
-  font-size: 1.5rem;
-  color: var(--gold);
-  filter: drop-shadow(0 0 6px var(--gold-glow));
 }
 
 .pwa-banner-text {
@@ -1863,6 +1955,7 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 .pwa-banner-text strong {
   font-size: 0.85rem;
   color: #ffffff;
+  font-family: var(--font-serif);
 }
 
 .pwa-banner-text span {
@@ -1886,25 +1979,20 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 /* ==========================================================================
-   7. FULLSCREEN WINNER ANNOUNCEMENT OVERLAY (Mobile z-index 9999)
-   - Full screen takeover overlay: position: fixed, z-index: 9999
-   - CSS confetti: 50 colored particles
-   - Center: trophy emoji large + winner name + amount won
-   - Subtle gold radial glow behind text
-   - Auto-dismiss after 4 seconds or tap to continue
+   7. FULLSCREEN WINNER ANNOUNCEMENT OVERLAY
    ========================================================================== */
 .celebration-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(5, 5, 5, 0.94);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  z-index: 9999; /* Strict mobile z-index 9999 */
+  background: rgba(5, 5, 8, 0.95);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
-  cursor: pointer; /* Tap anywhere to dismiss */
+  cursor: pointer;
   animation: fadeIn 0.3s ease-out;
 }
 
@@ -1913,14 +2001,14 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   width: 320px;
   height: 320px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 215, 0, 0.22) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.22) 0%, transparent 70%);
   pointer-events: none;
   z-index: 9998;
 }
 
 .celebration-glass-card {
-  background: linear-gradient(135deg, rgba(28, 28, 28, 0.96) 0%, rgba(14, 14, 14, 0.96) 100%);
-  border: 2px solid var(--gold);
+  background: linear-gradient(145deg, rgba(24, 24, 30, 0.97) 0%, rgba(12, 12, 15, 0.98) 100%);
+  border: 1.5px solid var(--gold);
   border-radius: var(--radius-card);
   padding: 2.2rem 1.5rem;
   text-align: center;
@@ -1933,24 +2021,23 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .celebration-trophy {
-  font-size: 3.8rem;
   margin-bottom: 0.5rem;
-  animation: trophy-bounce 1s infinite alternate;
+  animation: trophy-bounce 1.2s infinite alternate;
 }
 
 .celebration-title {
   font-family: var(--font-serif);
   font-size: 2.2rem;
   font-weight: 900;
-  letter-spacing: 3px;
-  color: var(--gold);
+  letter-spacing: 0.2em;
+  color: var(--gold-light);
   text-shadow: 0 0 20px var(--gold-glow);
   margin-bottom: 0.5rem;
 }
 
 .celebration-desc {
   font-size: 1.15rem;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 1.2rem;
 }
@@ -1966,10 +2053,10 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 .celebration-dismiss-hint {
   font-size: 0.72rem;
   color: var(--text-muted);
+  letter-spacing: 0.05em;
   margin-bottom: 1rem;
 }
 
-/* CSS Confetti Overlay */
 .confetti-particles-container {
   position: absolute;
   inset: 0;
@@ -1998,15 +2085,16 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   text-align: center;
 }
 
-.giant-trophy {
-  font-size: 3.2rem;
-  display: block;
-  margin-bottom: 0.25rem;
+.giant-trophy-svg {
+  margin-bottom: 0.35rem;
+  filter: drop-shadow(0 0 16px var(--gold-glow));
 }
 
 .summary-subtitle {
   color: var(--text-muted);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .summary-table-card {
@@ -2023,15 +2111,15 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #0d0d0d;
-  border: 1px solid var(--border-subtle);
+  background: #0b0b0e;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-sm);
   padding: 10px 14px;
 }
 
 .summary-row-card.rank-1 {
   border-color: var(--gold);
-  box-shadow: 0 0 14px var(--gold-glow-soft);
+  box-shadow: 0 0 16px var(--gold-glow-soft);
 }
 
 .summary-left {
@@ -2041,7 +2129,10 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .rank-badge-icon {
-  font-size: 1.3rem;
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--gold-champagne);
 }
 
 .player-final-name {
@@ -2060,7 +2151,7 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 
 .final-chips-val {
   font-weight: 800;
-  color: var(--gold);
+  color: #FFFFFF;
 }
 
 .profit-green {
@@ -2087,7 +2178,7 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(0, 0, 0, 0.82);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   z-index: 250;
@@ -2104,7 +2195,7 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   border-radius: var(--radius-card);
   width: 100%;
   max-width: 400px;
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.9);
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.95);
   overflow: hidden;
   animation: popIn 0.25s cubic-bezier(0.18, 0.9, 0.3, 1.2);
 }
@@ -2115,7 +2206,7 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 
 .modal-top {
   padding: 14px 18px;
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -2123,9 +2214,10 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 
 .modal-top h3 {
   font-family: var(--font-serif);
-  font-size: 1.15rem;
-  font-weight: 800;
-  color: var(--gold);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--gold-champagne);
 }
 
 .modal-x-btn {
@@ -2159,19 +2251,19 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #000000;
-  border: 1px solid var(--border-subtle);
+  background: #09090c;
+  border: 1px solid var(--border-gold);
   padding: 8px 12px;
   border-radius: var(--radius-pill);
   font-size: 0.8rem;
-  color: var(--gold);
+  color: var(--gold-champagne);
   margin-top: 8px;
 }
 
 .btn-copy-chip {
   background: var(--gold);
   border: none;
-  color: #000;
+  color: #161002;
   font-weight: 800;
   font-size: 0.72rem;
   padding: 4px 10px;
@@ -2186,13 +2278,14 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .modal-code-tag strong {
-  color: var(--gold);
+  font-family: var(--font-serif);
+  color: #FFFFFF;
   letter-spacing: 0.15em;
 }
 
 .modal-bottom {
   padding: 12px 18px;
-  border-top: 1px solid var(--border-subtle);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   justify-content: flex-end;
   gap: 8px;
@@ -2220,8 +2313,8 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .pot-select-card {
-  background: #0d0d0d;
-  border: 1px solid var(--border-subtle);
+  background: #0a0a0d;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-sm);
   padding: 10px;
 }
@@ -2229,7 +2322,8 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 .pot-select-header {
   display: flex;
   justify-content: space-between;
-  color: var(--gold);
+  color: var(--gold-champagne);
+  font-family: var(--font-serif);
   font-weight: 800;
   font-size: 0.88rem;
   margin-bottom: 8px;
@@ -2258,15 +2352,11 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 /* ==========================================================================
-   MOBILE VISUAL TOAST NOTIFICATIONS (Slide in from top, 3s auto-hide)
-   - "Your turn!" — gold
-   - "Rahul raised to 500" — white
-   - "Priya folded" — grey
-   - "You won ₹1200!" — gold with glow
+   MOBILE VISUAL TOAST NOTIFICATIONS
    ========================================================================== */
 .toast-stack {
   position: fixed;
-  top: calc(64px + var(--safe-top));
+  top: calc(60px + var(--safe-top));
   left: 50%;
   transform: translateX(-50%);
   z-index: 500;
@@ -2279,55 +2369,54 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .toast-pill {
-  padding: 10px 18px;
+  padding: 9px 18px;
   border-radius: var(--radius-pill);
-  font-size: 0.875rem;
-  font-weight: 800;
+  font-size: 0.85rem;
+  font-weight: 700;
   text-align: center;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.9);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.95);
   animation: toastIn 0.25s ease-out;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
-/* Toast Color Themes */
 .toast-pill.toast-gold {
-  background: rgba(25, 20, 0, 0.95);
-  border: 1.5px solid var(--gold);
-  color: var(--gold);
+  background: rgba(22, 18, 8, 0.96);
+  border: 1px solid var(--gold);
+  color: var(--gold-champagne);
   box-shadow: 0 0 16px var(--gold-glow);
 }
 
 .toast-pill.toast-white {
-  background: rgba(24, 24, 27, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: #ffffff;
+  background: rgba(18, 18, 24, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #FFFFFF;
 }
 
 .toast-pill.toast-grey {
-  background: rgba(20, 20, 20, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #a1a1aa;
+  background: rgba(16, 16, 20, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #A1A1AA;
 }
 
 .toast-pill.toast-gold-glow {
-  background: rgba(30, 24, 0, 0.98);
-  border: 2px solid var(--gold);
-  color: #ffffff;
-  text-shadow: 0 0 10px var(--gold);
-  box-shadow: 0 0 25px var(--gold);
+  background: rgba(28, 22, 8, 0.98);
+  border: 1.5px solid var(--gold);
+  color: #FFFFFF;
+  text-shadow: 0 0 12px var(--gold);
+  box-shadow: 0 0 24px var(--gold);
 }
 
 .toast-pill.toast-success {
-  background: rgba(0, 30, 12, 0.95);
-  border: 1.5px solid var(--emerald);
-  color: #7cf8a4;
+  background: rgba(6, 28, 18, 0.96);
+  border: 1px solid var(--emerald);
+  color: #6EE7B7;
 }
 
 .toast-pill.toast-error {
-  background: rgba(30, 5, 5, 0.95);
-  border: 1.5px solid var(--crimson);
-  color: #ff8e8e;
+  background: rgba(28, 8, 12, 0.96);
+  border: 1px solid var(--crimson);
+  color: #FDA4AF;
 }
 
 /* ==========================================================================
@@ -2335,8 +2424,8 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
    ========================================================================== */
 @media (min-width: 640px) {
   #app-container {
-    border-left: 1px solid var(--border-subtle);
-    border-right: 1px solid var(--border-subtle);
+    border-left: 1px solid rgba(212, 175, 55, 0.15);
+    border-right: 1px solid rgba(212, 175, 55, 0.15);
   }
 
   .poker-table-felt {

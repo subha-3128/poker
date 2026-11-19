@@ -1,5 +1,5 @@
 // ==========================================================================
-// POKER NIGHT - MOBILE-FIRST CASINO PROGRESSIVE WEB APP (PWA)
+// POKER NIGHT - HIGH-STAKES LUXURY CASINO PWA CONTROLLER
 // UI/UX Pro Max Engine
 // ==========================================================================
 
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const elRoomCodeBadge = document.getElementById('room-code-badge');
   const elBtnQrModal = document.getElementById('btn-qr-modal');
   const elBtnSoundToggle = document.getElementById('btn-sound-toggle');
-  const elSoundIcon = document.getElementById('sound-icon');
+  const elSoundIconSvg = document.getElementById('sound-icon-svg');
   const elBtnLogToggle = document.getElementById('btn-log-toggle');
   const elUnreadLogBadge = document.getElementById('unread-log-badge');
   const elDrawerLog = document.getElementById('drawer-log');
@@ -190,30 +190,30 @@ document.addEventListener('DOMContentLoaded', () => {
   let wasMyTurn = false;
   let lastSecondVibrated = null;
 
-  // Unique Pastel Palette for Mobile Avatars
-  const PASTEL_PALETTE = [
-    { bg: '#FFB3BA', color: '#4A151B' }, // Pastel Rose
-    { bg: '#BAFFC9', color: '#143D1F' }, // Pastel Mint
-    { bg: '#BAE1FF', color: '#133352' }, // Pastel Sky
-    { bg: '#FFFFBA', color: '#524B13' }, // Pastel Butter
-    { bg: '#E8BAFF', color: '#3E1352' }, // Pastel Lilac
-    { bg: '#FFDFBA', color: '#523013' }, // Pastel Peach
-    { bg: '#BFFCC6', color: '#114720' }, // Pastel Pistachio
-    { bg: '#D5BAFF', color: '#2B1352' }  // Pastel Violet
+  // Opulent Monte Carlo Gemstone & Velvet Avatar Palettes (Deep & Classy)
+  const LUXURY_AVATAR_THEMES = [
+    { bg: 'radial-gradient(circle at 35% 35%, #2a2a34 0%, #101014 100%)', border: '#C59B27', color: '#FFF3B0' }, // Imperial Obsidian
+    { bg: 'radial-gradient(circle at 35% 35%, #1e3a8a 0%, #0a193d 100%)', border: '#D4AF37', color: '#E0E7FF' }, // Royal Sapphire
+    { bg: 'radial-gradient(circle at 35% 35%, #064e3b 0%, #02231a 100%)', border: '#D4AF37', color: '#D1FAE5' }, // British Racing Emerald
+    { bg: 'radial-gradient(circle at 35% 35%, #701a30 0%, #360814 100%)', border: '#ECC863', color: '#FFE4E6' }, // Bordeaux Velvet
+    { bg: 'radial-gradient(circle at 35% 35%, #4c1d95 0%, #200742 100%)', border: '#D4AF37', color: '#EDE9FE' }, // Monaco Amethyst
+    { bg: 'radial-gradient(circle at 35% 35%, #78350f 0%, #361502 100%)', border: '#C59B27', color: '#FEF3C7' }, // Cognac Amber
+    { bg: 'radial-gradient(circle at 35% 35%, #1e293b 0%, #090e18 100%)', border: '#94A3B8', color: '#F8FAFC' }, // Slate Titanium
+    { bg: 'radial-gradient(circle at 35% 35%, #0e7490 0%, #042f3d 100%)', border: '#D4AF37', color: '#CFFAFE' }  // Blue Diamond
   ];
 
-  function getPastelTheme(id) {
-    if (!id) return PASTEL_PALETTE[0];
+  function getAvatarTheme(id) {
+    if (!id) return LUXURY_AVATAR_THEMES[0];
     let hash = 0;
     for (let i = 0; i < id.length; i++) {
       hash = (hash << 5) - hash + id.charCodeAt(i);
       hash |= 0;
     }
-    const idx = Math.abs(hash) % PASTEL_PALETTE.length;
-    return PASTEL_PALETTE[idx];
+    const idx = Math.abs(hash) % LUXURY_AVATAR_THEMES.length;
+    return LUXURY_AVATAR_THEMES[idx];
   }
 
-  // Truncate player name at 8 characters with ellipsis (spec requirement)
+  // Truncate player name at 8 characters with ellipsis
   function truncateName(name, maxChars = 8) {
     if (!name) return 'Player';
     if (name.length > maxChars) {
@@ -245,10 +245,23 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!savedName) elInputPlayerName.focus();
   }
 
-  // Sound Icon Init
+  // Sound Icon Init with SVG
   updateSoundIcon();
   function updateSoundIcon() {
-    elSoundIcon.textContent = audio.enabled ? '🔊' : '🔇';
+    if (elSoundIconSvg) {
+      if (audio.enabled) {
+        elSoundIconSvg.innerHTML = `
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+        `;
+      } else {
+        elSoundIconSvg.innerHTML = `
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <line x1="23" y1="9" x2="17" y2="15"></line>
+          <line x1="17" y1="9" x2="23" y2="15"></line>
+        `;
+      }
+    }
   }
 
   elBtnSoundToggle.addEventListener('click', () => {
@@ -305,8 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Visual Toast Notifications (Slide in from top, 3s auto-hide)
-  // Types: gold, white, grey, gold-glow, success, error
+  // Visual Toast Notifications
   function showToast(message, type = 'gold') {
     const toast = document.createElement('div');
     toast.className = `toast-pill toast-${type}`;
@@ -318,7 +330,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Copy Link Helper
-  function copyTextToClipboard(text, successMsg = 'Link copied to clipboard!') {
+  function copyTextToClipboard(text, successMsg = 'Table link copied!') {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(() => {
         showToast(successMsg, 'gold');
@@ -342,7 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function loadNetworkInfo(code = '') {
     const info = await client.fetchNetworkInfo(code);
     if (info) {
-      elWifiAddressText.textContent = `WiFi: ${info.targetUrl || info.networkUrl}`;
+      elWifiAddressText.textContent = `Salon URL: ${info.targetUrl || info.networkUrl}`;
       if (info.qrDataUrl) {
         elLobbyQrImg.src = info.qrDataUrl;
         elModalQrImage.src = info.qrDataUrl;
@@ -355,7 +367,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // All-In Screen Flash Micro-Interaction
   function triggerScreenFlash() {
     elScreenFlashOverlay.classList.remove('flash-active');
-    void elScreenFlashOverlay.offsetWidth; // Force reflow
+    void elScreenFlashOverlay.offsetWidth;
     elScreenFlashOverlay.classList.add('flash-active');
   }
 
@@ -395,7 +407,7 @@ document.addEventListener('DOMContentLoaded', () => {
       elBtnCreateGame.disabled = true;
       const res = await client.createGame(name, config);
       elBtnCreateGame.disabled = false;
-      showToast(`Table created! Room: ${res.roomId}`, 'gold');
+      showToast(`Table created: Room ${res.roomId}`, 'gold');
       loadNetworkInfo(res.roomId);
     } catch (err) {
       elBtnCreateGame.disabled = false;
@@ -474,7 +486,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   elBtnModalCopyUrl.addEventListener('click', () => {
-    copyTextToClipboard(elModalShareUrl.textContent, 'WiFi URL copied!');
+    copyTextToClipboard(elModalShareUrl.textContent, 'Salon URL copied!');
   });
 
   // --- 2x2 ACTION CONTROLS ---
@@ -645,14 +657,14 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       await client.rebuy(targetPlayerId, amount);
       elModalRebuy.classList.add('hidden');
-      showToast('Chips added successfully!', 'gold');
+      showToast('Chips transferred successfully', 'gold');
     } catch (err) {
       showToast(err.message, 'error');
     }
   });
 
   elFabEndGame.addEventListener('click', () => {
-    if (confirm('Conclude the game and generate final night ledger?')) {
+    if (confirm('Conclude the session and generate the final salon ledger?')) {
       client.endGame().catch(err => showToast(err.message, 'error'));
     }
   });
@@ -718,7 +730,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   client.onKicked = ({ message }) => {
-    alert(message || 'You were kicked from the table.');
+    alert(message || 'You were excused from the table.');
     switchView('home');
   };
 
@@ -773,19 +785,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const initial = p.name ? p.name.charAt(0).toUpperCase() : '?';
       const isHost = p.id === state.hostId;
-      const theme = getPastelTheme(p.id);
+      const theme = getAvatarTheme(p.id);
 
       item.innerHTML = `
         <div class="roster-left">
-          <div class="user-avatar-circle" style="background: ${theme.bg}; color: ${theme.color};">${initial}</div>
+          <div class="user-avatar-circle" style="background: ${theme.bg}; border-color: ${theme.border}; color: ${theme.color};">${initial}</div>
           <div>
             <span class="roster-name">${escapeHtml(p.name)}</span>
-            ${isHost ? '<span class="tag-host">👑 Host</span>' : ''}
-            ${p.isYou ? '<span class="tag-you">(You)</span>' : ''}
+            ${isHost ? '<span class="tag-host">VIP HOST</span>' : ''}
+            ${p.isYou ? '<span class="tag-you">(YOU)</span>' : ''}
           </div>
         </div>
         <div class="roster-right">
-          ${state.isHost && !isHost ? `<button class="btn-kick" data-kick="${p.id}">Kick</button>` : ''}
+          ${state.isHost && !isHost ? `<button class="btn-kick" data-kick="${p.id}">Remove</button>` : ''}
         </div>
       `;
 
@@ -795,7 +807,7 @@ document.addEventListener('DOMContentLoaded', () => {
     elLobbyPlayersList.querySelectorAll('[data-kick]').forEach(btn => {
       btn.addEventListener('click', () => {
         const id = btn.dataset.kick;
-        if (confirm('Kick player from table?')) {
+        if (confirm('Excuse player from the table?')) {
           client.kickPlayer(id).catch(err => showToast(err.message, 'error'));
         }
       });
@@ -849,8 +861,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Render Seated Players Around the Oval Table
-  // Geometry: Top row = opponents, Bottom = current player info, Center = Pot
+  // Render Seated Players Around the Oval Table with Luxury Gemstone Themes
   function renderTablePlayers(state) {
     elPokerPlayersLayer.innerHTML = '';
     const players = state.players || [];
@@ -869,7 +880,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const CIRCUMFERENCE = 201.06;
 
     players.forEach((player, idx) => {
-      // Seat offset places current player ("you") at bottom (angle = PI/2)
       const seatOffset = (idx - youIndex + count) % count;
       const angle = (Math.PI / 2) + (seatOffset * (2 * Math.PI / count));
 
@@ -888,8 +898,8 @@ document.addEventListener('DOMContentLoaded', () => {
       card.style.top = `${posY}%`;
 
       const initial = player.name ? player.name.charAt(0).toUpperCase() : '?';
-      const theme = getPastelTheme(player.id);
-      const displayName = truncateName(player.name, 8); // Truncate at 8 chars with ellipsis
+      const theme = getAvatarTheme(player.id);
+      const displayName = truncateName(player.name, 8);
 
       // Role Chip Badge (D, SB, BB)
       let roleHtml = '';
@@ -901,7 +911,7 @@ document.addEventListener('DOMContentLoaded', () => {
         roleHtml = `<div class="role-chip-badge badge-bb" title="Big Blind">BB</div>`;
       }
 
-      // All-In Badge (Small red pill on avatar)
+      // All-In Badge (Enamel pill on avatar)
       const isAllIn = player.isAllIn || (player.chips === 0 && player.currentBet > 0 && !player.isFolded);
       const allInHtml = isAllIn ? `<div class="badge-allin-pill">ALL IN</div>` : '';
 
@@ -924,8 +934,8 @@ document.addEventListener('DOMContentLoaded', () => {
               stroke-dasharray="${CIRCUMFERENCE}" stroke-dashoffset="${player.isTurn ? 0 : CIRCUMFERENCE}" />
           </svg>
 
-          <!-- 64x64px Circle Avatar with Initials & Pastel Color -->
-          <div class="player-avatar-circle" style="background: ${theme.bg}; color: ${theme.color};">${initial}</div>
+          <!-- Gemstone/Velvet Avatar with Gold Bezel -->
+          <div class="player-avatar-circle" style="background: ${theme.bg}; border-color: ${theme.border}; color: ${theme.color};">${initial}</div>
           ${roleHtml}
           ${allInHtml}
         </div>
@@ -936,7 +946,10 @@ document.addEventListener('DOMContentLoaded', () => {
             ${player.isYou ? '<span class="you-tag">(YOU)</span>' : ''}
           </div>
           <div class="player-chip-counter">
-            <span>🪙</span>
+            <svg class="gold-chip-glyph" width="13" height="13" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" fill="url(#chipGoldGrad)" stroke="#B8860B" stroke-width="1.5"/>
+              <text x="12" y="15" text-anchor="middle" font-size="8" font-family="'Cinzel', serif" font-weight="900" fill="#1C1405">P</text>
+            </svg>
             <span>${player.chips.toLocaleString()}</span>
           </div>
           ${player.lastAction ? `<div class="player-last-action ${actionClass}">${player.lastAction}</div>` : ''}
@@ -970,7 +983,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Turn transition vibration: Your turn starts -> long vibrate [100, 50, 100]
     if (isYourTurn && !wasMyTurn) {
       vibrateDevice([100, 50, 100]);
-      showToast('Your turn!', 'gold');
+      showToast('Your turn to act!', 'gold');
     }
     wasMyTurn = isYourTurn;
 
@@ -1005,21 +1018,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
           // Colors: Gold (30s) -> Orange (15s) -> Red (5s)
           if (seconds > 15) {
-            ringCircle.style.stroke = '#FFD700';
-            elTopTurnFill.style.backgroundColor = '#FFD700';
+            ringCircle.style.stroke = '#ECC863';
+            elTopTurnFill.style.backgroundColor = '#ECC863';
             seatCard?.classList.remove('urgent-turn-pulse');
           } else if (seconds > 5) {
-            ringCircle.style.stroke = '#FF8800';
-            elTopTurnFill.style.backgroundColor = '#FF8800';
+            ringCircle.style.stroke = '#F59E0B';
+            elTopTurnFill.style.backgroundColor = '#F59E0B';
             seatCard?.classList.remove('urgent-turn-pulse');
           } else {
             // At 5s: avatar pulses with red glow
-            ringCircle.style.stroke = '#FF4444';
-            elTopTurnFill.style.backgroundColor = '#FF4444';
+            ringCircle.style.stroke = '#E11D48';
+            elTopTurnFill.style.backgroundColor = '#E11D48';
             seatCard?.classList.add('urgent-turn-pulse');
             audio.playTimerTick();
 
-            // Mobile Haptic Feedback: Timer warning (5s left) -> short pulse [50] every second
             if (seconds !== lastSecondVibrated && seconds <= 5 && seconds > 0) {
               lastSecondVibrated = seconds;
               vibrateDevice([50]);
@@ -1058,13 +1070,13 @@ document.addEventListener('DOMContentLoaded', () => {
       elTurnControls.classList.add('hidden');
       elWaitingDock.classList.remove('hidden');
       if (turnPlayer) {
-        elWaitingStatusText.textContent = `Waiting for ${truncateName(turnPlayer.name, 10)} to act...`;
+        elWaitingStatusText.textContent = `Awaiting action from ${truncateName(turnPlayer.name, 10)}...`;
       } else if (state.street === 'showdown') {
-        elWaitingStatusText.textContent = 'Showdown! Host is awarding the pot...';
+        elWaitingStatusText.textContent = 'Showdown! Host is determining winning hands...';
       } else if (state.street === 'hand_ended') {
         elWaitingStatusText.textContent = 'Hand complete. Dealing next hand...';
       } else {
-        elWaitingStatusText.textContent = 'Waiting for hand to start...';
+        elWaitingStatusText.textContent = 'Waiting for hand to begin...';
       }
     }
   }
@@ -1112,7 +1124,7 @@ document.addEventListener('DOMContentLoaded', () => {
     for (const pot of pots) {
       const checked = Array.from(document.querySelectorAll(`input[name="pot-winner-${pot.id}"]:checked`)).map(cb => cb.value);
       if (checked.length === 0) {
-        showToast(`Select at least one winner for ${pot.name}`, 'error');
+        showToast(`Select winner(s) for ${pot.name}`, 'error');
         return;
       }
       allocations.push({
@@ -1130,16 +1142,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // --- FULLSCREEN WINNER ANNOUNCEMENT & CONFETTI (Mobile z-index 9999) ---
+  // --- FULLSCREEN WINNER ANNOUNCEMENT & CHAMPAGNE FOIL CONFETTI ---
   function spawnConfetti() {
     elConfettiContainer.innerHTML = '';
-    const colors = ['#FFD700', '#00C851', '#FF4444', '#FFFFFF', '#FFE55C', '#38BDF8'];
-    // 50 CSS colored confetti particles (per mobile spec)
+    const luxuryFoilColors = [
+      'linear-gradient(135deg, #FFF3B0, #D4AF37)',
+      'linear-gradient(135deg, #ECC863, #AA820A)',
+      'linear-gradient(135deg, #FFFFFF, #CBD5E1)',
+      'linear-gradient(135deg, #34D399, #059669)',
+      'linear-gradient(135deg, #FDE68A, #D97706)'
+    ];
     for (let i = 0; i < 50; i++) {
       const piece = document.createElement('div');
       piece.className = 'confetti-piece';
       piece.style.left = `${Math.random() * 100}%`;
-      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.background = luxuryFoilColors[Math.floor(Math.random() * luxuryFoilColors.length)];
       piece.style.setProperty('--drift', `${(Math.random() - 0.5) * 160}px`);
       piece.style.setProperty('--rot', `${Math.random() * 720}deg`);
       piece.style.animationDelay = `${Math.random() * 1.5}s`;
@@ -1155,15 +1172,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     audio.playWinFanfare();
 
-    // Check if current user is one of the winners
     const youWon = result.winners?.some(w => w.id === client.playerId);
     if (youWon) {
-      // You win pot -> celebration vibrate [200, 100, 200, 100, 400]
       vibrateDevice([200, 100, 200, 100, 400]);
       showToast(`You won 🪙 ${result.winners.find(w => w.id === client.playerId)?.amount || ''}!`, 'gold-glow');
     }
 
-    elWinnerCelebrationDesc.textContent = result.message || 'Pot awarded to winner!';
+    elWinnerCelebrationDesc.textContent = result.message || 'Pot awarded to winning hand!';
 
     const totalChips = result.winners?.reduce((sum, w) => sum + w.amount, 0) || 500;
     elCelebrationChipsStack.innerHTML = window.renderChipStack(totalChips);
@@ -1171,7 +1186,6 @@ document.addEventListener('DOMContentLoaded', () => {
     spawnConfetti();
     elCelebrationOverlay.classList.remove('hidden');
 
-    // Auto-dismiss after 4 seconds per mobile spec
     clearTimeout(winnerDismissTimer);
     winnerDismissTimer = setTimeout(() => {
       elCelebrationOverlay.classList.add('hidden');
@@ -1190,24 +1204,24 @@ document.addEventListener('DOMContentLoaded', () => {
     elCelebrationOverlay.classList.add('hidden');
   });
 
-  // --- END OF NIGHT SUMMARY LEDGER ---
+  // --- END OF NIGHT SUMMARY LEDGER (ROMAN VIP BADGES) ---
   function renderLeaderboard(leaderboard) {
     elSummaryCardsList.innerHTML = '';
     if (!Array.isArray(leaderboard)) return;
 
-    const medals = ['🥇', '🥈', '🥉'];
+    const rankBadges = ['I', 'II', 'III'];
 
     leaderboard.forEach((row, idx) => {
       const card = document.createElement('div');
       card.className = `summary-row-card ${idx === 0 ? 'rank-1' : ''}`;
 
-      const medal = medals[idx] || `#${idx + 1}`;
+      const rankBadge = rankBadges[idx] || `#${idx + 1}`;
       const isPos = row.profitLoss >= 0;
       const profitClass = isPos ? 'profit-green' : 'loss-red';
 
       card.innerHTML = `
         <div class="summary-left">
-          <span class="rank-badge-icon">${medal}</span>
+          <span class="rank-badge-icon">${rankBadge}</span>
           <div>
             <div class="player-final-name">${escapeHtml(row.name)}</div>
             <div class="player-buyin-sub">Buy-in: 🪙 ${row.totalBuyIn.toLocaleString()} ${row.totalRebuys > 0 ? `(+${row.totalRebuys.toLocaleString()})` : ''}</div>
@@ -1237,7 +1251,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const text = latest.text.toLowerCase();
 
-      // Parse and display mobile visual toast
       if (text.includes('raised to') || text.includes('all-in')) {
         showToast(latest.text, 'white');
       } else if (text.includes('folded')) {
@@ -1285,6 +1298,6 @@ document.addEventListener('DOMContentLoaded', () => {
               .replace(/'/g, '&#039;');
   }
 
-  // Initialize socket client (handles auto-reconnect from localStorage)
+  // Initialize socket client
   client.init();
 });
