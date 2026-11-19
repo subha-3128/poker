@@ -381,8 +381,8 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .header-btn {
-  min-height: 38px;
-  min-width: 38px;
+  min-height: 42px;
+  min-width: 42px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: var(--text-secondary);
@@ -390,16 +390,19 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.3rem;
-  padding: 0.35rem 0.6rem;
+  gap: 0.35rem;
+  padding: 0.4rem 0.75rem;
   cursor: pointer;
   position: relative;
-  transition: border-color 0.2s, background 0.2s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.2s, background 0.2s, transform 0.12s;
 }
 
 .header-btn:active {
   border-color: var(--gold);
-  background: rgba(212, 175, 55, 0.1);
+  background: rgba(212, 175, 55, 0.12);
+  transform: scale(0.95);
 }
 
 .wifi-tag {
@@ -745,34 +748,55 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   padding: 0 0.5rem;
 }
 
-.join-input-group {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 0.5rem;
+.join-card-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  width: 100%;
+}
+
+.room-code-wrapper {
+  width: 100%;
 }
 
 .room-code-input {
+  width: 100%;
   min-height: 52px;
   background: #09090c;
-  border: 1px solid var(--border-gold);
-  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border-gold);
+  border-radius: var(--radius-button);
   color: var(--gold-champagne);
   font-family: var(--font-serif);
   font-weight: 800;
-  font-size: 1.4rem !important;
-  letter-spacing: 0.32em;
+  font-size: 1.15rem !important;
+  letter-spacing: 0.25em;
   text-align: center;
-  padding: 6px 10px;
+  padding: 8px 14px;
   outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+.room-code-input::placeholder {
+  font-size: 0.76rem;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-weight: 600;
 }
 
 .room-code-input:focus {
   border-color: var(--gold);
-  box-shadow: 0 0 0 2px var(--gold-glow-soft);
+  box-shadow: 0 0 0 2px var(--gold-glow-soft), inset 0 2px 6px rgba(0, 0, 0, 0.6);
+  background: #0d0d14;
 }
 
-.join-input-group .btn {
-  padding: 0 1.25rem;
+/* Backwards compatibility for any legacy references */
+.join-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  width: 100%;
 }
 
 .wifi-status-card {
@@ -985,14 +1009,26 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .btn-kick {
-  background: transparent;
+  min-height: 36px;
+  min-width: 58px;
+  background: rgba(225, 29, 72, 0.08);
   border: 1px solid var(--crimson);
-  color: var(--crimson);
-  font-size: 0.72rem;
+  color: #fb7185;
+  font-size: 0.78rem;
   font-weight: 700;
-  padding: 3px 9px;
+  padding: 6px 14px;
   border-radius: var(--radius-pill);
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+  transition: background 0.15s, transform 0.12s;
+}
+
+.btn-kick:active {
+  background: rgba(225, 29, 72, 0.25);
+  transform: scale(0.95);
 }
 
 .guest-waiting-banner {
@@ -1260,8 +1296,18 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 
 .center-host-bar {
   display: flex;
-  gap: 0.5rem;
-  margin-top: 3px;
+  gap: 0.65rem;
+  margin-top: 6px;
+  justify-content: center;
+}
+
+.center-host-bar .btn {
+  min-height: 42px;
+  padding: 0 18px;
+  font-size: 0.82rem;
+  border-radius: var(--radius-pill);
+  touch-action: manipulation;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7);
 }
 
 /* Seated Players Ring */
@@ -1748,33 +1794,68 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 .host-fab-strip {
   position: fixed;
   bottom: calc(var(--dock-height) + var(--safe-bottom) + 8px);
-  right: 12px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
-  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   z-index: 85;
+  max-width: 96vw;
+  padding: 4px 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.host-fab-strip::-webkit-scrollbar {
+  display: none;
 }
 
 .fab-pill {
+  min-height: 40px;
   background: rgba(16, 16, 22, 0.94);
   border: 1px solid var(--border-gold);
   color: var(--text-primary);
-  padding: 6px 12px;
+  padding: 6px 14px;
   border-radius: var(--radius-pill);
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   cursor: pointer;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+  white-space: nowrap;
+  transition: transform 0.12s ease, filter 0.12s ease, border-color 0.2s ease;
 }
 
 .fab-pill:active {
   transform: scale(0.95);
+  filter: brightness(0.92);
 }
 
 .fab-danger {
-  border-color: rgba(225, 29, 72, 0.4);
+  border-color: rgba(225, 29, 72, 0.5);
   color: #fb7185;
+}
+
+.fab-gold {
+  border-color: var(--gold);
+  background: linear-gradient(145deg, rgba(212, 175, 55, 0.25) 0%, rgba(16, 16, 22, 0.94) 100%);
+  color: var(--gold-champagne);
+  box-shadow: 0 0 14px var(--gold-glow-soft);
+}
+
+.fab-emerald {
+  border-color: var(--emerald);
+  background: linear-gradient(145deg, rgba(0, 200, 81, 0.25) 0%, rgba(16, 16, 22, 0.94) 100%);
+  color: #a7f3d0;
+  box-shadow: 0 0 14px var(--emerald-glow);
 }
 
 /* ==========================================================================
@@ -2167,9 +2248,22 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .summary-actions-row {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.summary-actions-row .btn {
+  min-height: 52px;
+  font-size: 0.88rem;
+  letter-spacing: 0.06em;
+}
+
+.summary-actions-row:has(> :only-child) {
+  grid-template-columns: 1fr;
 }
 
 /* ==========================================================================
@@ -2284,11 +2378,23 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .modal-bottom {
-  padding: 12px 18px;
+  padding: 14px 18px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+}
+
+.modal-bottom .btn {
+  min-height: 48px;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  padding: 0 12px;
+}
+
+.modal-bottom:has(> :only-child) {
+  grid-template-columns: 1fr;
 }
 
 .modal-body-fields {

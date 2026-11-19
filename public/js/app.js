@@ -128,6 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const elWaitingStatusText = document.getElementById('waiting-status-text');
 
   // Action Buttons (2x2 Grid)
+  const elActionGrid2x2 = document.getElementById('action-grid-2x2');
   const elBtnActionFold = document.getElementById('btn-action-fold');
   const elBtnActionCheckCall = document.getElementById('btn-action-check-call');
   const elBtnCheckCallText = document.getElementById('btn-check-call-text');
@@ -438,6 +439,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  elInputRoomCode.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      elBtnJoinGame.click();
+    }
+  });
+
+  elInputPlayerName.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (elInputRoomCode.value.trim().length === 4) {
+        elBtnJoinGame.click();
+      } else {
+        elBtnCreateGame.click();
+      }
+    }
+  });
+
   // --- LOBBY VIEW HANDLERS ---
   function updateHostSettings() {
     if (!client.currentState?.isHost) return;
@@ -522,6 +541,7 @@ document.addEventListener('DOMContentLoaded', () => {
   elBtnToggleRaise.addEventListener('click', () => {
     isRaiseDrawerOpen = !isRaiseDrawerOpen;
     elRaiseDrawer.classList.toggle('hidden', !isRaiseDrawerOpen);
+    if (elActionGrid2x2) elActionGrid2x2.classList.toggle('hidden', isRaiseDrawerOpen);
     if (isRaiseDrawerOpen) {
       syncRaiseInputs();
     }
@@ -541,6 +561,7 @@ document.addEventListener('DOMContentLoaded', () => {
   elBtnCancelRaise.addEventListener('click', () => {
     isRaiseDrawerOpen = false;
     elRaiseDrawer.classList.add('hidden');
+    if (elActionGrid2x2) elActionGrid2x2.classList.remove('hidden');
   });
 
   function syncRaiseInputs(newVal) {
@@ -605,6 +626,7 @@ document.addEventListener('DOMContentLoaded', () => {
       await client.sendAction('raise', amount);
       isRaiseDrawerOpen = false;
       elRaiseDrawer.classList.add('hidden');
+      if (elActionGrid2x2) elActionGrid2x2.classList.remove('hidden');
     } catch (err) {
       showToast(err.message, 'error');
     }
@@ -840,17 +862,29 @@ document.addEventListener('DOMContentLoaded', () => {
       elSidePotsContainer.classList.add('hidden');
     }
 
-    // Center Controls (Showdown / Next Hand)
+    // Center Controls & Floating Host Bar (Showdown / Next Hand)
     if (state.street === 'showdown') {
       elCenterHostActions.classList.remove('hidden');
       elBtnShowdownAward.classList.remove('hidden');
       elBtnNextHand.classList.add('hidden');
+      if (elFabAward) {
+        elFabAward.classList.remove('hidden');
+        elFabAward.classList.add('fab-gold');
+      }
+      if (elFabNext) elFabNext.classList.add('hidden');
     } else if (state.street === 'hand_ended') {
       elCenterHostActions.classList.remove('hidden');
       elBtnShowdownAward.classList.add('hidden');
       elBtnNextHand.classList.remove('hidden');
+      if (elFabAward) elFabAward.classList.add('hidden');
+      if (elFabNext) {
+        elFabNext.classList.remove('hidden');
+        elFabNext.classList.add('fab-emerald');
+      }
     } else {
       elCenterHostActions.classList.add('hidden');
+      if (elFabAward) elFabAward.classList.add('hidden');
+      if (elFabNext) elFabNext.classList.add('hidden');
     }
 
     renderTablePlayers(state);
@@ -1067,6 +1101,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       syncRaiseInputs();
     } else {
+      isRaiseDrawerOpen = false;
+      elRaiseDrawer.classList.add('hidden');
+      if (elActionGrid2x2) elActionGrid2x2.classList.remove('hidden');
       elTurnControls.classList.add('hidden');
       elWaitingDock.classList.remove('hidden');
       if (turnPlayer) {
