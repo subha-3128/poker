@@ -1,7 +1,8 @@
 const io = require('socket.io-client');
 const assert = require('assert');
 
-const SERVER_URL = 'http://localhost:3000';
+const PORT = process.env.PORT || 3000;
+const SERVER_URL = process.env.TEST_SERVER_URL || `http://localhost:${PORT}`;
 
 function wait(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));

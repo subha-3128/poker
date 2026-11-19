@@ -8,6 +8,10 @@ const PokerGame = require('./lib/pokerGame');
 const { getLocalIpAddress, generateQrDataUrl } = require('./lib/networkUtils');
 
 const app = express();
+
+// Trust proxy for reverse proxies (Render, Railway, Cloudflare, etc.)
+app.set('trust proxy', 1);
+
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
@@ -17,13 +21,19 @@ const io = new Server(server, {
 });
 
 const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || '0.0.0.0';
 const localIp = getLocalIpAddress();
-const networkUrl = `http://${localIp}:${PORT}`;
+const networkUrl = localIp ? `http://${localIp}:${PORT}` : `http://localhost:${PORT}`;
 const localUrl = `http://localhost:${PORT}`;
 
-// Serve static frontend files
+// Serve static frontend files from /public
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
+
+// Health check endpoint for Railway, Render, and cloud monitors
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
 
 // In-memory game storage
 // Map<roomId, PokerGame>
@@ -43,13 +53,23 @@ function generateRoomCode() {
 // API endpoint for network and QR info
 app.get('/api/network-info', async (req, res) => {
   const room = req.query.room || '';
-  const targetUrl = room ? `${networkUrl}?room=${room}` : networkUrl;
+  // Determine the public URL dynamically based on reverse proxy headers or request host
+  const forwardedProto = req.headers['x-forwarded-proto'];
+  const protocol = forwardedProto ? forwardedProto.split(',')[0].trim() : req.protocol;
+  const host = req.get('host') || `localhost:${PORT}`;
+  const reqOrigin = `${protocol}://${host}`;
+
+  // If accessed through a cloud domain or reverse proxy, use the request origin;
+  // if accessed locally via localhost, prioritize the LAN Wi-Fi URL so friends on Wi-Fi can scan.
+  const isLocalhost = host.includes('localhost') || host.includes('127.0.0.1');
+  const baseUrl = process.env.PUBLIC_URL || (!isLocalhost ? reqOrigin : (localIp ? `http://${localIp}:${PORT}` : reqOrigin));
+  const targetUrl = room ? `${baseUrl}?room=${room}` : baseUrl;
   const qrDataUrl = await generateQrDataUrl(targetUrl);
   res.json({
     ip: localIp,
     port: PORT,
-    localUrl,
-    networkUrl,
+    localUrl: reqOrigin,
+    networkUrl: baseUrl,
     targetUrl,
     qrDataUrl
   });
@@ -401,19 +421,23 @@ io.on('connection', (socket) => {
   });
 });
 
-// Start Server
-server.listen(PORT, '0.0.0.0', () => {
+// Start Server on PORT and HOST (Supports cloud environments: Render, Railway, etc.)
+server.listen(PORT, HOST, () => {
   console.log('\n========================================================');
-  console.log('   ♠ ♥ ♦ ♣  POKER CHIP TRACKER (LOCAL WIFI)  ♣ ♦ ♥ ♠   ');
+  console.log('   ♠ ♥ ♦ ♣  POKER NIGHT - PRODUCTION SERVER  ♣ ♦ ♥ ♠   ');
   console.log('========================================================');
-  console.log(`📡 Local Machine:     ${localUrl}`);
-  console.log(`📶 WiFi Network URL:   ${networkUrl}`);
+  console.log(`🚀 Host / Binding:     ${HOST}:${PORT}`);
+  console.log(`📡 Local Access:       ${localUrl}`);
+  if (localIp) {
+    console.log(`📶 WiFi Network URL:   ${networkUrl}`);
+  }
+  console.log(`💚 Health Check:       http://${HOST === '0.0.0.0' ? 'localhost' : HOST}:${PORT}/health`);
   console.log('--------------------------------------------------------');
-  console.log('Friends on the same WiFi network can open the WiFi URL');
-  console.log('or scan the QR Code displayed on screen or below:\n');
 
-  QRCode.toString(networkUrl, { type: 'terminal', small: true }, (err, qr) => {
+  const displayUrl = process.env.PUBLIC_URL || (localIp ? networkUrl : localUrl);
+  QRCode.toString(displayUrl, { type: 'terminal', small: true }, (err, qr) => {
     if (!err && qr) {
+      console.log('Scan QR Code to join table:\n');
       console.log(qr);
     }
     console.log('========================================================\n');
