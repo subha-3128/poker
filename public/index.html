@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Poker Chip Tracker | Local WiFi Poker</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/animations.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%3E<text y=%2226%22 font-size=%2224%22>♠️</text></svg>">
+</head>
+<body>
+  <div id="app-container">
+    <!-- Top Global Header -->
+    <header id="app-header">
+      <div class="header-left">
+        <div class="app-logo">
+          <span class="suit-icon suit-spade">♠</span>
+          <span class="logo-text">PokerChips</span>
+          <span class="suit-icon suit-heart">♥</span>
+        </div>
+        <div id="room-code-badge" class="badge room-pill hidden" title="Click to copy room link">
+          <span>ROOM: <strong id="header-room-code">----</strong></span>
+          <span class="copy-icon">📋</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <button id="btn-qr-modal" class="btn-icon" title="Scan QR Code to Join on WiFi">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          <span class="wifi-indicator">WiFi</span>
+        </button>
+        <button id="btn-sound-toggle" class="btn-icon" title="Toggle Sound">
+          <span id="sound-icon">🔊</span>
+        </button>
+        <button id="btn-log-toggle" class="btn-icon badge-wrapper" title="Game History & Chat">
+          <span>💬</span>
+          <span id="unread-log-badge" class="badge-dot hidden"></span>
+        </button>
+        <button id="btn-host-menu" class="btn-icon host-only hidden" title="Host Controls">
+          <span>⚙️</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main id="main-view">
+      <!-- 1. HOME SCREEN -->
+      <section id="view-home" class="view-section active">
+        <div class="home-card">
+          <div class="home-hero">
+            <div class="hero-chip-stack">
+              <div class="poker-chip chip-gold hero-chip c1"><div class="chip-inner">♠</div></div>
+              <div class="poker-chip chip-purple hero-chip c2"><div class="chip-inner">♦</div></div>
+              <div class="poker-chip chip-green hero-chip c3"><div class="chip-inner">♣</div></div>
+            </div>
+            <h1>POKER CHIP TRACKER</h1>
+            <p class="subtitle">WiFi multiplayer chip stack & betting tracker</p>
+          </div>
+
+          <div class="home-form">
+            <div class="form-group">
+              <label for="input-player-name">Your Name</label>
+              <input type="text" id="input-player-name" placeholder="e.g. Rahul" maxlength="15" autocomplete="off">
+            </div>
+
+            <div class="action-buttons-group">
+              <button id="btn-create-game" class="btn btn-primary btn-block">
+                <span class="btn-icon-inner">✨</span> Create New Game
+              </button>
+
+              <div class="divider">
+                <span>OR JOIN EXISTING ROOM</span>
+              </div>
+
+              <div class="join-row">
+                <input type="text" id="input-room-code" placeholder="4-digit code" maxlength="4" pattern="[0-9]*" inputmode="numeric">
+                <button id="btn-join-game" class="btn btn-secondary">Join Game</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="wifi-info-card">
+            <div class="wifi-badge">
+              <span class="pulse-dot"></span> Same WiFi Network Required
+            </div>
+            <p id="wifi-address-text">Connecting to local server...</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. LOBBY SCREEN -->
+      <section id="view-lobby" class="view-section hidden">
+        <div class="lobby-card">
+          <div class="lobby-header">
+            <div class="room-display">
+              <span class="room-label">ROOM CODE</span>
+              <h2 id="lobby-room-code">----</h2>
+              <button id="btn-copy-link" class="btn btn-sm btn-outline">Copy Join Link</button>
+            </div>
+            <div class="lobby-qr-preview" id="lobby-qr-click" title="Click to view full QR code">
+              <img id="lobby-qr-img" alt="QR Code" src="">
+              <span class="qr-hint">Scan with phone</span>
+            </div>
+          </div>
+
+          <!-- Host Settings in Lobby -->
+          <div id="lobby-host-settings" class="settings-card host-only">
+            <h3>Game Rules (Host Only)</h3>
+            <div class="settings-grid">
+              <div class="form-group">
+                <label for="cfg-starting-chips">Starting Chips</label>
+                <input type="number" id="cfg-starting-chips" value="1000" step="50" min="100" max="50000">
+              </div>
+              <div class="form-group">
+                <label for="cfg-small-blind">Small Blind</label>
+                <input type="number" id="cfg-small-blind" value="10" step="5" min="1">
+              </div>
+              <div class="form-group">
+                <label for="cfg-big-blind">Big Blind</label>
+                <input type="number" id="cfg-big-blind" value="20" step="5" min="2">
+              </div>
+              <div class="form-group">
+                <label for="cfg-turn-timer">Turn Timer (sec)</label>
+                <select id="cfg-turn-timer">
+                  <option value="15">15 seconds</option>
+                  <option value="30" selected>30 seconds</option>
+                  <option value="45">45 seconds</option>
+                  <option value="60">60 seconds</option>
+                  <option value="0">No limit (Host manual)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Non-Host view of settings -->
+          <div id="lobby-guest-settings" class="settings-card guest-only hidden">
+            <h3>Game Rules</h3>
+            <div class="rules-summary-pills">
+              <span class="rule-pill">Chips: <strong id="guest-rule-chips">1000</strong></span>
+              <span class="rule-pill">Blinds: <strong id="guest-rule-blinds">10 / 20</strong></span>
+              <span class="rule-pill">Timer: <strong id="guest-rule-timer">30s</strong></span>
+            </div>
+          </div>
+
+          <!-- Connected Players List -->
+          <div class="players-roster-card">
+            <div class="roster-header">
+              <h3>Players Joined (<span id="player-count">0</span>)</h3>
+              <span class="min-players-hint">Min 2 players required</span>
+            </div>
+            <div id="lobby-players-list" class="players-grid">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Start Game Action -->
+          <div class="lobby-footer">
+            <button id="btn-start-game" class="btn btn-primary btn-large btn-block host-only" disabled>
+              Start Game 🚀
+            </button>
+            <div class="waiting-box guest-only">
+              <div class="spinner"></div>
+              <span>Waiting for host to start the game...</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. BETTING TABLE SCREEN -->
+      <section id="view-table" class="view-section hidden">
+        <!-- Table Top Bar -->
+        <div class="table-top-status">
+          <div class="hand-street-pill">
+            <span class="hand-num" id="status-hand-num">Hand #1</span>
+            <span class="street-badge" id="status-street-badge">PRE-FLOP</span>
+          </div>
+
+          <!-- Running Pot Total -->
+          <div class="pot-display-box" id="pot-box">
+            <div class="pot-chip-icon">🪙</div>
+            <div class="pot-details">
+              <span class="pot-label">TOTAL POT</span>
+              <span class="pot-amount" id="total-pot-amount">0</span>
+            </div>
+          </div>
+
+          <!-- Side Pots breakdown container (appears if side pots exist) -->
+          <div id="side-pots-container" class="side-pots-bar hidden">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+
+        <!-- The Poker Table Area (Green Felt Oval) -->
+        <div class="poker-table-wrapper">
+          <div class="poker-table-rail">
+            <div class="poker-table-felt">
+              <div class="felt-watermark">♠ ♥ ♦ ♣</div>
+
+              <!-- Center of Table: Community Pot, Active Action status, and Showdown button -->
+              <div class="table-center">
+                <div class="center-pot-area">
+                  <div id="center-pot-chips" class="center-chip-stacks"></div>
+                  <div class="center-pot-callout">
+                    POT: <span id="center-pot-val">0</span>
+                  </div>
+                </div>
+
+                <div id="table-action-banner" class="table-banner hidden">
+                  <span id="banner-text">Rahul raised to 200</span>
+                </div>
+
+                <!-- Host Quick Controls in center if Showdown or Hand Ended -->
+                <div id="center-host-actions" class="center-controls host-only hidden">
+                  <button id="btn-showdown-award" class="btn btn-sm btn-gold">Select Winner(s) 🏆</button>
+                  <button id="btn-next-hand" class="btn btn-sm btn-success">Next Hand ▶</button>
+                </div>
+              </div>
+
+              <!-- Dynamic Seated Players around the felt -->
+              <div id="poker-players-layer" class="players-ring-container">
+                <!-- Seated player elements injected here -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sticky Bottom Action Bar for Current Player -->
+        <div id="player-action-dock" class="action-dock">
+          <!-- Turn Timer Bar -->
+          <div id="turn-timer-bar-container" class="timer-bar-wrapper">
+            <div id="turn-timer-bar" class="timer-bar"></div>
+            <div class="timer-bar-text">
+              <span id="timer-player-name">Your Turn!</span>
+              <span id="timer-seconds-left">30s</span>
+            </div>
+          </div>
+
+          <!-- Your Turn Action Controls -->
+          <div id="turn-controls" class="controls-panel hidden">
+            <!-- Quick Action Buttons -->
+            <div class="action-buttons-row">
+              <button id="btn-action-fold" class="btn btn-action btn-fold">
+                <span class="btn-sub">FORFEIT</span>
+                <span class="btn-main">FOLD</span>
+              </button>
+
+              <button id="btn-action-check-call" class="btn btn-action btn-call">
+                <span class="btn-sub" id="btn-check-call-sub">FREE</span>
+                <span class="btn-main" id="btn-check-call-text">CHECK</span>
+              </button>
+
+              <button id="btn-toggle-raise" class="btn btn-action btn-raise">
+                <span class="btn-sub">INCREASE</span>
+                <span class="btn-main" id="btn-raise-text">RAISE</span>
+              </button>
+
+              <button id="btn-action-allin" class="btn btn-action btn-allin">
+                <span class="btn-sub">ALL CHIPS</span>
+                <span class="btn-main">ALL-IN</span>
+              </button>
+            </div>
+
+            <!-- Raise Drawer / Slider (expands when Raise is clicked) -->
+            <div id="raise-drawer" class="raise-slider-drawer hidden">
+              <div class="raise-presets">
+                <button class="preset-btn" data-preset="min">Min</button>
+                <button class="preset-btn" data-preset="2x">2x</button>
+                <button class="preset-btn" data-preset="3x">3x</button>
+                <button class="preset-btn" data-preset="half-pot">½ Pot</button>
+                <button class="preset-btn" data-preset="pot">Pot</button>
+                <button class="preset-btn" data-preset="max">Max</button>
+              </div>
+
+              <div class="raise-input-controls">
+                <button id="btn-raise-minus" class="stepper-btn">-</button>
+                <div class="raise-amount-box">
+                  <span class="currency">🪙</span>
+                  <input type="number" id="raise-input-number" min="0" max="50000" step="5">
+                </div>
+                <button id="btn-raise-plus" class="stepper-btn">+</button>
+              </div>
+
+              <input type="range" id="raise-range-slider" min="0" max="1000" step="5" class="custom-slider">
+
+              <div class="raise-confirm-row">
+                <button id="btn-cancel-raise" class="btn btn-sm btn-outline">Cancel</button>
+                <button id="btn-confirm-raise" class="btn btn-sm btn-primary">
+                  Confirm Raise to <span id="confirm-raise-val">0</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Waiting for other player dock -->
+          <div id="waiting-dock" class="waiting-dock-panel">
+            <div class="pulse-indicator"></div>
+            <span id="waiting-status-text">Waiting for Rahul to act...</span>
+          </div>
+        </div>
+
+        <!-- Host Floating Action Bar (Sticky mini buttons at bottom-right) -->
+        <div id="host-floating-bar" class="host-fab-bar host-only">
+          <button id="fab-rebuy" class="fab-btn" title="Add chips to player (Rebuy)">
+            <span>➕ Rebuy</span>
+          </button>
+          <button id="fab-award" class="fab-btn" title="Award Pot / Select Winner">
+            <span>🏆 Winner</span>
+          </button>
+          <button id="fab-next" class="fab-btn" title="Deal Next Hand">
+            <span>Next Hand ▶</span>
+          </button>
+          <button id="fab-end-game" class="fab-btn btn-danger-soft" title="End of Night Summary">
+            <span>🌙 End Night</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 4. END OF NIGHT SUMMARY VIEW -->
+      <section id="view-summary" class="view-section hidden">
+        <div class="summary-container">
+          <div class="summary-hero">
+            <span class="summary-trophy">🏆</span>
+            <h2>END OF NIGHT SUMMARY</h2>
+            <p class="summary-subtitle">Final Player Balances & Profit / Loss</p>
+          </div>
+
+          <div class="leaderboard-table-card">
+            <table class="leaderboard-table">
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Player</th>
+                  <th>Final Chips</th>
+                  <th>Buy-in (Rebuys)</th>
+                  <th>Net Profit/Loss</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboard-tbody">
+                <!-- Rendered via JS -->
+              </tbody>
+            </table>
+          </div>
+
+          <div class="summary-actions">
+            <button id="btn-resume-game" class="btn btn-primary host-only">Resume Playing ♠</button>
+            <button id="btn-summary-home" class="btn btn-outline">Exit to Home</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Side Drawer: Action Log & Chat -->
+    <aside id="drawer-log" class="drawer-container closed">
+      <div class="drawer-header">
+        <h3>Game Log & Chat</h3>
+        <button id="btn-close-log" class="btn-close">&times;</button>
+      </div>
+      <div id="game-log-messages" class="drawer-body">
+        <!-- Chat logs rendered here -->
+      </div>
+      <div class="drawer-footer">
+        <form id="chat-form">
+          <input type="text" id="chat-input" placeholder="Type quick message..." maxlength="100" autocomplete="off">
+          <button type="submit" class="btn btn-sm btn-primary">Send</button>
+        </form>
+      </div>
+    </aside>
+
+    <!-- MODAL: QR Code & WiFi Share -->
+    <div id="modal-qr" class="modal-overlay hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>Invite Friends on WiFi</h3>
+          <button class="modal-close" data-close="modal-qr">&times;</button>
+        </div>
+        <div class="modal-body text-center">
+          <p class="qr-instructions">Make sure friends are connected to the <strong>same WiFi network</strong>, then scan this QR code:</p>
+          <div class="qr-image-wrapper">
+            <img id="modal-qr-image" src="" alt="Room QR Code">
+          </div>
+          <div class="room-share-url-box">
+            <span id="modal-share-url">http://...</span>
+            <button id="btn-modal-copy-url" class="btn btn-sm btn-secondary">Copy</button>
+          </div>
+          <p class="qr-room-code-hint">Room Code: <strong id="modal-room-code-text">----</strong></p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-block btn-outline" data-close="modal-qr">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: Rebuy Chips (Host Only) -->
+    <div id="modal-rebuy" class="modal-overlay hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>Player Rebuy</h3>
+          <button class="modal-close" data-close="modal-rebuy">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-hint">Add chips to a player mid-game. This is recorded in the final profit/loss summary.</p>
+          <div class="form-group">
+            <label for="rebuy-player-select">Select Player</label>
+            <select id="rebuy-player-select">
+              <!-- Injected by JS -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Rebuy Amount</label>
+            <div class="rebuy-presets">
+              <button class="preset-btn rebuy-preset" data-amt="500">+500</button>
+              <button class="preset-btn rebuy-preset active" data-amt="1000">+1000</button>
+              <button class="preset-btn rebuy-preset" data-amt="2000">+2000</button>
+            </div>
+            <input type="number" id="rebuy-custom-amt" value="1000" min="50" step="50">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" data-close="modal-rebuy">Cancel</button>
+          <button id="btn-confirm-rebuy" class="btn btn-primary">Add Chips</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: Award Pots / Showdown Winner Selection (Host Only) -->
+    <div id="modal-showdown" class="modal-overlay hidden">
+      <div class="modal-card modal-lg">
+        <div class="modal-header">
+          <h3>Select Hand Winner(s) 🏆</h3>
+          <button class="modal-close" data-close="modal-showdown">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-hint">Check physical cards and select who won each pot. You can select one winner, multiple winners (split pot), or choose a single overall winner.</p>
+
+          <div id="showdown-pots-list" class="showdown-pots-container">
+            <!-- Injected by JS: lists each pot (Main, Side 1, etc.) with checkboxes/radios for eligible players -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" data-close="modal-showdown">Cancel</button>
+          <button id="btn-confirm-award" class="btn btn-gold">Confirm & Transfer Chips 🪙</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Fullscreen Winner Celebration Overlay -->
+    <div id="celebration-overlay" class="celebration-overlay hidden">
+      <div class="celebration-content">
+        <div class="confetti-cannon"></div>
+        <div class="trophy-bounce">🏆</div>
+        <h2 id="winner-celebration-title">WINNER!</h2>
+        <div id="winner-celebration-desc" class="winner-desc">Rahul won 850 chips!</div>
+        <div id="celebration-chips-stack" class="celebration-chips"></div>
+        <div class="celebration-footer">
+          <button id="btn-close-celebration" class="btn btn-primary">Continue</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Socket.IO library served automatically by Socket.IO server -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/audio.js"></script>
+  <script src="/js/chip-renderer.js"></script>
+  <script src="/js/socket-client.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
