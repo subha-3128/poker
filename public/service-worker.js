@@ -1,5 +1,5 @@
-// Poker Night PWA Service Worker
-const CACHE_NAME = 'poker-night-v1';
+// Poker Night PWA Service Worker — Version 2.0 (High-Roller Mobile Overhaul)
+const CACHE_NAME = 'poker-night-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -14,24 +14,25 @@ const STATIC_ASSETS = [
   '/icons/icon-512.png'
 ];
 
-// Install: Cache critical static shell
+// Install: Cache critical static shell & take over immediately
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('[ServiceWorker] Pre-caching offline shell');
+      console.log('[ServiceWorker] Pre-caching offline shell v2');
       return cache.addAll(STATIC_ASSETS);
-    }).then(() => self.skipWaiting())
+    })
   );
 });
 
-// Activate: Clean up old caches
+// Activate: Purge old caches (e.g. poker-night-v1) and claim clients
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keyList) => {
       return Promise.all(
         keyList.map((key) => {
           if (key !== CACHE_NAME) {
-            console.log('[ServiceWorker] Removing old cache:', key);
+            console.log('[ServiceWorker] Removing stale cache:', key);
             return caches.delete(key);
           }
         })
@@ -40,47 +41,44 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch: Serve from cache, fallback to network (bypass socket.io and api requests)
+// Fetch Strategy:
+// 1. Bypass Socket.IO & dynamic API endpoints
+// 2. Navigation / HTML: Network-first with cache fallback (ensures fresh deploy loads immediately)
+// 3. Static assets: Stale-While-Revalidate
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Never cache Socket.IO or dynamic API endpoints
-  if (url.pathname.startsWith('/socket.io/') || url.pathname.startsWith('/api/')) {
+  // Never intercept Socket.IO or dynamic API endpoints
+  if (url.pathname.startsWith('/socket.io/') || url.pathname.startsWith('/api/') || url.pathname === '/health') {
     return;
   }
 
-  // Handle static assets
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        // Fetch fresh copy in background to update cache (Stale-While-Revalidate)
-        fetch(event.request).then((networkResponse) => {
+  // Navigation requests (HTML pages): Network-First
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
           if (networkResponse && networkResponse.status === 200) {
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, networkResponse);
-            });
+            const copy = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
           }
-        }).catch(() => {});
-        return cachedResponse;
-      }
-
-      return fetch(event.request).then((networkResponse) => {
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
           return networkResponse;
+        })
+        .catch(() => caches.match('/index.html') || caches.match('/'))
+    );
+    return;
+  }
+
+  // Static Assets: Network-first with Cache fallback
+  event.respondWith(
+    fetch(event.request)
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const copy = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
         }
-
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
-
         return networkResponse;
-      }).catch(() => {
-        // Fallback to offline index.html if navigating
-        if (event.request.mode === 'navigate') {
-          return caches.match('/index.html');
-        }
-      });
-    })
+      })
+      .catch(() => caches.match(event.request))
   );
 });
