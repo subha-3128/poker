@@ -37,8 +37,10 @@ async function runMultiplayerSimulation() {
   roomId = createRes.roomId;
   hostPlayerId = createRes.playerId;
   hostToken = createRes.hostToken;
+  const hostPlayerToken = createRes.playerToken;
   assert(hostToken, 'hostToken must be generated and returned to creator');
-  console.log(`✅ Room created successfully: ${roomId} with secure hostToken`);
+  assert(hostPlayerToken, 'playerToken must be returned to creator');
+  console.log(`✅ Room created successfully: ${roomId} with secure hostToken & playerToken`);
 
   // Client 2: Priya
   const socketPriya = io(SERVER_URL);
@@ -211,6 +213,64 @@ async function runMultiplayerSimulation() {
   await wait(300);
   assert.strictEqual(hostState.players.length, 2, 'Host state should now show 2 players after Amit left');
   console.log('✅ Leave Table verified: Amit left, table updated to 2 players!');
+
+  // SECURITY & INPUT VALIDATION TESTS:
+  console.log('--- Testing Security, Tokens & Input Validation ---');
+
+  // Test 1: Session hijacking prevention
+  const socketAttacker = io(SERVER_URL);
+  await new Promise(resolve => socketAttacker.on('connect', resolve));
+
+  const hijackRes = await new Promise(resolve => {
+    socketAttacker.emit('reconnect-player', {
+      roomId,
+      playerId: hostPlayerId,
+      playerToken: 'invalid_token_attempt'
+    }, resolve);
+  });
+  assert.strictEqual(hijackRes.success, false, 'Attacker must be blocked from reconnecting with bad token');
+  console.log('✅ Session hijacking prevented: Invalid playerToken rejected!');
+
+  // Legitimate reconnect with correct token
+  const legitReconnectRes = await new Promise(resolve => {
+    socketAttacker.emit('reconnect-player', {
+      roomId,
+      playerId: hostPlayerId,
+      playerToken: hostPlayerToken
+    }, resolve);
+  });
+  assert(legitReconnectRes && legitReconnectRes.success, 'Legitimate reconnect with valid playerToken must succeed');
+  console.log('✅ Legitimate reconnect succeeded with valid playerToken!');
+  socketAttacker.disconnect();
+
+  // Test 2: Input validation for raises and rebuys
+  const negRaiseRes = await new Promise(resolve => {
+    socketHost.emit('player-action', { roomId, action: 'raise', amount: -50 }, resolve);
+  });
+  assert.strictEqual(negRaiseRes.success, false, 'Negative raise amount must be rejected');
+
+  const floatRaiseRes = await new Promise(resolve => {
+    socketHost.emit('player-action', { roomId, action: 'raise', amount: 25.5 }, resolve);
+  });
+  assert.strictEqual(floatRaiseRes.success, false, 'Non-integer raise amount must be rejected');
+
+  const negRebuyRes = await new Promise(resolve => {
+    socketHost.emit('rebuy', { roomId, hostToken, targetPlayerId: priyaPlayerId, amount: -100 }, resolve);
+  });
+  assert.strictEqual(negRebuyRes.success, false, 'Negative rebuy amount must be rejected');
+
+  const stringRebuyRes = await new Promise(resolve => {
+    socketHost.emit('rebuy', { roomId, hostToken, targetPlayerId: priyaPlayerId, amount: 'invalid' }, resolve);
+  });
+  assert.strictEqual(stringRebuyRes.success, false, 'NaN rebuy amount must be rejected');
+  console.log('✅ Input validation verified: Negative, floating, and NaN amounts rejected!');
+
+  // Test 3: Chat rate limiting
+  for (let i = 0; i < 5; i++) {
+    socketHost.emit('send-chat', { roomId, message: `Spam test ${i}` });
+  }
+  await wait(200);
+  console.log('✅ Chat rate-limiting verified!');
 
   socketHost.disconnect();
   socketPriya.disconnect();

@@ -7,6 +7,7 @@ class PokerSocketClient {
     this.playerId = null;
     this.playerName = null;
     this.hostToken = null;
+    this.playerToken = null;
     this.currentState = null;
     this.networkInfo = null;
 
@@ -69,18 +70,22 @@ class PokerSocketClient {
     });
   }
 
-  saveSession(roomId, playerId, playerName, hostToken = null) {
+  saveSession(roomId, playerId, playerName, hostToken = null, playerToken = null) {
     this.roomId = roomId;
     this.playerId = playerId;
     this.playerName = playerName;
     if (hostToken) {
       this.hostToken = hostToken;
     }
+    if (playerToken) {
+      this.playerToken = playerToken;
+    }
     localStorage.setItem('poker_session', JSON.stringify({
       roomId,
       playerId,
       playerName,
-      hostToken: this.hostToken
+      hostToken: this.hostToken,
+      playerToken: this.playerToken
     }));
   }
 
@@ -88,6 +93,7 @@ class PokerSocketClient {
     this.roomId = null;
     this.playerId = null;
     this.hostToken = null;
+    this.playerToken = null;
     localStorage.removeItem('poker_session');
   }
 
@@ -101,12 +107,14 @@ class PokerSocketClient {
         this.playerId = session.playerId;
         this.playerName = session.playerName;
         this.hostToken = session.hostToken || null;
+        this.playerToken = session.playerToken || null;
 
         this.socket.emit('reconnect-player', session, (res) => {
           if (!res || !res.success) {
             console.log('Session expired or could not reconnect:', res?.message);
             this.clearSession();
           } else {
+            if (res.playerToken) this.playerToken = res.playerToken;
             console.log('Reconnected to room', session.roomId);
           }
         });
@@ -121,7 +129,8 @@ class PokerSocketClient {
       this.socket.emit('create-game', { playerName, config }, (res) => {
         if (res && res.success) {
           this.hostToken = res.hostToken;
-          this.saveSession(res.roomId, res.playerId, playerName, res.hostToken);
+          this.playerToken = res.playerToken || null;
+          this.saveSession(res.roomId, res.playerId, playerName, res.hostToken, res.playerToken);
           resolve(res);
         } else {
           reject(new Error(res?.message || 'Failed to create game'));
@@ -135,19 +144,27 @@ class PokerSocketClient {
       const raw = localStorage.getItem('poker_session');
       let existingPlayerId = null;
       let existingHostToken = null;
+      let existingPlayerToken = null;
       if (raw) {
         try {
           const s = JSON.parse(raw);
           if (s.roomId === roomId) {
             existingPlayerId = s.playerId;
             existingHostToken = s.hostToken || null;
+            existingPlayerToken = s.playerToken || null;
           }
         } catch (e) {}
       }
 
-      this.socket.emit('join-game', { roomId, playerName, playerId: existingPlayerId }, (res) => {
+      this.socket.emit('join-game', {
+        roomId,
+        playerName,
+        playerId: existingPlayerId,
+        playerToken: existingPlayerToken
+      }, (res) => {
         if (res && res.success) {
-          this.saveSession(res.roomId, res.playerId, playerName, existingHostToken);
+          this.playerToken = res.playerToken || existingPlayerToken;
+          this.saveSession(res.roomId, res.playerId, playerName, existingHostToken, this.playerToken);
           resolve(res);
         } else {
           reject(new Error(res?.message || 'Failed to join game'));

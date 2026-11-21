@@ -1,5 +1,5 @@
-// Poker Night PWA Service Worker — Version 5.0 (Leave Table Action)
-const CACHE_NAME = 'poker-night-v5';
+// Poker Night PWA Service Worker — Version 6.0 (Resilient & Audited)
+const CACHE_NAME = 'poker-night-v6';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -46,6 +46,11 @@ self.addEventListener('activate', (event) => {
 // 2. Navigation / HTML: Network-first with cache fallback (ensures fresh deploy loads immediately)
 // 3. Static assets: Stale-While-Revalidate
 self.addEventListener('fetch', (event) => {
+  // Only handle GET requests; never cache POST/PUT/DELETE requests
+  if (event.request.method !== 'GET') {
+    return;
+  }
+
   const url = new URL(event.request.url);
 
   // Never intercept Socket.IO or dynamic API endpoints

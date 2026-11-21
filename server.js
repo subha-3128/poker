@@ -94,10 +94,10 @@ function verifyHostAuth(game, hostToken, socketPlayerId) {
   return game.hostId === socketPlayerId;
 }
 
-// Clean up abandoned games (inactive for > 2 hours or empty for > 1 hour)
+// Clean up abandoned games (inactive for > 2 hours or empty for > 15 minutes)
 const CLEANUP_INTERVAL_MS = 15 * 60 * 1000;
 const ROOM_TTL_MS = 2 * 60 * 60 * 1000;
-const EMPTY_ROOM_TTL_MS = 60 * 60 * 1000;
+const EMPTY_ROOM_TTL_MS = 15 * 60 * 1000;
 
 setInterval(() => {
   const now = Date.now();
@@ -131,7 +131,7 @@ io.on('connection', (socket) => {
       const hostToken = crypto.randomBytes(16).toString('hex');
 
       const game = new PokerGame(roomId, playerId, config, hostToken);
-      game.addPlayer(playerId, playerName || 'Host', socket.id);
+      const hostPlayer = game.addPlayer(playerId, playerName || 'Host', socket.id);
 
       game.onStateChange = () => {
         broadcastRoomState(game);
@@ -151,6 +151,7 @@ io.on('connection', (socket) => {
           success: true,
           roomId,
           playerId,
+          playerToken: hostPlayer.playerToken,
           hostToken,
           networkUrl,
           qrUrl,
@@ -169,7 +170,7 @@ io.on('connection', (socket) => {
   });
 
   // 2. Join Game
-  socket.on('join-game', ({ roomId, playerName, playerId: requestedPlayerId }, callback) => {
+  socket.on('join-game', ({ roomId, playerName, playerId: requestedPlayerId, playerToken: requestedPlayerToken }, callback) => {
     try {
       const cleanRoomId = (roomId || '').toString().trim();
       const game = games.get(cleanRoomId);
@@ -182,8 +183,16 @@ io.on('connection', (socket) => {
       }
 
       // Check if player is rejoining or new
+      const existingPlayer = requestedPlayerId ? game.players.find(p => p.id === requestedPlayerId) : null;
+      if (existingPlayer && existingPlayer.playerToken && requestedPlayerToken && existingPlayer.playerToken !== requestedPlayerToken) {
+        if (typeof callback === 'function') {
+          return callback({ success: false, message: 'Invalid session token for this seat.' });
+        }
+        return;
+      }
+
       const playerId = requestedPlayerId || ('p_' + Math.random().toString(36).substr(2, 9));
-      const player = game.addPlayer(playerId, playerName, socket.id);
+      const player = game.addPlayer(playerId, playerName, socket.id, requestedPlayerToken);
 
       currentRoomId = cleanRoomId;
       currentPlayerId = playerId;
@@ -195,6 +204,7 @@ io.on('connection', (socket) => {
           success: true,
           roomId: cleanRoomId,
           playerId,
+          playerToken: player.playerToken,
           state: game.getPublicState(playerId)
         });
       }
@@ -209,7 +219,7 @@ io.on('connection', (socket) => {
   });
 
   // 3. Reconnect Existing Player
-  socket.on('reconnect-player', ({ roomId, playerId, playerName, hostToken }, callback) => {
+  socket.on('reconnect-player', ({ roomId, playerId, playerName, hostToken, playerToken }, callback) => {
     try {
       const game = games.get(roomId);
       if (!game) {
@@ -221,12 +231,18 @@ io.on('connection', (socket) => {
 
       let player = game.players.find(p => p.id === playerId);
       if (player) {
+        if (player.playerToken && playerToken && player.playerToken !== playerToken) {
+          if (typeof callback === 'function') {
+            return callback({ success: false, message: 'Unauthorized seat reconnect.' });
+          }
+          return;
+        }
         player.socketId = socket.id;
         player.connected = true;
         if (playerName) player.name = playerName;
         game.log(`${player.name} reconnected.`, 'system');
       } else {
-        player = game.addPlayer(playerId, playerName, socket.id);
+        player = game.addPlayer(playerId, playerName, socket.id, playerToken);
       }
 
       // If valid hostToken provided, restore hostId for this reconnected player
@@ -243,6 +259,7 @@ io.on('connection', (socket) => {
           success: true,
           roomId,
           playerId,
+          playerToken: player.playerToken,
           state: game.getPublicState(playerId)
         });
       }
@@ -291,6 +308,20 @@ io.on('connection', (socket) => {
       const game = games.get(roomId);
       if (!game) throw new Error('Game not found.');
 
+      if (action === 'raise') {
+        const parsedAmount = Number(amount);
+        if (!Number.isInteger(parsedAmount) || parsedAmount <= 0) {
+          throw new Error('Raise amount must be a positive whole number.');
+        }
+        amount = parsedAmount;
+      } else if (action === 'allin' && amount !== undefined) {
+        const parsedAmount = Number(amount);
+        if (!Number.isInteger(parsedAmount) || parsedAmount < 0) {
+          throw new Error('All-in amount must be a valid integer.');
+        }
+        amount = parsedAmount;
+      }
+
       game.handleAction(currentPlayerId, action, amount);
       broadcastRoomState(game);
       if (typeof callback === 'function') callback({ success: true });
@@ -338,7 +369,12 @@ io.on('connection', (socket) => {
       if (!game) throw new Error('Game not found.');
       if (!verifyHostAuth(game, hostToken, currentPlayerId)) throw new Error('Only the host can add chips.');
 
-      const success = game.rebuy(targetPlayerId, amount);
+      const parsedAmount = Number(amount);
+      if (!Number.isInteger(parsedAmount) || parsedAmount <= 0) {
+        throw new Error('Rebuy amount must be a positive whole number.');
+      }
+
+      const success = game.rebuy(targetPlayerId, parsedAmount);
       broadcastRoomState(game);
       if (typeof callback === 'function') callback({ success });
     } catch (err) {
@@ -440,10 +476,23 @@ io.on('connection', (socket) => {
     }
   });
 
-  // 13. Table Banter / Chat
+  // 13. Table Banter / Chat (Rate-limited: max 2 messages per second)
+  let lastChatTime = 0;
+  let chatCount = 0;
+
   socket.on('send-chat', ({ roomId, message }) => {
     const game = games.get(roomId);
-    if (!game || !message) return;
+    if (!game || !message || typeof message !== 'string') return;
+
+    const now = Date.now();
+    if (now - lastChatTime < 1000) {
+      chatCount++;
+      if (chatCount > 2) return;
+    } else {
+      lastChatTime = now;
+      chatCount = 1;
+    }
+
     const player = game.players.find(p => p.id === currentPlayerId);
     const author = player ? player.name : 'Spectator';
     game.log(`${author}: ${message.trim().slice(0, 100)}`, 'chat');
@@ -455,8 +504,12 @@ io.on('connection', (socket) => {
     if (currentRoomId && currentPlayerId) {
       const game = games.get(currentRoomId);
       if (game) {
-        game.removePlayer(currentPlayerId);
-        broadcastRoomState(game);
+        const player = game.players.find(p => p.id === currentPlayerId);
+        // Prevent stale socket disconnect from removing reconnected player
+        if (player && player.socketId === socket.id) {
+          game.removePlayer(currentPlayerId);
+          broadcastRoomState(game);
+        }
       }
     }
   });

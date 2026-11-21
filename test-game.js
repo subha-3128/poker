@@ -212,6 +212,112 @@ function runTests() {
     console.log('✅ Test 6 Passed!');
   }
 
+  // Test 7: Side-pot roll-down and fair side pot award
+  {
+    console.log('Test 7: Side-pot roll-down and fair side pot award');
+    const game = new PokerGame('1111', 'p1', { startingChips: 1000, smallBlind: 10, bigBlind: 20 });
+    game.addPlayer('p1', 'Alice', 's1');
+    game.addPlayer('p2', 'Bob', 's2');
+    game.addPlayer('p3', 'Charlie', 's3');
+
+    game.players[0].chips = 100; // Alice: 100
+    game.players[1].chips = 200; // Bob: 200
+    game.players[2].chips = 500; // Charlie: 500
+
+    game.startGame();
+    // Alice D, Bob SB(10), Charlie BB(20)
+    // Alice all in 100
+    game.handleAction('p1', 'allin');
+    // Bob all in 200
+    game.handleAction('p2', 'allin');
+    // Charlie calls 200
+    game.handleAction('p3', 'call');
+
+    // All-in showdown reached
+    assert.strictEqual(game.street, 'showdown');
+    assert.strictEqual(game.pot, 500); // Alice 100 + Bob 200 + Charlie 200 = 500
+
+    // Main pot: 100 * 3 = 300 (Alice, Bob, Charlie)
+    // Side pot: (200 - 100) * 2 = 200 (Bob, Charlie)
+    assert.strictEqual(game.pots.length, 2);
+    assert.strictEqual(game.pots[0].amount, 300);
+    assert.strictEqual(game.pots[1].amount, 200);
+
+    // If Alice is declared overall winner, Alice gets Main Pot (300).
+    // Because Alice is not eligible for Side Pot, Side Pot (200) is split between Bob and Charlie (100 each)!
+    game.awardPots({ overallWinnerId: 'p1' });
+
+    assert.strictEqual(game.players[0].chips, 300); // Alice: 300
+    assert.strictEqual(game.players[1].chips, 100); // Bob: 100
+    assert.strictEqual(game.players[2].chips, 400); // Charlie: 300 remaining + 100 side pot share = 400
+
+    const totalChips = game.players.reduce((sum, p) => sum + p.chips, 0);
+    assert.strictEqual(totalChips, 800, 'Zero-sum chips must be preserved');
+
+    // Now test mathematical pot roll-down when upper tier contributors fold:
+    const game2 = new PokerGame('1112', 'p1', { startingChips: 1000 });
+    game2.addPlayer('p1', 'Alice', 's1');
+    game2.addPlayer('p2', 'Bob', 's2');
+    game2.addPlayer('p3', 'Charlie', 's3');
+    game2.players[0].totalContributed = 100;
+    game2.players[0].isAllIn = true;
+    game2.players[1].totalContributed = 300;
+    game2.players[1].isFolded = true; // Bob folded after contributing 300
+    game2.players[2].totalContributed = 300;
+    game2.players[2].isFolded = true; // Charlie folded after contributing 300
+    game2.pot = 700;
+
+    const rolledPots = game2.calculatePots();
+    // All 700 chips must roll down to Alice
+    assert.strictEqual(rolledPots.length, 1);
+    assert.strictEqual(rolledPots[0].amount, 700);
+    assert.deepStrictEqual(rolledPots[0].eligiblePlayerIds, ['p1']);
+    console.log('✅ Test 7 Passed!');
+  }
+
+  // Test 8: Direct all-in showdown refunds uncalled bet
+  {
+    console.log('Test 8: Direct all-in showdown refunds uncalled bet');
+    const game = new PokerGame('2222', 'p1', { startingChips: 1000, smallBlind: 10, bigBlind: 20 });
+    game.addPlayer('p1', 'Alice', 's1');
+    game.addPlayer('p2', 'Bob', 's2');
+
+    game.players[0].chips = 100;
+    game.players[1].chips = 500;
+
+    game.startGame();
+    // Alice D (SB 10), Bob BB (20)
+    // Alice pushes all-in for 100
+    game.handleAction('p1', 'allin');
+    // Bob pushes all-in for 500
+    game.handleAction('p2', 'allin');
+
+    // Both all-in -> advanceToAllInShowdown
+    assert.strictEqual(game.street, 'showdown');
+    const bob = game.players.find(p => p.id === 'p2');
+    assert.strictEqual(bob.chips, 400, 'Uncalled 400 chips must be refunded to Bob');
+    assert.strictEqual(game.pot, 200, 'Pot should be exactly 100 + 100 = 200');
+    assert.strictEqual(game.pots[0].amount, 200);
+
+    const totalChips = game.players.reduce((sum, p) => sum + p.chips, 0) + game.pot;
+    assert.strictEqual(totalChips, 600, 'Zero-sum preserved on direct all-in');
+    console.log('✅ Test 8 Passed!');
+  }
+
+  // Test 9: Max 10 players capacity cap
+  {
+    console.log('Test 9: Max 10 players cap');
+    const game = new PokerGame('3333', 'p1', { startingChips: 1000 });
+    for (let i = 1; i <= 10; i++) {
+      game.addPlayer(`p${i}`, `Player${i}`, `s${i}`);
+    }
+    assert.strictEqual(game.players.length, 10);
+    assert.throws(() => {
+      game.addPlayer('p11', 'Player11', 's11');
+    }, /Table is full/);
+    console.log('✅ Test 9 Passed!');
+  }
+
   console.log('🎉 All PokerGame Unit Tests Passed Successfully!');
 }
 
