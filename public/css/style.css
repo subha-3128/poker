@@ -68,9 +68,11 @@
   /* Safe Area Insets */
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
 
-  /* Dock Fixed Height */
-  --dock-height: 180px;
+  /* Dock Fixed Height - Ergonomic Mobile Baseline */
+  --dock-height: 154px;
 }
 
 /* ==========================================================================
@@ -145,6 +147,8 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   position: relative;
   background: radial-gradient(circle at 50% 0%, #14141a 0%, #08080a 75%);
   overflow: hidden;
+  padding-left: var(--safe-left);
+  padding-right: var(--safe-right);
 }
 
 /* ==========================================================================
@@ -282,31 +286,43 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
    HEADER — EXCLUSIVE PRIVATE CLUB AESTHETIC
    ========================================================================== */
 .casino-header {
-  height: 54px;
-  min-height: 54px;
-  padding: 0 1rem;
-  padding-top: var(--safe-top);
+  height: auto;
+  min-height: calc(54px + var(--safe-top));
+  padding: calc(var(--safe-top) + 2px) 0.75rem 4px 0.75rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.35rem;
   background: rgba(10, 10, 14, 0.94);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(212, 175, 55, 0.16);
   position: relative;
   z-index: 100;
+  box-sizing: border-box;
 }
 
-.header-left, .header-right {
+.header-left {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
 }
 
 .brand-logo {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
+  gap: 0.35rem;
+  flex-shrink: 0;
 }
 
 .gold-crown-svg {
@@ -316,32 +332,38 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 .logo-title {
   font-family: var(--font-serif);
   font-weight: 800;
-  font-size: 1.05rem;
-  letter-spacing: 0.14em;
+  font-size: 1rem;
+  letter-spacing: 0.12em;
   background: linear-gradient(135deg, #FFF3B0 0%, #D4AF37 50%, #8C6212 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  white-space: nowrap;
 }
 
 .room-code-pill {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.25rem 0.65rem;
-  background: rgba(212, 175, 55, 0.07);
+  gap: 0.35rem;
+  padding: 0.22rem 0.55rem;
+  background: rgba(212, 175, 55, 0.08);
   border: 1px solid var(--border-gold);
   border-radius: var(--radius-pill);
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   color: var(--gold-champagne);
   cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 125px;
   transition: background 0.15s ease;
 }
 
 .room-code-pill strong {
   font-family: var(--font-serif);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   color: #FFFFFF;
 }
 
@@ -359,8 +381,8 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .header-btn {
-  min-height: 42px;
-  min-width: 42px;
+  min-height: 38px;
+  min-width: 38px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: var(--text-secondary);
@@ -368,13 +390,15 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.35rem;
-  padding: 0.4rem 0.75rem;
+  gap: 0.3rem;
+  padding: 0.35rem 0.55rem;
+  font-size: 0.72rem;
   cursor: pointer;
   position: relative;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
   transition: border-color 0.2s, background 0.2s, transform 0.12s;
+  box-sizing: border-box;
 }
 
 .header-btn:active {
@@ -387,10 +411,9 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   color: #fb7185;
   border-color: rgba(244, 63, 94, 0.35);
   background: rgba(244, 63, 94, 0.08);
-  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.03em;
-  padding: 0.35rem 0.65rem;
+  letter-spacing: 0.02em;
+  padding: 0.3rem 0.55rem;
 }
 
 .header-btn-leave:active {
@@ -466,17 +489,20 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
    1. HOME SCREEN — BESPOKE SALON LANDING
    ========================================================================== */
 #view-home {
-  padding: 1.25rem 1rem calc(1.25rem + var(--safe-bottom)) 1rem;
+  padding: 1rem 1rem calc(1.5rem + var(--safe-bottom)) 1rem;
   justify-content: center;
+  align-items: center;
+  overflow-y: auto;
+  box-sizing: border-box;
 }
 
 .home-hero-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.35rem;
+  gap: 1.15rem;
   max-width: 390px;
-  margin: 0 auto;
+  margin: auto 0;
   width: 100%;
 }
 
@@ -485,12 +511,12 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 0.5rem;
+  margin-top: 0.25rem;
 }
 
 .art-outer-rail {
-  width: 220px;
-  height: 125px;
+  width: clamp(190px, 52vw, 220px);
+  height: clamp(110px, 30vw, 125px);
   background: linear-gradient(145deg, #23130a 0%, #170c06 50%, #0d0603 100%);
   border: 3px solid #080402;
   border-radius: 68px;
@@ -574,7 +600,7 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 
 .shimmer-title {
   font-family: var(--font-serif);
-  font-size: 2.15rem;
+  font-size: clamp(1.85rem, 6.5vw, 2.2rem);
   font-weight: 800;
   letter-spacing: 0.18em;
   line-height: 1.15;
@@ -1178,19 +1204,21 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: calc(var(--dock-height) + var(--safe-bottom) + 14px);
+  padding-bottom: calc(var(--dock-height) + var(--safe-bottom) + 12px);
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
 }
 
 /* Master-Crafted Oval Poker Table */
 .table-stage {
-  padding: 0.75rem 0.5rem;
+  padding: 0.25rem 0.25rem;
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
   margin: auto 0;
+  box-sizing: border-box;
 }
 
 .poker-table-bezel {
@@ -1201,6 +1229,7 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   padding: 3px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.98);
   position: relative;
+  box-sizing: border-box;
 }
 
 /* Padded Leather Armrest Rail */
@@ -1208,8 +1237,9 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   width: 100%;
   background: linear-gradient(145deg, #25140b 0%, #170d07 50%, #0d0603 100%);
   border-radius: 120px;
-  padding: 8px;
+  padding: 7px;
   box-shadow: inset 0 2px 4px rgba(255, 215, 0, 0.2), inset 0 -3px 8px rgba(0, 0, 0, 0.85);
+  box-sizing: border-box;
 }
 
 /* Polished Brass Inlay Bead */
@@ -1217,23 +1247,25 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   width: 100%;
   border: 1.5px solid var(--table-brass-inlay);
   border-radius: 112px;
-  padding: 3px;
+  padding: 2.5px;
   box-shadow: 0 0 10px rgba(197, 155, 39, 0.3);
+  box-sizing: border-box;
 }
 
 /* Deep Emerald Felt with Vignette Shading */
 .poker-table-felt {
   background: radial-gradient(ellipse at 50% 50%, #0e5e39 0%, #083c24 55%, #031c11 100%);
   border-radius: 108px;
-  min-height: 440px;
+  min-height: clamp(380px, 50vh, 480px);
   position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 1rem 0.5rem;
+  padding: 0.75rem 0.5rem;
   box-shadow: inset 0 0 45px rgba(0, 0, 0, 0.75);
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 /* Authentic Inner Gold Betting Track */
@@ -1355,31 +1387,31 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 88px;
+  width: 82px;
   transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.3s ease, filter 0.3s ease;
   z-index: 20;
 }
 
 .avatar-wrapper {
   position: relative;
-  width: 72px;
-  height: 72px;
+  width: 60px;
+  height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* 60x60px Rich Gemstone / Velvet Circle Avatar */
+/* 50x50px Rich Gemstone / Velvet Circle Avatar */
 .player-avatar-circle {
-  width: 58px;
-  height: 58px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-serif);
   font-weight: 800;
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   color: #FFF3B0;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.85);
   z-index: 4;
@@ -1470,44 +1502,45 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   background: rgba(14, 14, 18, 0.94);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-sm);
-  padding: 3px 4px;
-  margin-top: 3px;
+  padding: 2px 4px;
+  margin-top: 2px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7);
+  box-sizing: border-box;
 }
 
 .player-name-line {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 700;
   color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 80px;
+  max-width: 74px;
 }
 
 .you-tag {
   color: var(--emerald);
-  font-size: 0.6rem;
+  font-size: 0.58rem;
   font-weight: 900;
 }
 
 .player-chip-counter {
   display: flex;
   align-items: center;
-  gap: 3px;
-  font-size: 0.78rem;
+  gap: 2px;
+  font-size: 0.72rem;
   font-weight: 800;
   color: var(--gold-champagne);
 }
 
 .player-last-action {
-  font-size: 0.6rem;
+  font-size: 0.58rem;
   font-weight: 800;
-  padding: 1px 5px;
+  padding: 1px 4px;
   border-radius: 4px;
   white-space: nowrap;
   letter-spacing: 0.04em;
@@ -1544,7 +1577,7 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 /* ==========================================================================
-   4. MASTER-CRAFTED MOBILE ACTION DOCK (FIXED 180PX)
+   4. MASTER-CRAFTED MOBILE ACTION DOCK (FIXED 154PX)
    ========================================================================== */
 .glass-action-dock {
   position: fixed;
@@ -1554,16 +1587,17 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   max-width: 480px;
   margin: 0 auto;
   min-height: var(--dock-height);
-  background: rgba(10, 10, 14, 0.94);
+  background: rgba(10, 10, 14, 0.96);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border-top: 1px solid rgba(212, 175, 55, 0.25);
-  padding: 8px 12px calc(8px + var(--safe-bottom)) 12px;
+  border-top: 1px solid rgba(212, 175, 55, 0.22);
+  padding: 8px 10px calc(8px + var(--safe-bottom)) 10px;
   z-index: 90;
   box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.95);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
+  box-sizing: border-box;
 }
 
 /* 2x2 Grid Layout */
@@ -1577,7 +1611,7 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 .action-row-split {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 6px;
   width: 100%;
 }
 
@@ -1595,22 +1629,23 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  padding: 4px 8px;
+  padding: 4px 6px;
   box-shadow: var(--inner-highlight), var(--shadow-sm);
   transition: transform 0.12s ease, filter 0.15s ease;
+  box-sizing: border-box;
 }
 
 .btn-pill .btn-subtext {
   font-size: 0.58rem;
   font-weight: 800;
   letter-spacing: 0.08em;
-  opacity: 0.82;
+  opacity: 0.85;
 }
 
 .btn-pill .btn-maintext {
   font-size: 0.95rem;
   font-weight: 900;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
 }
 
 /* Row 1 Left: Fold (Deep Garnet Enamel) */
@@ -2281,8 +2316,12 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   border-radius: var(--radius-card);
   width: 100%;
   max-width: 400px;
+  max-height: calc(90dvh - var(--safe-top) - var(--safe-bottom));
+  display: flex;
+  flex-direction: column;
   box-shadow: 0 16px 45px rgba(0, 0, 0, 0.95);
   overflow: hidden;
+  box-sizing: border-box;
   animation: popIn 0.25s cubic-bezier(0.18, 0.9, 0.3, 1.2);
 }
 
@@ -2291,11 +2330,12 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .modal-top {
-  padding: 14px 18px;
+  padding: 12px 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .modal-top h3 {
@@ -2370,12 +2410,14 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .modal-bottom {
-  padding: 14px 18px;
+  padding: 12px 16px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 8px;
   width: 100%;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .modal-bottom .btn {
@@ -2390,10 +2432,13 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .modal-body-fields {
-  padding: 16px;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .presets-row {
@@ -2529,15 +2574,116 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 /* ==========================================================================
-   DESKTOP / WIDE SCREEN RESPONSIVE BOUNDARIES
+   MOBILE & DESKTOP RESPONSIVE BREAKPOINTS
    ========================================================================== */
+
+/* Small Mobile Screens (iPhone SE, Galaxy A, screens <= 380px) */
+@media screen and (max-width: 380px) {
+  .logo-title {
+    font-size: 0.88rem;
+    letter-spacing: 0.08em;
+  }
+  .wifi-tag {
+    display: none;
+  }
+  .header-btn {
+    min-height: 36px;
+    min-width: 36px;
+    padding: 0.25rem 0.45rem;
+  }
+  .room-code-pill {
+    max-width: 95px;
+    font-size: 0.65rem;
+    padding: 0.2rem 0.45rem;
+  }
+  .poker-table-felt {
+    min-height: 360px;
+  }
+  .seated-player {
+    width: 74px;
+  }
+  .avatar-wrapper {
+    width: 52px;
+    height: 52px;
+  }
+  .player-avatar-circle {
+    width: 44px;
+    height: 44px;
+    font-size: 1rem;
+  }
+  .player-name-line {
+    font-size: 0.62rem;
+    max-width: 66px;
+  }
+  .player-chip-counter {
+    font-size: 0.68rem;
+  }
+  .btn-pill .btn-maintext {
+    font-size: 0.88rem;
+  }
+  .btn-pill .btn-subtext {
+    font-size: 0.52rem;
+  }
+}
+
+/* Short Screen Heights (e.g. mobile browser with URL bar/virtual keyboard, <= 720px) */
+@media screen and (max-height: 720px) {
+  .home-hero-container {
+    gap: 0.85rem;
+  }
+  .poker-table-art {
+    margin-top: 0;
+  }
+  .art-outer-rail {
+    width: 180px;
+    height: 100px;
+  }
+  .poker-table-felt {
+    min-height: 340px;
+  }
+  .seated-player {
+    width: 74px;
+  }
+  .avatar-wrapper {
+    width: 52px;
+    height: 52px;
+  }
+  .player-avatar-circle {
+    width: 44px;
+    height: 44px;
+    font-size: 1rem;
+  }
+  .glass-action-dock {
+    padding: 6px 8px calc(6px + var(--safe-bottom)) 8px;
+  }
+  .btn-pill {
+    min-height: 46px;
+  }
+}
+
+/* Tablet & Desktop Layout (>= 640px) */
 @media (min-width: 640px) {
   #app-container {
     border-left: 1px solid rgba(212, 175, 55, 0.15);
     border-right: 1px solid rgba(212, 175, 55, 0.15);
+    box-shadow: 0 0 60px rgba(0, 0, 0, 0.9);
   }
 
   .poker-table-felt {
-    min-height: 480px;
+    min-height: 490px;
+  }
+
+  .seated-player {
+    width: 88px;
+  }
+
+  .player-avatar-circle {
+    width: 58px;
+    height: 58px;
+    font-size: 1.25rem;
+  }
+
+  .btn:hover, .btn-pill:hover, .header-btn:hover {
+    filter: brightness(1.08);
   }
 }

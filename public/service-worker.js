@@ -1,5 +1,5 @@
-// Poker Night PWA Service Worker — Version 6.0 (Resilient & Audited)
-const CACHE_NAME = 'poker-night-v6';
+// Poker Night PWA Service Worker — Version 7.0 (Mobile Polish & Layout Optimization)
+const CACHE_NAME = 'poker-night-v7';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
