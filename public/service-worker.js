@@ -1,5 +1,5 @@
-// Poker Night PWA Service Worker — Version 4.0 (Enhanced Winner Declare)
-const CACHE_NAME = 'poker-night-v4';
+// Poker Night PWA Service Worker — Version 5.0 (Leave Table Action)
+const CACHE_NAME = 'poker-night-v5';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

@@ -48,6 +48,18 @@ class PokerSocketClient {
       }
     });
 
+    this.socket.on('host-assigned', ({ hostToken }) => {
+      this.hostToken = hostToken;
+      const raw = localStorage.getItem('poker_session');
+      if (raw) {
+        try {
+          const sess = JSON.parse(raw);
+          sess.hostToken = hostToken;
+          localStorage.setItem('poker_session', JSON.stringify(sess));
+        } catch (e) {}
+      }
+    });
+
     this.socket.on('disconnect', () => {
       console.log('Disconnected from server');
     });
@@ -221,6 +233,19 @@ class PokerSocketClient {
       this.socket.emit('resume-game', { roomId: this.roomId, hostToken: this.hostToken }, (res) => {
         if (res?.success) resolve(res);
         else reject(new Error(res?.message || 'Failed to resume game'));
+      });
+    });
+  }
+
+  leaveTable() {
+    return new Promise((resolve) => {
+      const roomId = this.roomId;
+      this.clearSession();
+      if (!roomId) {
+        return resolve({ success: true });
+      }
+      this.socket.emit('leave-table', { roomId }, (res) => {
+        resolve(res || { success: true });
       });
     });
   }

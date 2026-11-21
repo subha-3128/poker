@@ -203,6 +203,15 @@ async function runMultiplayerSimulation() {
   assert.strictEqual(netSum, 0, `Net profit/loss of all players must sum to 0 (zero-sum), got ${netSum}`);
   console.log('✅ Net profit/loss is perfectly zero-sum (+/- balance verified)!');
 
+  // Test Leave Table via Socket
+  const leaveRes = await new Promise(resolve => {
+    socketAmit.emit('leave-table', { roomId }, resolve);
+  });
+  assert(leaveRes && leaveRes.success, 'Leave table failed');
+  await wait(300);
+  assert.strictEqual(hostState.players.length, 2, 'Host state should now show 2 players after Amit left');
+  console.log('✅ Leave Table verified: Amit left, table updated to 2 players!');
+
   socketHost.disconnect();
   socketPriya.disconnect();
   socketAmit.disconnect();

@@ -58,6 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // DOM Elements - Header
   const elHeaderRoomCode = document.getElementById('header-room-code');
   const elRoomCodeBadge = document.getElementById('room-code-badge');
+  const elBtnLeaveTable = document.getElementById('btn-leave-table');
   const elBtnQrModal = document.getElementById('btn-qr-modal');
   const elBtnSoundToggle = document.getElementById('btn-sound-toggle');
   const elSoundIconSvg = document.getElementById('sound-icon-svg');
@@ -100,6 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const elPlayerCount = document.getElementById('player-count');
   const elLobbyPlayersList = document.getElementById('lobby-players-list');
   const elBtnStartGame = document.getElementById('btn-start-game');
+  const elBtnLobbyLeave = document.getElementById('btn-lobby-leave');
 
   // Table Screen Elements
   const elStatusHandNum = document.getElementById('status-hand-num');
@@ -305,9 +307,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (viewName === 'home') {
       elRoomCodeBadge.classList.add('hidden');
+      if (elBtnLeaveTable) elBtnLeaveTable.classList.add('hidden');
       releaseWakeLock();
     } else {
       elRoomCodeBadge.classList.remove('hidden');
+      if (elBtnLeaveTable) elBtnLeaveTable.classList.remove('hidden');
       if (['lobby', 'table'].includes(viewName)) {
         requestWakeLock();
       }
@@ -692,9 +696,29 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   elBtnSummaryHome.addEventListener('click', () => {
-    client.clearSession();
-    switchView('home');
+    handleLeaveTable();
   });
+
+  // --- LEAVE TABLE HANDLER ---
+  async function handleLeaveTable() {
+    const isPlaying = client.currentState && client.currentState.stage === 'playing';
+    const msg = isPlaying
+      ? 'Leave the poker table? If a hand is in progress, your hand will be folded and your seat freed.'
+      : 'Are you sure you want to leave this table?';
+    if (!confirm(msg)) return;
+
+    try {
+      await client.leaveTable();
+      showToast('You left the table', 'neutral');
+      switchView('home');
+    } catch (err) {
+      showToast(err.message || 'Error leaving table', 'error');
+      switchView('home');
+    }
+  }
+
+  if (elBtnLeaveTable) elBtnLeaveTable.addEventListener('click', handleLeaveTable);
+  if (elBtnLobbyLeave) elBtnLobbyLeave.addEventListener('click', handleLeaveTable);
 
   // Modal Closures
   document.querySelectorAll('[data-close]').forEach(btn => {

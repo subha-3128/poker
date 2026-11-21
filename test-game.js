@@ -184,6 +184,34 @@ function runTests() {
     console.log('✅ Test 5 Passed!');
   }
 
+  // Test 6: Leave Table in Lobby & Active Hand
+  {
+    console.log('Test 6: Leave Table (Lobby and Active Hand)');
+    const game = new PokerGame('9999', 'p1', { startingChips: 1000, smallBlind: 10, bigBlind: 20 });
+    game.addPlayer('p1', 'Alice', 's1');
+    game.addPlayer('p2', 'Bob', 's2');
+    game.addPlayer('p3', 'Charlie', 's3');
+
+    // Bob leaves in lobby
+    game.leaveGame('p2');
+    assert.strictEqual(game.players.length, 2);
+    assert.strictEqual(game.players.some(p => p.id === 'p2'), false);
+
+    // Start game between Alice and Charlie
+    game.startGame();
+    assert.strictEqual(game.stage, 'playing');
+    assert.strictEqual(game.pot, 30);
+
+    // Alice leaves during active hand -> Charlie should automatically win the pot
+    game.leaveGame('p1');
+    assert.strictEqual(game.players.length, 1);
+    assert.strictEqual(game.street, 'hand_ended');
+    const charlie = game.players.find(p => p.id === 'p3');
+    assert.strictEqual(charlie.chips, 1010); // Won the 30 pot (was 980 + 30)
+    assert.strictEqual(game.hostId, 'p3'); // Host transferred to Charlie!
+    console.log('✅ Test 6 Passed!');
+  }
+
   console.log('🎉 All PokerGame Unit Tests Passed Successfully!');
 }
 

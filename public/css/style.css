@@ -383,6 +383,40 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   transform: scale(0.95);
 }
 
+.header-btn-leave {
+  color: #fb7185;
+  border-color: rgba(244, 63, 94, 0.35);
+  background: rgba(244, 63, 94, 0.08);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  padding: 0.35rem 0.65rem;
+}
+
+.header-btn-leave:active {
+  background: rgba(244, 63, 94, 0.22);
+  border-color: #fb7185;
+  transform: scale(0.95);
+}
+
+.btn-leave-action {
+  color: #fb7185 !important;
+  border-color: rgba(244, 63, 94, 0.35) !important;
+  background: rgba(244, 63, 94, 0.06) !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-weight: 700;
+  min-height: 48px;
+  margin-top: 10px;
+}
+
+.btn-leave-action:active {
+  background: rgba(244, 63, 94, 0.18) !important;
+  border-color: #fb7185 !important;
+}
+
 .wifi-tag {
   font-size: 0.65rem;
   font-weight: 800;

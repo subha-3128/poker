@@ -366,6 +366,47 @@ io.on('connection', (socket) => {
     }
   });
 
+  // 10b. Leave Table (Any player)
+  socket.on('leave-table', ({ roomId }, callback) => {
+    try {
+      const targetRoomId = roomId || currentRoomId;
+      const game = games.get(targetRoomId);
+      if (!game) throw new Error('Game not found.');
+      if (!currentPlayerId) throw new Error('Player not identified.');
+
+      const leavingPlayerId = currentPlayerId;
+      const wasHost = game.hostId === leavingPlayerId;
+
+      game.leaveGame(leavingPlayerId);
+
+      // If the leaving player was host and there are still players, assign new hostToken to new host
+      if (wasHost && game.players.length > 0) {
+        const newHost = game.players.find(p => p.id === game.hostId);
+        if (newHost) {
+          const newHostToken = crypto.randomBytes(16).toString('hex');
+          game.hostToken = newHostToken;
+          if (newHost.socketId) {
+            io.to(newHost.socketId).emit('host-assigned', { hostToken: newHostToken });
+          }
+        }
+      }
+
+      socket.leave(targetRoomId);
+      currentRoomId = null;
+      currentPlayerId = null;
+
+      if (game.players.length === 0) {
+        games.delete(targetRoomId);
+      } else {
+        broadcastRoomState(game);
+      }
+
+      if (typeof callback === 'function') callback({ success: true });
+    } catch (err) {
+      if (typeof callback === 'function') callback({ success: false, message: err.message });
+    }
+  });
+
   // 11. End Game Summary (Host only)
   socket.on('end-game', ({ roomId, hostToken }, callback) => {
     try {

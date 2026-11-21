@@ -97,6 +97,14 @@
         </div>
       </div>
       <div class="header-right">
+        <button id="btn-leave-table" class="header-btn header-btn-leave hidden" title="Leave Table" aria-label="Leave Table">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          <span>Leave</span>
+        </button>
         <button id="btn-qr-modal" class="header-btn" title="Scan QR Code to Join on WiFi" aria-label="QR Code">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="3" width="7" height="7" rx="1"></rect>
@@ -286,6 +294,14 @@
               <div class="gold-spinner"></div>
               <span>Waiting for host to begin the hand...</span>
             </div>
+            <button id="btn-lobby-leave" class="btn btn-glass btn-block btn-leave-action" type="button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+              </svg>
+              <span>Leave Table</span>
+            </button>
           </div>
         </div>
       </section>
@@ -652,9 +668,9 @@
 
   <!-- Socket.IO library & JS Controllers -->
   <script src="/socket.io/socket.io.js"></script>
-  <script src="/js/audio.js?v=4.0"></script>
-  <script src="/js/chip-renderer.js?v=4.0"></script>
-  <script src="/js/socket-client.js?v=4.0"></script>
-  <script src="/js/app.js?v=4.0"></script>
+  <script src="/js/audio.js?v=5.0"></script>
+  <script src="/js/chip-renderer.js?v=5.0"></script>
+  <script src="/js/socket-client.js?v=5.0"></script>
+  <script src="/js/app.js?v=5.0"></script>
 </body>
 </html>
