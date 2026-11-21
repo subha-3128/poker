@@ -308,6 +308,11 @@
             </svg>
             <span class="pot-val" id="total-pot-amount">0</span>
           </div>
+
+          <!-- Quick Host Action in Header -->
+          <button id="btn-header-declare-winner" class="btn btn-sm btn-luxury-gold host-only hidden" title="Declare Winner">
+            🏆 Declare Winner
+          </button>
         </div>
 
         <!-- Side Pots Strip (Visible if Multi-Way All-in occurs) -->
@@ -347,8 +352,8 @@
 
                       <!-- Host Quick Controls inside Table Center -->
                       <div id="center-host-actions" class="center-host-bar host-only hidden">
-                        <button id="btn-showdown-award" class="btn btn-sm btn-luxury-gold">Award Pot</button>
-                        <button id="btn-next-hand" class="btn btn-sm btn-luxury-emerald">Next Hand ▶</button>
+                        <button id="btn-showdown-award" class="btn btn-sm btn-luxury-gold">🏆 Declare Winner</button>
+                        <button id="btn-next-hand" class="btn btn-sm btn-luxury-emerald hidden">Next Hand ▶</button>
                       </div>
                     </div>
 
@@ -427,7 +432,17 @@
             </div>
           </div>
 
-          <!-- Waiting Panel (When NOT your turn) -->
+          <!-- Host Showdown & Post-Hand Action Controls (Inside Dock) -->
+          <div id="dock-host-panel" class="dock-host-actions hidden">
+            <button id="btn-dock-declare-winner" class="btn btn-luxury-gold btn-large btn-block" type="button">
+              🏆 Declare Hand Winner
+            </button>
+            <button id="btn-dock-next-hand" class="btn btn-luxury-emerald btn-large btn-block hidden" type="button">
+              Deal Next Hand ▶
+            </button>
+          </div>
+
+          <!-- Waiting Panel (When NOT your turn / Waiting for Host) -->
           <div id="waiting-dock" class="waiting-dock-message">
             <span class="gold-pulse-indicator"></span>
             <span id="waiting-status-text">Waiting for players to act...</span>
@@ -439,10 +454,10 @@
           <button id="fab-rebuy" class="fab-pill" title="Player Rebuy">
             <span>+ Rebuy</span>
           </button>
-          <button id="fab-award" class="fab-pill" title="Award Pot">
-            <span>Award Pot</span>
+          <button id="fab-award" class="fab-pill fab-gold" title="Declare Winner">
+            <span>🏆 Declare Winner</span>
           </button>
-          <button id="fab-next" class="fab-pill" title="Next Hand">
+          <button id="fab-next" class="fab-pill hidden" title="Next Hand">
             <span>Next Hand ▶</span>
           </button>
           <button id="fab-end-game" class="fab-pill fab-danger" title="End Night">
@@ -588,16 +603,16 @@
     <div id="modal-showdown" class="modal-backdrop hidden">
       <div class="modal-luxury-card modal-card-wide">
         <div class="modal-top">
-          <h3>Award Pot Winner(s)</h3>
+          <h3>🏆 Declare Hand Winner</h3>
           <button class="modal-x-btn" data-close="modal-showdown">&times;</button>
         </div>
         <div class="modal-body-fields">
-          <p class="modal-sub">Verify table showdown cards and designate pot winners:</p>
+          <p class="modal-sub">Select the winning player(s) to receive the pot:</p>
           <div id="showdown-pots-list" class="showdown-pots-list"></div>
         </div>
         <div class="modal-bottom">
           <button class="btn btn-glass" data-close="modal-showdown">Cancel</button>
-          <button id="btn-confirm-award" class="btn btn-luxury-gold">Award Chips</button>
+          <button id="btn-confirm-award" class="btn btn-luxury-gold">Declare Winner</button>
         </div>
       </div>
     </div>
@@ -637,9 +652,9 @@
 
   <!-- Socket.IO library & JS Controllers -->
   <script src="/socket.io/socket.io.js"></script>
-  <script src="/js/audio.js?v=3.0"></script>
-  <script src="/js/chip-renderer.js?v=3.0"></script>
-  <script src="/js/socket-client.js?v=3.0"></script>
-  <script src="/js/app.js?v=3.0"></script>
+  <script src="/js/audio.js?v=4.0"></script>
+  <script src="/js/chip-renderer.js?v=4.0"></script>
+  <script src="/js/socket-client.js?v=4.0"></script>
+  <script src="/js/app.js?v=4.0"></script>
 </body>
 </html>

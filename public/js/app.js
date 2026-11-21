@@ -104,6 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Table Screen Elements
   const elStatusHandNum = document.getElementById('status-hand-num');
   const elStatusStreetBadge = document.getElementById('status-street-badge');
+  const elBtnHeaderDeclareWinner = document.getElementById('btn-header-declare-winner');
   const elTotalPotAmount = document.getElementById('total-pot-amount');
   const elSidePotsContainer = document.getElementById('side-pots-container');
   const elCenterPotChips = document.getElementById('center-pot-chips');
@@ -117,6 +118,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Turn Controls Dock (Fixed 180px Mobile Panel)
   const elTurnControls = document.getElementById('turn-controls');
+  const elDockHostPanel = document.getElementById('dock-host-panel');
+  const elBtnDockDeclareWinner = document.getElementById('btn-dock-declare-winner');
+  const elBtnDockNextHand = document.getElementById('btn-dock-next-hand');
   const elWaitingDock = document.getElementById('waiting-dock');
   const elWaitingStatusText = document.getElementById('waiting-status-text');
 
@@ -624,6 +628,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- HOST CONTROLS ---
   elBtnNextHand.addEventListener('click', () => dealNextHand());
   elFabNext.addEventListener('click', () => dealNextHand());
+  if (elBtnDockNextHand) elBtnDockNextHand.addEventListener('click', () => dealNextHand());
 
   function dealNextHand() {
     client.startNextHand().catch(err => showToast(err.message, 'error'));
@@ -631,6 +636,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   elBtnShowdownAward.addEventListener('click', () => openShowdownModal());
   elFabAward.addEventListener('click', () => openShowdownModal());
+  if (elBtnHeaderDeclareWinner) elBtnHeaderDeclareWinner.addEventListener('click', () => openShowdownModal());
+  if (elBtnDockDeclareWinner) elBtnDockDeclareWinner.addEventListener('click', () => openShowdownModal());
 
   function openShowdownModal() {
     renderShowdownModal();
@@ -849,29 +856,43 @@ document.addEventListener('DOMContentLoaded', () => {
       elSidePotsContainer.classList.add('hidden');
     }
 
-    // Center Controls & Floating Host Bar (Showdown / Next Hand)
-    if (state.street === 'showdown') {
-      elCenterHostActions.classList.remove('hidden');
-      elBtnShowdownAward.classList.remove('hidden');
-      elBtnNextHand.classList.add('hidden');
-      if (elFabAward) {
-        elFabAward.classList.remove('hidden');
-        elFabAward.classList.add('fab-gold');
-      }
-      if (elFabNext) elFabNext.classList.add('hidden');
-    } else if (state.street === 'hand_ended') {
-      elCenterHostActions.classList.remove('hidden');
-      elBtnShowdownAward.classList.add('hidden');
-      elBtnNextHand.classList.remove('hidden');
-      if (elFabAward) elFabAward.classList.add('hidden');
-      if (elFabNext) {
-        elFabNext.classList.remove('hidden');
-        elFabNext.classList.add('fab-emerald');
+    // Center Controls & Floating Host Bar (Showdown / Next Hand / Live Declare)
+    const isPlayingHand = state.stage === 'playing' && state.street !== 'hand_ended';
+    const isHandEnded = state.street === 'hand_ended';
+
+    if (state.isHost) {
+      if (isPlayingHand) {
+        // Host can declare winner at any point during betting or at showdown
+        elCenterHostActions.classList.remove('hidden');
+        elBtnShowdownAward.classList.remove('hidden');
+        elBtnNextHand.classList.add('hidden');
+        if (elFabAward) {
+          elFabAward.classList.remove('hidden');
+          elFabAward.classList.add('fab-gold');
+        }
+        if (elFabNext) elFabNext.classList.add('hidden');
+        if (elBtnHeaderDeclareWinner) elBtnHeaderDeclareWinner.classList.remove('hidden');
+      } else if (isHandEnded) {
+        elCenterHostActions.classList.remove('hidden');
+        elBtnShowdownAward.classList.add('hidden');
+        elBtnNextHand.classList.remove('hidden');
+        if (elFabAward) elFabAward.classList.add('hidden');
+        if (elFabNext) {
+          elFabNext.classList.remove('hidden');
+          elFabNext.classList.add('fab-emerald');
+        }
+        if (elBtnHeaderDeclareWinner) elBtnHeaderDeclareWinner.classList.add('hidden');
+      } else {
+        elCenterHostActions.classList.add('hidden');
+        if (elFabAward) elFabAward.classList.add('hidden');
+        if (elFabNext) elFabNext.classList.add('hidden');
+        if (elBtnHeaderDeclareWinner) elBtnHeaderDeclareWinner.classList.add('hidden');
       }
     } else {
       elCenterHostActions.classList.add('hidden');
       if (elFabAward) elFabAward.classList.add('hidden');
       if (elFabNext) elFabNext.classList.add('hidden');
+      if (elBtnHeaderDeclareWinner) elBtnHeaderDeclareWinner.classList.add('hidden');
     }
 
     renderTablePlayers(state);
@@ -998,6 +1019,57 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     wasMyTurn = isYourTurn;
 
+    // Showdown or Hand-Ended in the Bottom Action Dock
+    if (state.street === 'showdown') {
+      isRaiseDrawerOpen = false;
+      elRaiseDrawer.classList.add('hidden');
+      if (elActionGrid2x2) elActionGrid2x2.classList.remove('hidden');
+      elTurnControls.classList.add('hidden');
+
+      if (state.isHost) {
+        // HOST gets a prominent, full-width "Declare Winner" action right in the dock!
+        if (elDockHostPanel) {
+          elDockHostPanel.classList.remove('hidden');
+          if (elBtnDockDeclareWinner) elBtnDockDeclareWinner.classList.remove('hidden');
+          if (elBtnDockNextHand) elBtnDockNextHand.classList.add('hidden');
+        }
+        elWaitingDock.classList.add('hidden');
+      } else {
+        // GUEST sees clear waiting status
+        if (elDockHostPanel) elDockHostPanel.classList.add('hidden');
+        elWaitingDock.classList.remove('hidden');
+        const hostPlayer = state.players.find(p => p.id === state.hostId);
+        const hostName = hostPlayer ? truncateName(hostPlayer.name, 10) : 'Host';
+        elWaitingStatusText.textContent = `Showdown! Waiting for ${hostName} to declare winner...`;
+      }
+      return;
+    }
+
+    if (state.street === 'hand_ended') {
+      isRaiseDrawerOpen = false;
+      elRaiseDrawer.classList.add('hidden');
+      if (elActionGrid2x2) elActionGrid2x2.classList.remove('hidden');
+      elTurnControls.classList.add('hidden');
+
+      if (state.isHost) {
+        // HOST gets a prominent, full-width "Deal Next Hand ▶" action right in the dock!
+        if (elDockHostPanel) {
+          elDockHostPanel.classList.remove('hidden');
+          if (elBtnDockDeclareWinner) elBtnDockDeclareWinner.classList.add('hidden');
+          if (elBtnDockNextHand) elBtnDockNextHand.classList.remove('hidden');
+        }
+        elWaitingDock.classList.add('hidden');
+      } else {
+        if (elDockHostPanel) elDockHostPanel.classList.add('hidden');
+        elWaitingDock.classList.remove('hidden');
+        elWaitingStatusText.textContent = 'Hand complete. Waiting for Host to deal next hand...';
+      }
+      return;
+    }
+
+    // Normal betting phase (Preflop, Flop, Turn, River)
+    if (elDockHostPanel) elDockHostPanel.classList.add('hidden');
+
     // Toggle 2x2 Action Dock
     if (isYourTurn && state.playerTurnOptions) {
       elTurnControls.classList.remove('hidden');
@@ -1025,10 +1097,6 @@ document.addEventListener('DOMContentLoaded', () => {
       elWaitingDock.classList.remove('hidden');
       if (turnPlayer) {
         elWaitingStatusText.textContent = `Awaiting action from ${truncateName(turnPlayer.name, 10)}...`;
-      } else if (state.street === 'showdown') {
-        elWaitingStatusText.textContent = 'Showdown! Host is determining winning hands...';
-      } else if (state.street === 'hand_ended') {
-        elWaitingStatusText.textContent = 'Hand complete. Dealing next hand...';
       } else {
         elWaitingStatusText.textContent = 'Waiting for hand to begin...';
       }
@@ -1041,23 +1109,33 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!state) return;
 
     elShowdownPotsList.innerHTML = '';
-    const pots = state.pots && state.pots.length > 0 ? state.pots : [{ id: 'main', name: 'Main Pot', amount: state.pot, eligiblePlayerIds: state.players.filter(p => !p.isFolded).map(p => p.id) }];
+    const pots = state.pots && state.pots.length > 0
+      ? state.pots
+      : [{ id: 'main', name: 'Main Pot', amount: state.pot || 0, eligiblePlayerIds: state.players.filter(p => !p.isFolded).map(p => p.id) }];
 
     pots.forEach((pot) => {
       const card = document.createElement('div');
       card.className = 'pot-select-card';
 
-      const eligiblePlayers = state.players.filter(p => pot.eligiblePlayerIds.includes(p.id));
+      // Eligible players: prioritize pot.eligiblePlayerIds, but fallback gracefully
+      let eligiblePlayers = state.players.filter(p => !p.isSittingOut && !p.isFolded);
+      if (pot.eligiblePlayerIds && Array.isArray(pot.eligiblePlayerIds) && pot.eligiblePlayerIds.length > 0) {
+        const filtered = state.players.filter(p => pot.eligiblePlayerIds.includes(p.id));
+        if (filtered.length > 0) eligiblePlayers = filtered;
+      }
+      if (eligiblePlayers.length === 0) {
+        eligiblePlayers = state.players.filter(p => !p.isSittingOut);
+      }
 
       card.innerHTML = `
         <div class="pot-select-header">
-          <span>${pot.name}</span>
+          <span>${escapeHtml(pot.name)}</span>
           <span>🪙 ${pot.amount.toLocaleString()}</span>
         </div>
         <div class="pot-player-options">
           ${eligiblePlayers.map(p => `
             <label class="pot-player-label">
-              <span><strong>${escapeHtml(p.name)}</strong></span>
+              <span><strong>${escapeHtml(p.name)}</strong> <small style="color:var(--text-muted);margin-left:4px;">(${p.chips.toLocaleString()} chips)</small></span>
               <input type="checkbox" name="pot-winner-${pot.id}" value="${p.id}" ${eligiblePlayers.length === 1 ? 'checked' : ''}>
             </label>
           `).join('')}
