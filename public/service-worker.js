@@ -1,5 +1,5 @@
-// Poker Night PWA Service Worker — Version 2.0 (High-Roller Mobile Overhaul)
-const CACHE_NAME = 'poker-night-v2';
+// Poker Night PWA Service Worker — Version 3.0 (Untimed Play)
+const CACHE_NAME = 'poker-night-v3';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

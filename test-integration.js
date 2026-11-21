@@ -29,7 +29,7 @@ async function runMultiplayerSimulation() {
   const createRes = await new Promise(resolve => {
     socketHost.emit('create-game', {
       playerName: 'Rahul',
-      config: { startingChips: 1000, smallBlind: 10, bigBlind: 20, turnTimeLimit: 30 }
+      config: { startingChips: 1000, smallBlind: 10, bigBlind: 20 }
     }, resolve);
   });
 

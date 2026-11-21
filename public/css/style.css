@@ -279,28 +279,6 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 /* ==========================================================================
-   TOP TURN PROGRESS BAR
-   ========================================================================== */
-.top-turn-progress {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: rgba(255, 255, 255, 0.05);
-  z-index: 1000;
-  pointer-events: none;
-}
-
-.top-turn-fill {
-  height: 100%;
-  width: 100%;
-  background: var(--gold-champagne);
-  box-shadow: 0 0 10px var(--gold-champagne);
-  transition: width 0.15s linear, background-color 0.3s ease;
-}
-
-/* ==========================================================================
    HEADER — EXCLUSIVE PRIVATE CLUB AESTHETIC
    ========================================================================== */
 .casino-header {
@@ -925,6 +903,10 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   gap: 0.75rem;
 }
 
+.settings-inputs-grid .form-field:first-child {
+  grid-column: span 2;
+}
+
 .guest-rules-summary {
   display: flex;
   flex-wrap: wrap;
@@ -1341,28 +1323,6 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   justify-content: center;
 }
 
-/* Circular SVG Countdown Ring (Circumference: 201.06) */
-.timer-ring-svg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 72px;
-  height: 72px;
-  transform: rotate(-90deg);
-  pointer-events: none;
-  z-index: 6;
-}
-
-.timer-ring-bg {
-  stroke: rgba(255, 255, 255, 0.1);
-}
-
-.timer-ring-progress {
-  stroke: var(--gold-champagne);
-  stroke-linecap: round;
-  transition: stroke-dashoffset 0.12s linear, stroke 0.3s ease;
-}
-
 /* 60x60px Rich Gemstone / Velvet Circle Avatar */
 .player-avatar-circle {
   width: 58px;
@@ -1558,37 +1518,6 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-}
-
-.turn-timer-wrapper {
-  position: relative;
-  height: 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: var(--radius-pill);
-  overflow: hidden;
-  margin-bottom: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.turn-timer-fill {
-  height: 100%;
-  width: 100%;
-  background: linear-gradient(90deg, var(--emerald), var(--gold-champagne), var(--crimson));
-  transition: width 0.1s linear;
-}
-
-.turn-timer-info {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 8px;
-  font-size: 0.62rem;
-  font-weight: 800;
-  color: #ffffff;
-  text-shadow: 0 1px 2px #000;
-  letter-spacing: 0.04em;
 }
 
 /* 2x2 Grid Layout */

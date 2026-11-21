@@ -8,7 +8,7 @@
 
 > **Play Live Now**: [https://poker-flgj.onrender.com/](https://poker-flgj.onrender.com/)
 
-A real-time multiplayer poker chip tracker designed for home games with physical cards. Turn your phones into synchronized digital chip stacks, pot calculators, and turn timers — no physical chips, accounts, or database required.
+A real-time multiplayer poker chip tracker designed for home games with physical cards. Turn your phones into synchronized digital chip stacks, pot calculators, and bet trackers — no physical chips, accounts, or database required.
 
 ---
 
@@ -18,7 +18,7 @@ A real-time multiplayer poker chip tracker designed for home games with physical
 - **Accurate Pot Engine** — Automatic multi-way side pots, under-raise all-in protection, and blind rotations (Dealer, SB, BB).
 - **Mobile-First PWA** — Installable to home screen on iOS and Android with standalone fullscreen display and offline shell caching.
 - **Action Controls** — 2×2 thumb-friendly dock (Fold, Check/Call, Raise with custom slider/presets, and All-In).
-- **Turn Timer** — Synchronized 30-second countdown with visual and haptic alerts.
+- **Untimed, Relaxed Play** — No countdown stress or auto-folds; players act comfortably on their own turn.
 - **Host Tools** — Mid-game chip rebuys, kick player controls, and pot winner designation.
 - **End-of-Night Ledger** — Final zero-sum summary tracking exact profit and loss ($+\text{chips} / -\text{chips}$) for every player.
 
@@ -28,7 +28,7 @@ A real-time multiplayer poker chip tracker designed for home games with physical
 
 1. **Host** opens [https://poker-flgj.onrender.com/](https://poker-flgj.onrender.com/), enters a name, and taps **Create Table**.
 2. **Players** scan the table's QR code or enter the 4-digit room code to join.
-3. Deal real physical cards, and let the app manage bets, pots, turn timers, and payouts!
+3. Deal real physical cards, and let the app manage bets, pots, and payouts!
 
 ---
 

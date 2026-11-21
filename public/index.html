@@ -20,8 +20,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;0,800;0,900;1,600;1,700&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="/css/style.css?v=2.0">
-  <link rel="stylesheet" href="/css/animations.css?v=2.0">
+  <link rel="stylesheet" href="/css/style.css?v=3.0">
+  <link rel="stylesheet" href="/css/animations.css?v=3.0">
   <link rel="icon" href="/icons/icon-192.png" type="image/png">
 </head>
 <body>
@@ -70,11 +70,6 @@
 
   <!-- Main App Shell -->
   <div id="app-container">
-    <!-- Top Thin Turn Countdown Progress Bar -->
-    <div id="top-turn-progress-bar" class="top-turn-progress hidden">
-      <div id="top-turn-fill" class="top-turn-fill"></div>
-    </div>
-
     <!-- Casino Header -->
     <header id="app-header" class="casino-header">
       <div class="header-left">
@@ -255,16 +250,6 @@
                 <label for="cfg-big-blind">Big Blind</label>
                 <input type="number" id="cfg-big-blind" value="20" step="5" min="2" style="font-size: 16px;">
               </div>
-              <div class="form-field">
-                <label for="cfg-turn-timer">Turn Timer</label>
-                <select id="cfg-turn-timer" style="font-size: 16px;">
-                  <option value="15">15 seconds</option>
-                  <option value="30" selected>30 seconds</option>
-                  <option value="45">45 seconds</option>
-                  <option value="60">60 seconds</option>
-                  <option value="0">Untimed (Host)</option>
-                </select>
-              </div>
             </div>
           </div>
 
@@ -274,7 +259,6 @@
             <div class="guest-rules-summary">
               <div class="rule-chip">Chips: <strong id="guest-rule-chips">1,000</strong></div>
               <div class="rule-chip">Blinds: <strong id="guest-rule-blinds">10 / 20</strong></div>
-              <div class="rule-chip">Timer: <strong id="guest-rule-timer">30s</strong></div>
             </div>
           </div>
 
@@ -381,15 +365,6 @@
 
         <!-- Mobile Action Panel (Fixed Bottom Bar: 180px with safe area, 2x2 grid) -->
         <div id="player-action-dock" class="glass-action-dock">
-          <!-- Turn Timer Top Line within Dock -->
-          <div id="turn-timer-bar-container" class="turn-timer-wrapper">
-            <div id="turn-timer-bar" class="turn-timer-fill"></div>
-            <div class="turn-timer-info">
-              <span id="timer-player-name">Your Turn!</span>
-              <span id="timer-seconds-left">30s</span>
-            </div>
-          </div>
-
           <!-- 2x2 Grid Button Layout -->
           <div id="turn-controls" class="action-dock-buttons hidden">
             <div id="action-grid-2x2" class="action-grid-2x2">
@@ -662,9 +637,9 @@
 
   <!-- Socket.IO library & JS Controllers -->
   <script src="/socket.io/socket.io.js"></script>
-  <script src="/js/audio.js?v=2.0"></script>
-  <script src="/js/chip-renderer.js?v=2.0"></script>
-  <script src="/js/socket-client.js?v=2.0"></script>
-  <script src="/js/app.js?v=2.0"></script>
+  <script src="/js/audio.js?v=3.0"></script>
+  <script src="/js/chip-renderer.js?v=3.0"></script>
+  <script src="/js/socket-client.js?v=3.0"></script>
+  <script src="/js/app.js?v=3.0"></script>
 </body>
 </html>

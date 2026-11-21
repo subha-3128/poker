@@ -70,8 +70,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const elChatInput = document.getElementById('chat-input');
   const elGameLogMessages = document.getElementById('game-log-messages');
   const elScreenFlashOverlay = document.getElementById('screen-flash-overlay');
-  const elTopTurnProgressBar = document.getElementById('top-turn-progress-bar');
-  const elTopTurnFill = document.getElementById('top-turn-fill');
 
   // Views
   const views = {
@@ -96,11 +94,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const elCfgStartingChips = document.getElementById('cfg-starting-chips');
   const elCfgSmallBlind = document.getElementById('cfg-small-blind');
   const elCfgBigBlind = document.getElementById('cfg-big-blind');
-  const elCfgTurnTimer = document.getElementById('cfg-turn-timer');
   const elLobbyGuestSettings = document.getElementById('lobby-guest-settings');
   const elGuestRuleChips = document.getElementById('guest-rule-chips');
   const elGuestRuleBlinds = document.getElementById('guest-rule-blinds');
-  const elGuestRuleTimer = document.getElementById('guest-rule-timer');
   const elPlayerCount = document.getElementById('player-count');
   const elLobbyPlayersList = document.getElementById('lobby-players-list');
   const elBtnStartGame = document.getElementById('btn-start-game');
@@ -120,9 +116,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const elPokerPlayersLayer = document.getElementById('poker-players-layer');
 
   // Turn Controls Dock (Fixed 180px Mobile Panel)
-  const elTurnTimerBar = document.getElementById('turn-timer-bar');
-  const elTimerPlayerName = document.getElementById('timer-player-name');
-  const elTimerSecondsLeft = document.getElementById('timer-seconds-left');
   const elTurnControls = document.getElementById('turn-controls');
   const elWaitingDock = document.getElementById('waiting-dock');
   const elWaitingStatusText = document.getElementById('waiting-status-text');
@@ -181,7 +174,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const elBtnCloseCelebration = document.getElementById('btn-close-celebration');
 
   // Local State
-  let timerInterval = null;
   let lastLoggedId = null;
   let previousPot = 0;
   let isRaiseDrawerOpen = false;
@@ -189,7 +181,6 @@ document.addEventListener('DOMContentLoaded', () => {
   let wakeLockSentinel = null;
   let winnerDismissTimer = null;
   let wasMyTurn = false;
-  let lastSecondVibrated = null;
 
   // Opulent Monte Carlo Gemstone & Velvet Avatar Palettes (Deep & Classy)
   const LUXURY_AVATAR_THEMES = [
@@ -400,8 +391,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const config = {
       startingChips: 1000,
       smallBlind: 10,
-      bigBlind: 20,
-      turnTimeLimit: 30
+      bigBlind: 20
     };
 
     try {
@@ -463,13 +453,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const config = {
       startingChips: Number(elCfgStartingChips.value),
       smallBlind: Number(elCfgSmallBlind.value),
-      bigBlind: Number(elCfgBigBlind.value),
-      turnTimeLimit: Number(elCfgTurnTimer.value)
+      bigBlind: Number(elCfgBigBlind.value)
     };
     client.updateConfig(config).catch(err => showToast(err.message, 'error'));
   }
 
-  [elCfgStartingChips, elCfgSmallBlind, elCfgBigBlind, elCfgTurnTimer].forEach(el => {
+  [elCfgStartingChips, elCfgSmallBlind, elCfgBigBlind].forEach(el => {
     el.addEventListener('change', updateHostSettings);
   });
 
@@ -789,13 +778,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     elGuestRuleChips.textContent = state.config.startingChips.toLocaleString();
     elGuestRuleBlinds.textContent = `${state.config.smallBlind} / ${state.config.bigBlind}`;
-    elGuestRuleTimer.textContent = state.config.turnTimeLimit > 0 ? `${state.config.turnTimeLimit}s` : 'Untimed';
 
     if (state.isHost && document.activeElement !== elCfgStartingChips) {
       elCfgStartingChips.value = state.config.startingChips;
       elCfgSmallBlind.value = state.config.smallBlind;
       elCfgBigBlind.value = state.config.bigBlind;
-      elCfgTurnTimer.value = state.config.turnTimeLimit;
     }
 
     elBtnStartGame.disabled = state.players.length < 2;
@@ -910,9 +897,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const cx = 50;
     const cy = 50;
 
-    // SVG Timer Circumference for r=32: 2 * Math.PI * 32 ≈ 201.06
-    const CIRCUMFERENCE = 201.06;
-
     players.forEach((player, idx) => {
       const seatOffset = (idx - youIndex + count) % count;
       const angle = (Math.PI / 2) + (seatOffset * (2 * Math.PI / count));
@@ -961,13 +945,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       card.innerHTML = `
         <div class="avatar-wrapper">
-          <!-- Circular SVG Countdown Ring -->
-          <svg class="timer-ring-svg" viewBox="0 0 72 72">
-            <circle class="timer-ring-bg" cx="36" cy="36" r="32" fill="transparent" stroke-width="3.5" />
-            <circle id="timer-ring-progress-${player.id}" class="timer-ring-progress" cx="36" cy="36" r="32" fill="transparent" stroke-width="3.5"
-              stroke-dasharray="${CIRCUMFERENCE}" stroke-dashoffset="${player.isTurn ? 0 : CIRCUMFERENCE}" />
-          </svg>
-
           <!-- Gemstone/Velvet Avatar with Gold Bezel -->
           <div class="player-avatar-circle" style="background: ${theme.bg}; border-color: ${theme.border}; color: ${theme.color};">${initial}</div>
           ${roleHtml}
@@ -1009,77 +986,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- RENDER TURN CONTROLS, SVG TIMER & HAPTIC VIBRATIONS ---
+  // --- RENDER TURN CONTROLS & HAPTIC VIBRATIONS ---
   function renderTurnDock(state) {
     const isYourTurn = state.currentTurnPlayerId && state.players.some(p => p.id === state.currentTurnPlayerId && p.isYou);
     const turnPlayer = state.players.find(p => p.id === state.currentTurnPlayerId);
 
-    // Turn transition vibration: Your turn starts -> long vibrate [100, 50, 100]
+    // Turn transition vibration: Your turn starts -> vibrate [100, 50, 100]
     if (isYourTurn && !wasMyTurn) {
       vibrateDevice([100, 50, 100]);
       showToast('Your turn to act!', 'gold');
     }
     wasMyTurn = isYourTurn;
-
-    clearInterval(timerInterval);
-    const CIRCUMFERENCE = 201.06;
-
-    if (state.turnExpiresAt && state.currentTurnPlayerId) {
-      elTurnTimerBar.parentElement.classList.remove('hidden');
-      elTopTurnProgressBar.classList.remove('hidden');
-
-      const updateTimer = () => {
-        const remainingMs = Math.max(0, state.turnExpiresAt - Date.now());
-        const seconds = Math.ceil(remainingMs / 1000);
-        const totalDuration = (state.turnTimeLimit || 30) * 1000;
-        const pct = Math.max(0, Math.min(100, (remainingMs / totalDuration) * 100));
-
-        // Update bottom dock timer bar
-        elTurnTimerBar.style.width = `${pct}%`;
-        elTimerSecondsLeft.textContent = `${seconds}s`;
-        elTimerPlayerName.textContent = isYourTurn ? 'Your Turn to Act!' : `${truncateName(turnPlayer?.name || 'Player', 8)}'s turn`;
-
-        // Update top screen thin progress bar
-        elTopTurnFill.style.width = `${pct}%`;
-
-        // Update active player's circular SVG countdown ring
-        const ringCircle = document.getElementById(`timer-ring-progress-${state.currentTurnPlayerId}`);
-        const seatCard = document.getElementById(`player-seat-${state.currentTurnPlayerId}`);
-
-        if (ringCircle) {
-          const offset = CIRCUMFERENCE * (1 - pct / 100);
-          ringCircle.style.strokeDashoffset = offset;
-
-          // Colors: Gold (30s) -> Orange (15s) -> Red (5s)
-          if (seconds > 15) {
-            ringCircle.style.stroke = '#ECC863';
-            elTopTurnFill.style.backgroundColor = '#ECC863';
-            seatCard?.classList.remove('urgent-turn-pulse');
-          } else if (seconds > 5) {
-            ringCircle.style.stroke = '#F59E0B';
-            elTopTurnFill.style.backgroundColor = '#F59E0B';
-            seatCard?.classList.remove('urgent-turn-pulse');
-          } else {
-            // At 5s: avatar pulses with red glow
-            ringCircle.style.stroke = '#E11D48';
-            elTopTurnFill.style.backgroundColor = '#E11D48';
-            seatCard?.classList.add('urgent-turn-pulse');
-            audio.playTimerTick();
-
-            if (seconds !== lastSecondVibrated && seconds <= 5 && seconds > 0) {
-              lastSecondVibrated = seconds;
-              vibrateDevice([50]);
-            }
-          }
-        }
-      };
-
-      updateTimer();
-      timerInterval = setInterval(updateTimer, 150);
-    } else {
-      elTurnTimerBar.parentElement.classList.add('hidden');
-      elTopTurnProgressBar.classList.add('hidden');
-    }
 
     // Toggle 2x2 Action Dock
     if (isYourTurn && state.playerTurnOptions) {
