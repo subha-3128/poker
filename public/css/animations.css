@@ -51,37 +51,6 @@
   }
 }
 
-/* 4. Turn Pulse & Warning */
-@keyframes turn-glow {
-  0% {
-    box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 24px rgba(255, 215, 0, 0.8);
-  }
-  100% {
-    box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
-  }
-}
-
-@keyframes urgent-pulse {
-  0% {
-    transform: scale(1);
-    filter: drop-shadow(0 0 4px #FF4444);
-  }
-  50% {
-    transform: scale(1.08);
-    filter: drop-shadow(0 0 16px #FF4444);
-  }
-  100% {
-    transform: scale(1);
-    filter: drop-shadow(0 0 4px #FF4444);
-  }
-}
-
-.urgent-turn-pulse {
-  animation: urgent-pulse 0.6s infinite ease-in-out !important;
-}
 
 /* 5. Generic Micro-Interactions */
 @keyframes pulse-dot {
@@ -267,19 +236,4 @@
   animation: card-deal-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-@keyframes card-flip-3d {
-  0% {
-    transform: rotateY(0deg);
-  }
-  50% {
-    transform: rotateY(90deg) scale(1.08);
-  }
-  100% {
-    transform: rotateY(0deg) scale(1);
-  }
-}
-
-.anim-card-flip {
-  animation: card-flip-3d 0.32s ease-in-out;
-}
 

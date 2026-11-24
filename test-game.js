@@ -405,6 +405,78 @@ function runTests() {
     console.log('✅ Test 11 Passed!');
   }
 
+  // Test 12: getNextActiveIndex resilience against all players sitting out
+  {
+    console.log('Test 12: getNextActiveIndex loop bounds check');
+    const game = new PokerGame('6666', 'p1', { startingChips: 1000 });
+    game.addPlayer('p1', 'Alice', 's1');
+    game.addPlayer('p2', 'Bob', 's2');
+    game.players[0].isSittingOut = true;
+    game.players[1].isSittingOut = true;
+
+    // Must terminate and not hang the event loop
+    const idx = game.getNextActiveIndex(0);
+    assert(idx >= 0 && idx < game.players.length, 'Must return a valid bounded index');
+    console.log('✅ Test 12 Passed!');
+  }
+
+  // Test 13: kickPlayer when active/all-in executes safely without unhandled errors
+  {
+    console.log('Test 13: kickPlayer error-handling resilience');
+    const game = new PokerGame('7771', 'p1', { startingChips: 1000 });
+    game.addPlayer('p1', 'Alice', 's1');
+    game.addPlayer('p2', 'Bob', 's2');
+    game.startGame();
+
+    // Bob is currently not on turn, Alice is on turn. Kick Alice:
+    assert.strictEqual(game.currentTurnPlayerId, 'p1');
+    game.kickPlayer('p1');
+    assert.strictEqual(game.players.length, 1);
+    assert.strictEqual(game.street, 'hand_ended');
+    console.log('✅ Test 13 Passed!');
+  }
+
+  // Test 14: updateConfig & rebuy validation
+  {
+    console.log('Test 14: updateConfig & rebuy positive integer validation');
+    const game = new PokerGame('8881', 'p1', { startingChips: 1000, smallBlind: 10, bigBlind: 20 });
+    game.addPlayer('p1', 'Alice', 's1');
+
+    // Invalid negative / string values in updateConfig should be ignored
+    game.updateConfig({ startingChips: -500, smallBlind: 'invalid', bigBlind: 0 });
+    assert.strictEqual(game.config.startingChips, 1000);
+    assert.strictEqual(game.config.smallBlind, 10);
+    assert.strictEqual(game.config.bigBlind, 20);
+
+    // Valid update
+    game.updateConfig({ startingChips: 2000, smallBlind: 25, bigBlind: 50 });
+    assert.strictEqual(game.config.startingChips, 2000);
+    assert.strictEqual(game.config.smallBlind, 25);
+    assert.strictEqual(game.config.bigBlind, 50);
+
+    // Rebuy invalid input fallback to default starting chips
+    game.rebuy('p1', -100);
+    assert.strictEqual(game.players[0].totalRebuys, 2000);
+
+    game.rebuy('p1', 500);
+    assert.strictEqual(game.players[0].totalRebuys, 2500);
+    console.log('✅ Test 14 Passed!');
+  }
+
+  // Test 15: Clean card normalization without dead properties
+  {
+    console.log('Test 15: Clean card normalization');
+    const game = new PokerGame('9991', 'p1', { startingChips: 1000 });
+    game.addPlayer('p1', 'Alice', 's1');
+
+    const cards = game.setPlayerCards('p1', ['As', { rank: 'K', suit: 'hearts' }]);
+    assert.strictEqual(cards.length, 2);
+    assert.deepStrictEqual(Object.keys(cards[0]).sort(), ['code', 'rank', 'suit'].sort());
+    assert.strictEqual(cards[0].image, undefined);
+    assert.strictEqual(cards[0].label, undefined);
+    console.log('✅ Test 15 Passed!');
+  }
+
   console.log('🎉 All PokerGame Unit Tests Passed Successfully!');
 }
 

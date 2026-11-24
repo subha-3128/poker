@@ -802,13 +802,6 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   background: #0d0d14;
 }
 
-/* Backwards compatibility for any legacy references */
-.join-input-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.65rem;
-  width: 100%;
-}
 
 .wifi-status-card {
   display: flex;
@@ -1611,9 +1604,6 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   width: 100%;
 }
 
-.action-row-full {
-  width: 100%;
-}
 
 .btn-pill {
   min-height: 38px;
