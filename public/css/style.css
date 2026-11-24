@@ -72,7 +72,7 @@
   --safe-right: env(safe-area-inset-right, 0px);
 
   /* Dock Fixed Height - Ergonomic Mobile Baseline */
-  --dock-height: 154px;
+  --dock-height: 86px;
 }
 
 /* ==========================================================================
@@ -152,23 +152,15 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   transition: max-width 0.3s cubic-bezier(0.16, 1, 0.3, 1), height 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* 16:9 Pro Cinema Viewport Framing */
-#app-container.mode-widescreen-16-9 {
-  max-width: min(100vw, calc(100dvh * 16 / 9));
-  height: min(100dvh, calc(100vw * 9 / 16));
-  aspect-ratio: 16 / 9;
-  border: 1px solid rgba(212, 175, 55, 0.28);
-  border-radius: 14px;
-  box-shadow: 0 0 90px rgba(0, 0, 0, 0.98), 0 0 45px rgba(212, 175, 55, 0.15);
-}
-
-@media screen and (min-width: 640px) and (min-aspect-ratio: 1.15/1) {
+/* 16:9 Cinema Viewport Framing on Widescreen Displays */
+@media screen and (min-width: 900px) and (min-aspect-ratio: 1.2/1) {
+  #app-container.mode-widescreen-16-9,
   #app-container {
     max-width: min(100vw, calc(100dvh * 16 / 9));
-    height: min(100dvh, calc(100vw * 9 / 16));
+    height: 100dvh;
     aspect-ratio: 16 / 9;
-    border: 1px solid rgba(212, 175, 55, 0.28);
-    border-radius: 14px;
+    border-left: 1px solid rgba(212, 175, 55, 0.25);
+    border-right: 1px solid rgba(212, 175, 55, 0.25);
     box-shadow: 0 0 90px rgba(0, 0, 0, 0.98), 0 0 45px rgba(212, 175, 55, 0.15);
   }
 }
@@ -1180,71 +1172,83 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   color: var(--gold-champagne);
 }
 
-/* Scroll wrapper for table */
+/* Scroll wrapper for table — Perfectly Centered in Viewport */
 .table-stage-scroll-wrapper {
   flex: 1;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: calc(var(--dock-height) + var(--safe-bottom) + 12px);
+  overflow: hidden;
+  padding-bottom: calc(var(--dock-height) + var(--safe-bottom) + 8px);
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
   box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  position: relative;
 }
 
-/* Master-Crafted Oval Poker Table */
+/* Master-Crafted 16:9 Poker Table Stage */
 .table-stage {
-  padding: 0.25rem 0.25rem;
+  padding: 0.25rem 0.5rem;
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
-  margin: auto 0;
+  height: 100%;
+  margin: auto;
   box-sizing: border-box;
 }
 
+/* Authentic 16:9 Aspect Ratio Casino Bezel */
 .poker-table-bezel {
   width: 100%;
-  max-width: 420px;
-  background: #080402;
-  border-radius: 122px;
-  padding: 3px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.98);
+  aspect-ratio: 16 / 9;
+  max-width: min(1060px, 98vw, calc((100dvh - 54px - var(--dock-height) - var(--safe-bottom) - 16px) * 16 / 9));
+  max-height: calc(100% - 8px);
+  margin: auto;
   position: relative;
+  background: #080402;
+  border-radius: min(180px, 22vw) / min(101.25px, 22vh);
+  padding: clamp(3px, 0.5vw, 6px);
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.98), 0 0 30px rgba(212, 175, 55, 0.14);
   box-sizing: border-box;
 }
 
 /* Padded Leather Armrest Rail */
 .poker-table-wood-rail {
   width: 100%;
+  height: 100%;
   background: linear-gradient(145deg, #25140b 0%, #170d07 50%, #0d0603 100%);
-  border-radius: 120px;
-  padding: 7px;
-  box-shadow: inset 0 2px 4px rgba(255, 215, 0, 0.2), inset 0 -3px 8px rgba(0, 0, 0, 0.85);
+  border-radius: inherit;
+  padding: clamp(4px, 0.9vw, 9px);
+  box-shadow: inset 0 2px 4px rgba(255, 215, 0, 0.22), inset 0 -3px 8px rgba(0, 0, 0, 0.85);
   box-sizing: border-box;
 }
 
 /* Polished Brass Inlay Bead */
 .poker-table-brass-inlay {
   width: 100%;
+  height: 100%;
   border: 1.5px solid var(--table-brass-inlay);
-  border-radius: 112px;
-  padding: 2.5px;
-  box-shadow: 0 0 10px rgba(197, 155, 39, 0.3);
+  border-radius: inherit;
+  padding: clamp(2px, 0.4vw, 4px);
+  box-shadow: 0 0 10px rgba(197, 155, 39, 0.35);
   box-sizing: border-box;
 }
 
-/* Deep Emerald Felt with Vignette Shading */
+/* Deep Emerald Felt with Vignette Shading — Scaled inside 16:9 */
 .poker-table-felt {
+  width: 100%;
+  height: 100%;
   background: radial-gradient(ellipse at 50% 50%, #0e5e39 0%, #083c24 55%, #031c11 100%);
-  border-radius: 108px;
-  min-height: clamp(380px, 50vh, 480px);
+  border-radius: inherit;
   position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 0.75rem 0.5rem;
-  box-shadow: inset 0 0 45px rgba(0, 0, 0, 0.75);
+  padding: clamp(4px, 1.2vw, 14px);
+  box-shadow: inset 0 0 clamp(20px, 4vw, 55px) rgba(0, 0, 0, 0.82);
   overflow: hidden;
   box-sizing: border-box;
 }
@@ -1252,9 +1256,9 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 /* Authentic Inner Gold Betting Track */
 .felt-inner-betting-track {
   position: absolute;
-  inset: 14px 10px;
+  inset: clamp(8px, 1.6vw, 18px);
   border: 1px solid rgba(212, 175, 55, 0.22);
-  border-radius: 96px;
+  border-radius: inherit;
   pointer-events: none;
 }
 
@@ -1558,41 +1562,52 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 /* ==========================================================================
-   4. MASTER-CRAFTED MOBILE ACTION DOCK (FIXED 154PX)
+   4. MASTER-CRAFTED ACTION DOCK (HUD: MY HAND ON LEFT, CONTROLS ON RIGHT)
    ========================================================================== */
 .glass-action-dock {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  max-width: 480px;
+  width: 100%;
+  max-width: 1100px;
   margin: 0 auto;
   min-height: var(--dock-height);
-  background: rgba(10, 10, 14, 0.96);
+  background: rgba(10, 10, 14, 0.94);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border-top: 1px solid rgba(212, 175, 55, 0.22);
-  padding: 8px 10px calc(8px + var(--safe-bottom)) 10px;
+  border-top: 1px solid rgba(212, 175, 55, 0.25);
+  padding: 5px clamp(8px, 1.8vw, 20px) calc(5px + var(--safe-bottom)) clamp(8px, 1.8vw, 20px);
   z-index: 90;
-  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.95);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.92);
   display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
+  flex-direction: row; /* Horizontal split: My Hand on LEFT, Action controls on RIGHT */
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(8px, 1.5vw, 16px);
   box-sizing: border-box;
+}
+
+/* Action Controls Container — Anchored on the Right */
+.action-dock-buttons {
+  order: 2;
+  flex: 1;
+  max-width: 520px;
+  margin-left: auto;
 }
 
 /* 2x2 Grid Layout */
 .action-grid-2x2 {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   width: 100%;
 }
 
 .action-row-split {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 6px;
+  gap: 4px;
   width: 100%;
 }
 
@@ -1601,7 +1616,8 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .btn-pill {
-  min-height: 52px;
+  min-height: 38px;
+  height: 38px;
   width: 100%;
   border-radius: var(--radius-button);
   border: none;
@@ -1610,23 +1626,27 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  padding: 4px 6px;
+  padding: 2px 6px;
   box-shadow: var(--inner-highlight), var(--shadow-sm);
   transition: transform 0.12s ease, filter 0.15s ease;
   box-sizing: border-box;
 }
 
 .btn-pill .btn-subtext {
-  font-size: 0.58rem;
+  font-size: 0.52rem;
   font-weight: 800;
   letter-spacing: 0.08em;
   opacity: 0.85;
+  line-height: 1;
+  margin-bottom: 1px;
 }
 
 .btn-pill .btn-maintext {
-  font-size: 0.95rem;
+  font-family: var(--font-serif);
+  font-size: 0.85rem;
   font-weight: 900;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
+  line-height: 1;
 }
 
 /* Row 1 Left: Fold (Deep Garnet Enamel) */
@@ -1778,15 +1798,34 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .waiting-dock-message {
+  order: 2;
+  flex: 1;
+  max-width: 520px;
+  margin-left: auto;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 16px;
-  color: var(--text-muted);
-  font-size: 0.88rem;
+  padding: 8px 14px;
+  background: rgba(16, 16, 24, 0.85);
+  border: 1px solid rgba(212, 175, 55, 0.22);
+  border-radius: var(--radius-pill);
+  color: var(--gold-champagne);
+  font-size: 0.82rem;
   font-weight: 700;
   letter-spacing: 0.02em;
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.45);
+  text-align: center;
+}
+
+.dock-host-actions {
+  order: 2;
+  flex: 1;
+  max-width: 520px;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .gold-pulse-indicator {
@@ -2650,18 +2689,24 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
     box-shadow: 0 0 60px rgba(0, 0, 0, 0.9);
   }
 
-  .poker-table-felt {
-    min-height: 490px;
+  .action-grid-2x2 {
+    flex-direction: row;
+    gap: 6px;
+  }
+
+  .btn-pill {
+    min-height: 44px;
+    height: 44px;
   }
 
   .seated-player {
-    width: 88px;
+    width: 84px;
   }
 
   .player-avatar-circle {
-    width: 58px;
-    height: 58px;
-    font-size: 1.25rem;
+    width: 52px;
+    height: 52px;
+    font-size: 1.15rem;
   }
 
   .btn:hover, .btn-pill:hover, .header-btn:hover {
@@ -2676,53 +2721,47 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 /* 16:9 Table Stage & Oval Refinements */
 @media screen and (min-aspect-ratio: 1.15/1), screen and (min-width: 768px) {
   .table-stage-scroll-wrapper {
-    padding-bottom: 92px;
-    justify-content: center;
-    overflow-y: hidden;
+    overflow: hidden;
   }
 
   .table-stage {
-    padding: 0.25rem 0.75rem;
+    padding: 0.5rem 1rem;
     height: 100%;
-    max-height: calc(100% - 10px);
   }
 
   .poker-table-bezel {
-    max-width: 1060px;
-    width: 96%;
-    aspect-ratio: 2.15 / 1;
-    border-radius: 210px / 125px;
+    max-width: min(1060px, 96vw, calc((100dvh - 54px - var(--dock-height) - var(--safe-bottom) - 16px) * 16 / 9));
+    aspect-ratio: 16 / 9;
+    border-radius: min(200px, 22vw) / min(112.5px, 22vh);
     margin: auto;
   }
 
   .poker-table-wood-rail {
     height: 100%;
-    border-radius: 206px / 121px;
+    border-radius: inherit;
     padding: 7px 11px;
   }
 
   .poker-table-brass-inlay {
     height: 100%;
-    border-radius: 198px / 113px;
+    border-radius: inherit;
   }
 
   .poker-table-felt {
     height: 100%;
-    min-height: 350px;
-    border-radius: 192px / 107px;
+    border-radius: inherit;
     padding: 0.75rem 1.25rem;
   }
 
   .felt-inner-betting-track {
-    border-radius: 178px / 95px;
+    border-radius: inherit;
     inset: 14px 22px;
   }
 
-  /* 16:9 Streamlined Action Dock HUD */
+  /* 16:9 Streamlined Action Dock HUD: Hand on Left, Actions on Right */
   .glass-action-dock {
-    height: auto;
-    min-height: 80px;
-    padding: 6px 16px calc(var(--safe-bottom) + 6px);
+    min-height: 82px;
+    padding: 6px 20px calc(var(--safe-bottom) + 6px);
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -2731,20 +2770,23 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   }
 
   .my-hole-cards-panel {
+    order: 1;
     display: flex;
+    flex-direction: row;
     align-items: center;
     gap: 0.75rem;
     padding: 4px 12px;
-    background: rgba(10, 10, 14, 0.85);
-    border: 1px solid rgba(212, 175, 55, 0.3);
+    background: rgba(10, 10, 14, 0.88);
+    border: 1px solid rgba(212, 175, 55, 0.35);
     border-radius: 12px;
     flex-shrink: 0;
   }
 
   .action-dock-buttons {
+    order: 2;
     flex: 1;
     max-width: 620px;
-    margin: 0 auto;
+    margin-left: auto;
   }
 
   .action-grid-2x2 {
@@ -2761,22 +2803,25 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   }
 
   .btn-pill {
-    height: 48px;
-    min-height: 48px;
+    height: 46px;
+    min-height: 46px;
     padding: 4px 12px;
   }
 
   .waiting-dock-message {
+    order: 2;
     padding: 8px 20px;
     font-size: 0.88rem;
+    margin-left: auto;
   }
 
   .dock-host-actions {
+    order: 2;
     display: flex;
     flex-direction: row;
     gap: 0.6rem;
     max-width: 480px;
-    margin: 0 auto;
+    margin-left: auto;
   }
 }
 
@@ -3006,53 +3051,60 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 /* ==========================================================================
-   MY HOLE CARDS PANEL (INSIDE ACTION DOCK)
+   MY HOLE CARDS PANEL (ANCHORED ON LEFT SIDE OF DOCK)
    ========================================================================== */
 .my-hole-cards-panel {
+  order: 1; /* Anchored firmly on the LEFT SIDE */
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  padding: 6px 10px;
-  background: rgba(12, 12, 18, 0.9);
-  border: 1px solid rgba(212, 175, 55, 0.32);
+  justify-content: center;
+  align-items: flex-start;
+  gap: 3px;
+  padding: 4px clamp(6px, 1vw, 10px);
+  background: rgba(12, 12, 18, 0.92);
+  border: 1px solid rgba(212, 175, 55, 0.35);
   border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.7);
+  flex-shrink: 0;
 }
 
 .hole-cards-meta {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  width: 100%;
+  gap: 6px;
 }
 
 .hole-cards-title {
   font-family: var(--font-serif);
-  font-size: 0.62rem;
+  font-size: 0.58rem;
   font-weight: 800;
   letter-spacing: 0.14em;
   color: var(--gold-champagne);
+  white-space: nowrap;
 }
 
 .hole-cards-btns {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
 }
 
 .btn-card-ctrl {
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.15);
   color: var(--text-secondary);
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   font-weight: 700;
-  padding: 2px 7px;
+  padding: 2px 6px;
   border-radius: var(--radius-pill);
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 2px;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .btn-card-ctrl:hover {
@@ -3074,13 +3126,16 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 .my-hole-cards-container {
   display: flex;
   align-items: center;
-  gap: 6px;
-  min-height: 70px;
+  gap: 4px;
+}
+
+.my-hole-cards-container .poker-card,
+.my-hole-cards-container .empty-hole-slot {
+  width: clamp(38px, 8.5vw, 50px);
+  height: clamp(54px, 12vw, 70px);
 }
 
 .empty-hole-slot {
-  width: 50px;
-  height: 70px;
   border: 1.5px dashed rgba(212, 175, 55, 0.35);
   border-radius: 6px;
   display: flex;
@@ -3088,7 +3143,7 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   align-items: center;
   justify-content: center;
   background: rgba(255, 255, 255, 0.02);
-  gap: 3px;
+  gap: 2px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -3099,10 +3154,10 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
 }
 
 .empty-hole-slot span {
-  font-size: 0.55rem;
+  font-size: 0.52rem;
   font-weight: 700;
   color: rgba(212, 175, 55, 0.6);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
 }
 
 /* Peek Hidden Overlay */

@@ -1,5 +1,5 @@
-// Poker Night PWA Service Worker — Version 8.0 (Visual Card Selector Refinement)
-const CACHE_NAME = 'poker-night-v8';
+// Poker Night PWA Service Worker — Version 9.0 (Proper 16:9 Table & Left-Aligned Hand HUD)
+const CACHE_NAME = 'poker-night-v9';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

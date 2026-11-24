@@ -1468,10 +1468,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let youIndex = players.findIndex(p => p.isYou);
     if (youIndex === -1) youIndex = 0;
 
-    const isWidescreen = document.getElementById('app-container')?.classList.contains('mode-widescreen-16-9') ||
-      (window.innerWidth >= 640 && (window.innerWidth / window.innerHeight) >= 1.15);
-    const rx = isWidescreen ? 42 : 38;
-    const ry = isWidescreen ? 36 : 35;
+    const rx = 41;
+    const ry = 36;
     const cx = 50;
     const cy = 50;
 
