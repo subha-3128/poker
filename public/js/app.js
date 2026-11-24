@@ -172,6 +172,67 @@ document.addEventListener('DOMContentLoaded', () => {
   const elShowdownPotsList = document.getElementById('showdown-pots-list');
   const elBtnConfirmAward = document.getElementById('btn-confirm-award');
 
+  // 16:9 Aspect Ratio Toggle
+  const elAppContainer = document.getElementById('app-container');
+  const elBtnAspectToggle = document.getElementById('btn-aspect-toggle');
+
+  // Community Board Elements
+  const elCommunityCardsRow = document.getElementById('community-cards-row');
+  const elCommunityRoundBadge = document.getElementById('community-round-badge');
+  const elHostBoardFeltBar = document.getElementById('host-board-felt-bar');
+  const elBtnHostAddCard = document.getElementById('btn-host-add-card');
+  const elHostNextRoundLabel = document.getElementById('host-next-round-label');
+  const elBtnHostOpenBoardModal = document.getElementById('btn-host-open-board-modal');
+
+  // Player Hole Cards HUD Elements
+  const elMyHoleCardsContainer = document.getElementById('my-hole-cards-container');
+  const elBtnTogglePeek = document.getElementById('btn-toggle-peek');
+  const elPeekBtnText = document.getElementById('peek-btn-text');
+  const elEyeIconSvg = document.getElementById('eye-icon-svg');
+  const elBtnOpenPlayerCardsModal = document.getElementById('btn-open-player-cards-modal');
+
+  // Modals - Player Cards
+  const elModalPlayerCards = document.getElementById('modal-player-cards');
+  const elTabBtnPicker = document.getElementById('tab-btn-picker');
+  const elTabBtnUpload = document.getElementById('tab-btn-upload');
+  const elTabContentPicker = document.getElementById('tab-content-picker');
+  const elTabContentUpload = document.getElementById('tab-content-upload');
+  const elPickerCard1Preview = document.getElementById('picker-card-1-preview');
+  const elPickerCard2Preview = document.getElementById('picker-card-2-preview');
+  const elInputPlayerCardFile = document.getElementById('input-player-card-file');
+  const elPlayerUploadPreviews = document.getElementById('player-upload-previews');
+  const elImgPlayerUploadPreview = document.getElementById('img-player-upload-preview');
+  const elBtnRemoveUploadedCard = document.getElementById('btn-remove-uploaded-card');
+  const elBtnSavePlayerCards = document.getElementById('btn-save-player-cards');
+  const elBtnClearMyCards = document.getElementById('btn-clear-my-cards');
+
+  // Modals - Host Board
+  const elModalHostBoard = document.getElementById('modal-host-board');
+  const elHostModalSlotsRow = document.getElementById('host-modal-slots-row');
+  const elHostSlotEditorTitle = document.getElementById('host-slot-editor-title');
+  const elInputHostSlotFile = document.getElementById('input-host-slot-file');
+  const elHostSlotSuits = document.getElementById('host-slot-suits');
+  const elHostSlotRanks = document.getElementById('host-slot-ranks');
+  const elBtnHostClearBoard = document.getElementById('btn-host-clear-board');
+  const elBtnHostDealNextRound = document.getElementById('btn-host-deal-next-round');
+  const elDealNextRoundText = document.getElementById('deal-next-round-text');
+  const elBtnHostSaveAll5 = document.getElementById('btn-host-save-all-5');
+
+  // Modals - Quick Add Card
+  const elModalQuickAddCard = document.getElementById('modal-quick-add-card');
+  const elQuickAddBadgeLabel = document.getElementById('quick-add-badge-label');
+  const elQuickAddModalTitle = document.getElementById('quick-add-modal-title');
+  const elQuickAddCardPreview = document.getElementById('quick-add-card-preview');
+  const elQuickAddSuits = document.getElementById('quick-add-suits');
+  const elQuickAddRanks = document.getElementById('quick-add-ranks');
+  const elInputQuickAddFile = document.getElementById('input-quick-add-file');
+  const elBtnConfirmQuickAdd = document.getElementById('btn-confirm-quick-add');
+
+  // Modals - Card Zoom
+  const elModalCardZoom = document.getElementById('modal-card-zoom');
+  const elImgCardZoom = document.getElementById('img-card-zoom');
+  const elCaptionCardZoom = document.getElementById('caption-card-zoom');
+
   const elToastContainer = document.getElementById('toast-container');
   const elCelebrationOverlay = document.getElementById('celebration-overlay');
   const elConfettiContainer = document.getElementById('confetti-container');
@@ -187,6 +248,26 @@ document.addEventListener('DOMContentLoaded', () => {
   let wakeLockSentinel = null;
   let winnerDismissTimer = null;
   let wasMyTurn = false;
+
+  // 16:9 & Cards Local State
+  let is16x9Locked = localStorage.getItem('poker_16_9') !== 'false';
+  let isPeekEnabled = localStorage.getItem('poker_peek_cards') !== 'false';
+  let selectedCard1 = { rank: 'A', suit: 'spades' };
+  let selectedCard2 = { rank: 'K', suit: 'hearts' };
+  let uploadedCardPhoto = null;
+  let playerModalActiveTab = 'picker';
+
+  let hostSelectedSlot = 0; // 0 to 4
+  let hostSlots = [
+    { rank: 'A', suit: 'spades', image: null },
+    { rank: 'K', suit: 'diamonds', image: null },
+    { rank: 'Q', suit: 'clubs', image: null },
+    { rank: 'J', suit: 'hearts', image: null },
+    { rank: '10', suit: 'spades', image: null }
+  ];
+
+  let quickAddSlotRound = 1;
+  let quickAddCard = { rank: 'A', suit: 'spades', image: null };
 
   // Opulent Monte Carlo Gemstone & Velvet Avatar Palettes (Deep & Classy)
   const LUXURY_AVATAR_THEMES = [
@@ -292,6 +373,596 @@ document.addEventListener('DOMContentLoaded', () => {
       requestWakeLock();
     }
   });
+
+  // --- 16:9 PRO CINEMA VIEW TOGGLE ---
+  function applyAspectMode(locked) {
+    is16x9Locked = locked;
+    localStorage.setItem('poker_16_9', locked ? 'true' : 'false');
+    if (elAppContainer) {
+      if (locked) {
+        elAppContainer.classList.add('mode-widescreen-16-9');
+      } else {
+        elAppContainer.classList.remove('mode-widescreen-16-9');
+      }
+    }
+    if (elBtnAspectToggle) {
+      elBtnAspectToggle.classList.toggle('active', locked);
+    }
+    if (client.currentState) {
+      renderTablePlayers(client.currentState);
+    }
+  }
+  applyAspectMode(is16x9Locked);
+  elBtnAspectToggle?.addEventListener('click', () => {
+    applyAspectMode(!is16x9Locked);
+    showToast(is16x9Locked ? '16:9 Pro Cinema View Enabled' : 'Adaptive View Enabled', 'gold');
+  });
+
+  // --- CARD UTILITIES & RENDERING ---
+  function getSuitSymbol(suit) {
+    if (!suit) return '♠';
+    const s = suit.toLowerCase();
+    if (s.startsWith('s') || s === '♠') return '♠';
+    if (s.startsWith('h') || s === '♥') return '♥';
+    if (s.startsWith('d') || s === '♦') return '♦';
+    if (s.startsWith('c') || s === '♣') return '♣';
+    return '♠';
+  }
+
+  function isSuitRed(suit) {
+    if (!suit) return false;
+    const s = suit.toLowerCase();
+    return s.startsWith('h') || s.startsWith('d') || s === '♥' || s === '♦';
+  }
+
+  function renderCardHtml(card, { isMini = false, showBack = false, anim = false } = {}) {
+    if (!card || showBack || card.faceDown) {
+      return `
+        <div class="poker-card is-back ${anim ? 'anim-card-deal' : ''}">
+          <div class="card-back-pattern">
+            <span class="card-back-crest">♠</span>
+          </div>
+        </div>
+      `;
+    }
+
+    if (card.image) {
+      return `
+        <div class="poker-card is-photo ${anim ? 'anim-card-deal' : ''}" data-zoom-img="${escapeHtml(card.image)}" data-zoom-caption="${escapeHtml(card.label || 'Card Photo')}">
+          <img src="${card.image}" alt="Card">
+          <span class="card-photo-badge">📷</span>
+        </div>
+      `;
+    }
+
+    const rank = (card.rank || 'A').toUpperCase();
+    const suit = card.suit || 'spades';
+    const symbol = getSuitSymbol(suit);
+    const isRed = isSuitRed(suit);
+    const colorClass = isRed ? 'is-red' : 'is-black';
+
+    return `
+      <div class="poker-card ${colorClass} ${anim ? 'anim-card-deal' : ''}" data-rank="${escapeHtml(rank)}" data-suit="${escapeHtml(suit)}">
+        <div class="card-corner-top">
+          <span class="card-rank-text">${escapeHtml(rank)}</span>
+          <span class="card-suit-icon">${symbol}</span>
+        </div>
+        <div class="card-center-suit">${symbol}</div>
+        <div class="card-corner-bottom">
+          <span class="card-rank-text">${escapeHtml(rank)}</span>
+          <span class="card-suit-icon">${symbol}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  function compressImage(file, maxDimension = 800, quality = 0.82) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          let width = img.width;
+          let height = img.height;
+          if (width > maxDimension || height > maxDimension) {
+            if (width > height) {
+              height = Math.round((height * maxDimension) / width);
+              width = maxDimension;
+            } else {
+              width = Math.round((width * maxDimension) / height);
+              height = maxDimension;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function openCardZoom(src, caption = '') {
+    if (!elModalCardZoom || !elImgCardZoom) return;
+    elImgCardZoom.src = src;
+    if (elCaptionCardZoom) elCaptionCardZoom.textContent = caption;
+    elModalCardZoom.classList.remove('hidden');
+  }
+
+  // --- PEEK CARDS TOGGLE ---
+  function togglePeek() {
+    isPeekEnabled = !isPeekEnabled;
+    localStorage.setItem('poker_peek_cards', isPeekEnabled ? 'true' : 'false');
+    updatePeekUi();
+    if (audio) audio.playCardFlip();
+    if (client.currentState) {
+      renderMyHoleCards(client.currentState);
+      renderTablePlayers(client.currentState);
+    }
+  }
+
+  function updatePeekUi() {
+    if (elPeekBtnText) elPeekBtnText.textContent = isPeekEnabled ? 'Hide' : 'Peek';
+    if (elBtnTogglePeek) elBtnTogglePeek.classList.toggle('active', isPeekEnabled);
+  }
+  updatePeekUi();
+  elBtnTogglePeek?.addEventListener('click', togglePeek);
+
+  // --- COMMUNITY BOARD RENDERING ---
+  function renderCommunityCards(state) {
+    if (!elCommunityCardsRow) return;
+    const cards = state.communityCards || [];
+    const currentCount = cards.length;
+    const nextRound = Math.min(5, currentCount + 1);
+
+    if (elCommunityRoundBadge) {
+      elCommunityRoundBadge.textContent = `ROUND ${currentCount} / 5`;
+    }
+    if (elHostNextRoundLabel) {
+      elHostNextRoundLabel.textContent = `(Round ${nextRound})`;
+    }
+    if (elDealNextRoundText) {
+      elDealNextRoundText.textContent = `Round ${nextRound}`;
+    }
+
+    elCommunityCardsRow.innerHTML = '';
+
+    for (let i = 0; i < 5; i++) {
+      const card = cards[i];
+      const slotRoundNum = i + 1;
+      if (card) {
+        const cardWrapper = document.createElement('div');
+        cardWrapper.className = 'community-card-item';
+        cardWrapper.innerHTML = renderCardHtml(card, { anim: false });
+        cardWrapper.addEventListener('click', () => {
+          if (card.image) openCardZoom(card.image, `Community Card #${slotRoundNum} (Round ${slotRoundNum})`);
+        });
+        elCommunityCardsRow.appendChild(cardWrapper);
+      } else {
+        const slotEl = document.createElement('div');
+        slotEl.className = 'community-card-slot';
+        slotEl.title = `Slot ${slotRoundNum} (Round ${slotRoundNum}) - Click to Add`;
+        slotEl.innerHTML = `
+          <span class="slot-round-name">R${slotRoundNum}</span>
+          <span class="slot-add-icon">+</span>
+        `;
+        slotEl.addEventListener('click', () => {
+          if (state.isHost) {
+            openQuickAddModal(slotRoundNum);
+          } else {
+            showToast(`Waiting for host to deal Round ${slotRoundNum}`);
+          }
+        });
+        elCommunityCardsRow.appendChild(slotEl);
+      }
+    }
+
+    // Host Table Quick Controls
+    if (elHostBoardFeltBar) {
+      if (state.isHost && state.stage === 'playing') {
+        elHostBoardFeltBar.classList.remove('hidden');
+        if (currentCount >= 5) {
+          if (elBtnHostAddCard) elBtnHostAddCard.classList.add('hidden');
+        } else {
+          if (elBtnHostAddCard) elBtnHostAddCard.classList.remove('hidden');
+        }
+      } else {
+        elHostBoardFeltBar.classList.add('hidden');
+      }
+    }
+  }
+
+  // --- MY HOLE CARDS HUD RENDERING ---
+  function renderMyHoleCards(state) {
+    if (!elMyHoleCardsContainer) return;
+    const self = state.players?.find(p => p.isYou);
+    const cards = self?.cards || [];
+
+    elMyHoleCardsContainer.innerHTML = '';
+
+    if (cards.length === 0) {
+      for (let i = 0; i < 2; i++) {
+        const emptySlot = document.createElement('div');
+        emptySlot.className = 'empty-hole-slot';
+        emptySlot.innerHTML = `
+          <span class="slot-add-icon">+</span>
+          <span>CARD ${i + 1}</span>
+        `;
+        emptySlot.addEventListener('click', () => openPlayerCardsModal());
+        elMyHoleCardsContainer.appendChild(emptySlot);
+      }
+      return;
+    }
+
+    cards.forEach((card, idx) => {
+      const cardEl = document.createElement('div');
+      cardEl.className = 'my-card-item-wrap';
+      cardEl.style.position = 'relative';
+      const isPeek = isPeekEnabled;
+      cardEl.innerHTML = renderCardHtml(card, { showBack: !isPeek });
+
+      if (!isPeek) {
+        const peekOverlay = document.createElement('div');
+        peekOverlay.className = 'peek-overlay-msg';
+        peekOverlay.textContent = 'PEEK';
+        peekOverlay.title = 'Click to peek card';
+        cardEl.appendChild(peekOverlay);
+      }
+
+      cardEl.addEventListener('click', () => {
+        if (!isPeekEnabled) {
+          togglePeek();
+        } else if (card.image) {
+          openCardZoom(card.image, `My Hole Card #${idx + 1}`);
+        } else {
+          openPlayerCardsModal();
+        }
+      });
+      elMyHoleCardsContainer.appendChild(cardEl);
+    });
+  }
+
+  // --- PLAYER CARDS MODAL CONTROLLER ---
+  function openPlayerCardsModal() {
+    if (!elModalPlayerCards) return;
+    const self = client.currentState?.players?.find(p => p.isYou);
+    if (self && self.cards && self.cards.length >= 2 && !self.cards[0].image) {
+      selectedCard1 = { ...self.cards[0] };
+      selectedCard2 = { ...self.cards[1] };
+    }
+    updateCardPickerPreview(1);
+    updateCardPickerPreview(2);
+    setPlayerModalTab('picker');
+    elModalPlayerCards.classList.remove('hidden');
+  }
+
+  function setPlayerModalTab(tabName) {
+    playerModalActiveTab = tabName;
+    if (tabName === 'picker') {
+      elTabBtnPicker?.classList.add('active');
+      elTabBtnUpload?.classList.remove('active');
+      elTabContentPicker?.classList.remove('hidden');
+      elTabContentUpload?.classList.add('hidden');
+    } else {
+      elTabBtnPicker?.classList.remove('active');
+      elTabBtnUpload?.classList.add('active');
+      elTabContentPicker?.classList.add('hidden');
+      elTabContentUpload?.classList.remove('hidden');
+    }
+  }
+
+  function updateCardPickerPreview(cardIndex) {
+    const cardData = cardIndex === 1 ? selectedCard1 : selectedCard2;
+    const previewEl = cardIndex === 1 ? elPickerCard1Preview : elPickerCard2Preview;
+    if (!previewEl) return;
+    previewEl.innerHTML = renderCardHtml(cardData);
+
+    // Sync button active classes for this card
+    const suitBtns = elModalPlayerCards?.querySelectorAll(`.suit-pills-row[data-card="${cardIndex}"] .suit-pill`);
+    suitBtns?.forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.suit === cardData.suit);
+    });
+
+    const rankBtns = elModalPlayerCards?.querySelectorAll(`.rank-grid[data-card="${cardIndex}"] .rank-btn`);
+    rankBtns?.forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.rank === cardData.rank);
+    });
+  }
+
+  function setupPlayerCardsModal() {
+    elBtnOpenPlayerCardsModal?.addEventListener('click', openPlayerCardsModal);
+
+    elTabBtnPicker?.addEventListener('click', () => setPlayerModalTab('picker'));
+    elTabBtnUpload?.addEventListener('click', () => setPlayerModalTab('upload'));
+
+    // Suit and Rank Picker clicks
+    elModalPlayerCards?.querySelectorAll('.suit-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const cardIdx = Number(btn.closest('.suit-pills-row').dataset.card);
+        const suit = btn.dataset.suit;
+        if (cardIdx === 1) selectedCard1.suit = suit;
+        else selectedCard2.suit = suit;
+        updateCardPickerPreview(cardIdx);
+      });
+    });
+
+    elModalPlayerCards?.querySelectorAll('.rank-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const cardIdx = Number(btn.closest('.rank-grid').dataset.card);
+        const rank = btn.dataset.rank;
+        if (cardIdx === 1) selectedCard1.rank = rank;
+        else selectedCard2.rank = rank;
+        updateCardPickerPreview(cardIdx);
+      });
+    });
+
+    // Image Upload
+    elInputPlayerCardFile?.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      try {
+        const dataUrl = await compressImage(file, 800, 0.82);
+        uploadedCardPhoto = dataUrl;
+        if (elImgPlayerUploadPreview) elImgPlayerUploadPreview.src = dataUrl;
+        elPlayerUploadPreviews?.classList.remove('hidden');
+      } catch (err) {
+        showToast('Failed to load image', 'red');
+      }
+    });
+
+    elBtnRemoveUploadedCard?.addEventListener('click', () => {
+      uploadedCardPhoto = null;
+      if (elImgPlayerUploadPreview) elImgPlayerUploadPreview.src = '';
+      elPlayerUploadPreviews?.classList.add('hidden');
+      if (elInputPlayerCardFile) elInputPlayerCardFile.value = '';
+    });
+
+    // Save cards
+    elBtnSavePlayerCards?.addEventListener('click', async () => {
+      try {
+        let cardsToSend = [];
+        if (playerModalActiveTab === 'upload' && uploadedCardPhoto) {
+          cardsToSend = [{ image: uploadedCardPhoto, label: 'My Cards Photo' }];
+        } else {
+          cardsToSend = [selectedCard1, selectedCard2];
+        }
+        await client.setPlayerCards(cardsToSend);
+        if (audio) audio.playCardDeal();
+        showToast('Your cards were uploaded successfully!', 'gold');
+        elModalPlayerCards?.classList.add('hidden');
+      } catch (err) {
+        showToast(err.message || 'Failed to save cards', 'red');
+      }
+    });
+
+    // Clear cards
+    elBtnClearMyCards?.addEventListener('click', async () => {
+      try {
+        await client.clearPlayerCards();
+        showToast('Cards cleared', 'white');
+        elModalPlayerCards?.classList.add('hidden');
+      } catch (err) {
+        showToast(err.message || 'Failed to clear cards', 'red');
+      }
+    });
+  }
+
+  // --- HOST COMMUNITY BOARD MODAL CONTROLLER ---
+  function openHostBoardModal() {
+    if (!elModalHostBoard) return;
+    // Pre-populate hostSlots with current community cards if any
+    const existing = client.currentState?.communityCards || [];
+    existing.forEach((c, idx) => {
+      if (idx < 5) hostSlots[idx] = { ...c };
+    });
+    renderHostBoardModalSlots();
+    elModalHostBoard.classList.remove('hidden');
+  }
+
+  function renderHostBoardModalSlots() {
+    if (!elHostModalSlotsRow) return;
+    elHostModalSlotsRow.innerHTML = '';
+
+    for (let i = 0; i < 5; i++) {
+      const slotCard = hostSlots[i];
+      const slotNum = i + 1;
+      const isSelected = i === hostSelectedSlot;
+
+      const slotCardEl = document.createElement('div');
+      slotCardEl.className = `host-slot-card ${isSelected ? 'active-editing' : ''}`;
+      slotCardEl.innerHTML = `
+        <span class="host-slot-label">ROUND ${slotNum}</span>
+        ${slotCard ? renderCardHtml(slotCard) : `<div class="community-card-slot"><span class="slot-round-name">R${slotNum}</span></div>`}
+      `;
+
+      slotCardEl.addEventListener('click', () => {
+        hostSelectedSlot = i;
+        renderHostBoardModalSlots();
+        updateHostSlotEditorUi();
+      });
+
+      elHostModalSlotsRow.appendChild(slotCardEl);
+    }
+    updateHostSlotEditorUi();
+  }
+
+  function updateHostSlotEditorUi() {
+    if (elHostSlotEditorTitle) {
+      elHostSlotEditorTitle.textContent = `Editing Card ${hostSelectedSlot + 1} (Round ${hostSelectedSlot + 1})`;
+    }
+    const current = hostSlots[hostSelectedSlot] || { rank: 'A', suit: 'spades' };
+    elHostSlotSuits?.querySelectorAll('.suit-pill').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.suit === current.suit);
+    });
+    elHostSlotRanks?.querySelectorAll('.rank-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.rank === current.rank);
+    });
+  }
+
+  function setupHostBoardModal() {
+    elBtnHostOpenBoardModal?.addEventListener('click', openHostBoardModal);
+
+    // Host slot editor suits and ranks
+    elHostSlotSuits?.querySelectorAll('.suit-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (!hostSlots[hostSelectedSlot]) hostSlots[hostSelectedSlot] = { rank: 'A', suit: 'spades', image: null };
+        hostSlots[hostSelectedSlot].suit = btn.dataset.suit;
+        hostSlots[hostSelectedSlot].image = null;
+        renderHostBoardModalSlots();
+      });
+    });
+
+    elHostSlotRanks?.querySelectorAll('.rank-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (!hostSlots[hostSelectedSlot]) hostSlots[hostSelectedSlot] = { rank: 'A', suit: 'spades', image: null };
+        hostSlots[hostSelectedSlot].rank = btn.dataset.rank;
+        hostSlots[hostSelectedSlot].image = null;
+        renderHostBoardModalSlots();
+      });
+    });
+
+    // Host photo upload for slot
+    elInputHostSlotFile?.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      try {
+        const dataUrl = await compressImage(file, 800, 0.82);
+        hostSlots[hostSelectedSlot] = {
+          image: dataUrl,
+          label: `Round ${hostSelectedSlot + 1} Card`
+        };
+        renderHostBoardModalSlots();
+      } catch (err) {
+        showToast('Failed to load card photo', 'red');
+      }
+    });
+
+    // Host Deal Next Card
+    elBtnHostDealNextRound?.addEventListener('click', async () => {
+      try {
+        const currentCount = client.currentState?.communityCards?.length || 0;
+        if (currentCount >= 5) {
+          return showToast('All 5 cards already dealt!', 'gold');
+        }
+        const nextRoundNum = currentCount + 1;
+        const cardToDeal = hostSlots[currentCount] || { rank: 'A', suit: 'spades' };
+        await client.hostAddCommunityCard(cardToDeal, nextRoundNum);
+        if (audio) audio.playCardDeal();
+        showToast(`Dealt Card for Round ${nextRoundNum}!`, 'gold');
+        elModalHostBoard?.classList.add('hidden');
+      } catch (err) {
+        showToast(err.message || 'Failed to deal card', 'red');
+      }
+    });
+
+    // Host Save All 5 Cards
+    elBtnHostSaveAll5?.addEventListener('click', async () => {
+      try {
+        const valid5 = hostSlots.slice(0, 5).map((c, i) => c || { rank: 'A', suit: 'spades' });
+        await client.hostSetCommunityCards(valid5);
+        if (audio) audio.playCardDeal();
+        showToast('All 5 community cards placed on the board!', 'gold');
+        elModalHostBoard?.classList.add('hidden');
+      } catch (err) {
+        showToast(err.message || 'Failed to set cards', 'red');
+      }
+    });
+
+    // Host Clear Board
+    elBtnHostClearBoard?.addEventListener('click', async () => {
+      try {
+        await client.hostClearCommunityCards();
+        showToast('Community cards cleared', 'white');
+        elModalHostBoard?.classList.add('hidden');
+      } catch (err) {
+        showToast(err.message || 'Failed to clear board', 'red');
+      }
+    });
+  }
+
+  // --- QUICK ADD CARD MODAL CONTROLLER ---
+  function openQuickAddModal(roundNum) {
+    quickAddSlotRound = roundNum || ((client.currentState?.communityCards?.length || 0) + 1);
+    quickAddCard = hostSlots[quickAddSlotRound - 1] || { rank: 'A', suit: 'spades', image: null };
+
+    if (elQuickAddBadgeLabel) elQuickAddBadgeLabel.textContent = `ROUND ${quickAddSlotRound}`;
+    if (elQuickAddModalTitle) elQuickAddModalTitle.textContent = `Add Card for Round ${quickAddSlotRound}`;
+
+    updateQuickAddPreview();
+    elModalQuickAddCard?.classList.remove('hidden');
+  }
+
+  function updateQuickAddPreview() {
+    if (elQuickAddCardPreview) {
+      elQuickAddCardPreview.innerHTML = renderCardHtml(quickAddCard);
+    }
+    elQuickAddSuits?.querySelectorAll('.suit-pill').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.suit === quickAddCard.suit);
+    });
+    elQuickAddRanks?.querySelectorAll('.rank-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.rank === quickAddCard.rank);
+    });
+  }
+
+  function setupQuickAddModal() {
+    elBtnHostAddCard?.addEventListener('click', () => {
+      const currentCount = client.currentState?.communityCards?.length || 0;
+      openQuickAddModal(currentCount + 1);
+    });
+
+    elQuickAddSuits?.querySelectorAll('.suit-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        quickAddCard.suit = btn.dataset.suit;
+        quickAddCard.image = null;
+        updateQuickAddPreview();
+      });
+    });
+
+    elQuickAddRanks?.querySelectorAll('.rank-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        quickAddCard.rank = btn.dataset.rank;
+        quickAddCard.image = null;
+        updateQuickAddPreview();
+      });
+    });
+
+    elInputQuickAddFile?.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      try {
+        const dataUrl = await compressImage(file, 800, 0.82);
+        quickAddCard = {
+          image: dataUrl,
+          label: `Round ${quickAddSlotRound} Card`
+        };
+        updateQuickAddPreview();
+      } catch (err) {
+        showToast('Failed to load card photo', 'red');
+      }
+    });
+
+    elBtnConfirmQuickAdd?.addEventListener('click', async () => {
+      try {
+        await client.hostAddCommunityCard(quickAddCard, quickAddSlotRound);
+        if (audio) audio.playCardDeal();
+        showToast(`Round ${quickAddSlotRound} Card added to table!`, 'gold');
+        elModalQuickAddCard?.classList.add('hidden');
+      } catch (err) {
+        showToast(err.message || 'Failed to add card', 'red');
+      }
+    });
+  }
+
+  // Initialize Card Modals
+  setupPlayerCardsModal();
+  setupHostBoardModal();
+  setupQuickAddModal();
 
   // Switch Active View
   function switchView(viewName) {
@@ -728,6 +1399,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  document.querySelectorAll('.modal-backdrop').forEach(modal => {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.add('hidden');
+      }
+    });
+  });
+
   // --- MOBILE BOTTOM SHEET GAME LOG & CHAT ---
   function openLogDrawer() {
     elDrawerLog.classList.remove('closed');
@@ -919,6 +1598,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (elBtnHeaderDeclareWinner) elBtnHeaderDeclareWinner.classList.add('hidden');
     }
 
+    renderCommunityCards(state);
+    renderMyHoleCards(state);
     renderTablePlayers(state);
     renderTurnDock(state);
 
@@ -937,8 +1618,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let youIndex = players.findIndex(p => p.isYou);
     if (youIndex === -1) youIndex = 0;
 
-    const rx = 38;
-    const ry = 35;
+    const isWidescreen = document.getElementById('app-container')?.classList.contains('mode-widescreen-16-9') ||
+      (window.innerWidth >= 640 && (window.innerWidth / window.innerHeight) >= 1.15);
+    const rx = isWidescreen ? 42 : 38;
+    const ry = isWidescreen ? 36 : 35;
     const cx = 50;
     const cy = 50;
 
@@ -978,6 +1661,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const isAllIn = player.isAllIn || (player.chips === 0 && player.currentBet > 0 && !player.isFolded);
       const allInHtml = isAllIn ? `<div class="badge-allin-pill">ALL IN</div>` : '';
 
+      // Miniature Hole Cards next to avatar
+      let cardsHtml = '';
+      if (player.hasCards || (player.cards && player.cards.length > 0)) {
+        const pCards = player.cards || [{ faceDown: true }, { faceDown: true }];
+        const showFace = (player.isYou && isPeekEnabled) || state.street === 'showdown' || state.street === 'hand_ended' || player.cardsRevealed;
+        cardsHtml = `
+          <div class="player-table-cards">
+            ${pCards.slice(0, 2).map(c => renderCardHtml(c, { isMini: true, showBack: !showFace })).join('')}
+          </div>
+        `;
+      }
+
       // Action pill styling
       let actionClass = 'action-check';
       if (player.lastAction) {
@@ -995,6 +1690,7 @@ document.addEventListener('DOMContentLoaded', () => {
           ${roleHtml}
           ${allInHtml}
         </div>
+        ${cardsHtml}
 
         <div class="player-meta-box">
           <div class="player-name-line">

@@ -49,27 +49,11 @@
     </div>
   </div>
 
-  <!-- Mobile Landscape Warning Overlay (Prompts user to rotate to portrait) -->
-  <div id="landscape-warning" class="landscape-blocker">
-    <div class="landscape-card">
-      <div class="rotate-phone-anim">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#C59B27" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="4" y="2" width="16" height="20" rx="3" ry="3"/>
-          <line x1="12" y1="18" x2="12.01" y2="18"/>
-          <path d="M2 8L4 5L6 8"/>
-          <path d="M22 16L20 19L18 16"/>
-        </svg>
-      </div>
-      <h2>Please Rotate to Portrait</h2>
-      <p>Poker Night is tailored for portrait mode on mobile devices for the most immersive casino experience.</p>
-    </div>
-  </div>
-
   <!-- Screen Flash for All-In action -->
   <div id="screen-flash-overlay" class="screen-flash"></div>
 
-  <!-- Main App Shell -->
-  <div id="app-container">
+  <!-- Main App Shell (Supports 16:9 Widescreen & Pro Broadcast Mode) -->
+  <div id="app-container" class="mode-widescreen-16-9">
     <!-- Casino Header -->
     <header id="app-header" class="casino-header">
       <div class="header-left">
@@ -97,6 +81,9 @@
         </div>
       </div>
       <div class="header-right">
+        <button id="btn-aspect-toggle" class="header-btn header-btn-aspect active" title="Toggle 16:9 Pro Cinema View" aria-label="16:9 Format">
+          <span class="aspect-badge">16:9 PRO</span>
+        </button>
         <button id="btn-leave-table" class="header-btn header-btn-leave hidden" title="Leave Table" aria-label="Leave Table">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
@@ -346,7 +333,7 @@
                     <div class="felt-inner-betting-track"></div>
                     <div class="felt-luxury-crest">POKER NIGHT</div>
 
-                    <!-- Table Center: Pot & Action Controls -->
+                    <!-- Table Center: Pot, Community Board & Action Controls -->
                     <div class="felt-center-content">
                       <div class="pot-display-center">
                         <span class="pot-title-label">TOTAL POT</span>
@@ -359,6 +346,26 @@
                           <span id="center-pot-val">0</span>
                         </div>
                         <div id="center-pot-chips" class="center-chips-row"></div>
+                      </div>
+
+                      <!-- 5-Card Community Board Area (Round 1 -> 1 card, Round 2 -> 2nd card, continue...) -->
+                      <div id="community-board-area" class="community-board-area">
+                        <div class="community-board-header">
+                          <span class="community-board-label">COMMUNITY BOARD</span>
+                          <span id="community-round-badge" class="community-round-badge">ROUND 0 / 5</span>
+                        </div>
+                        <div id="community-cards-row" class="community-cards-row">
+                          <!-- Injected via JS: 5 card slots with 3D styling or uploaded images -->
+                        </div>
+                        <!-- Host Board Controls on Felt -->
+                        <div id="host-board-felt-bar" class="host-board-felt-bar host-only hidden">
+                          <button id="btn-host-add-card" class="btn btn-xs btn-luxury-gold" type="button" title="Add Card for current round">
+                            ➕ Add Card <span id="host-next-round-label">(Round 1)</span>
+                          </button>
+                          <button id="btn-host-open-board-modal" class="btn btn-xs btn-glass" type="button" title="Manage all 5 cards">
+                            🂠 Manage 5 Cards
+                          </button>
+                        </div>
                       </div>
 
                       <!-- Last Action Status Banner -->
@@ -384,9 +391,36 @@
           </div>
         </div>
 
-        <!-- Mobile Action Panel (Fixed Bottom Bar: 180px with safe area, 2x2 grid) -->
+        <!-- Pro Action & Player Cards Dock (16:9 Broadcast & Mobile HUD) -->
         <div id="player-action-dock" class="glass-action-dock">
-          <!-- 2x2 Grid Button Layout -->
+          <!-- Player's Own Cards HUD Panel -->
+          <div id="my-hole-cards-panel" class="my-hole-cards-panel">
+            <div class="hole-cards-meta">
+              <span class="hole-cards-title">MY HAND</span>
+              <div class="hole-cards-btns">
+                <button id="btn-toggle-peek" class="btn-card-ctrl" type="button" title="Toggle Card Visibility (Screen-Peeking Protection)">
+                  <svg id="eye-icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                  <span id="peek-btn-text">Peek</span>
+                </button>
+                <button id="btn-open-player-cards-modal" class="btn-card-ctrl btn-card-ctrl-gold" type="button" title="Upload or Choose Your Cards">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                  </svg>
+                  <span>Upload</span>
+                </button>
+              </div>
+            </div>
+            <div id="my-hole-cards-container" class="my-hole-cards-container">
+              <!-- Rendered via JS: 2 hole cards with 3D texture or uploaded photo -->
+            </div>
+          </div>
+
+          <!-- Turn Controls & Action Buttons -->
           <div id="turn-controls" class="action-dock-buttons hidden">
             <div id="action-grid-2x2" class="action-grid-2x2">
               <!-- Row 1: Fold (Crimson Red, left) | Check/Call (Gold, right) -->
@@ -630,6 +664,241 @@
           <button class="btn btn-glass" data-close="modal-showdown">Cancel</button>
           <button id="btn-confirm-award" class="btn btn-luxury-gold">Declare Winner</button>
         </div>
+      </div>
+    </div>
+
+    <!-- MODAL: Player Hole Cards (Select or Upload) -->
+    <div id="modal-player-cards" class="modal-backdrop hidden">
+      <div class="modal-luxury-card modal-card-wide">
+        <div class="modal-top">
+          <div class="modal-title-wrap">
+            <span class="gold-badge-label">HOLE CARDS</span>
+            <h3>Upload / Select Your Cards</h3>
+          </div>
+          <button class="modal-x-btn" data-close="modal-player-cards">&times;</button>
+        </div>
+
+        <!-- Tab Switcher: Visual Picker vs Image Upload -->
+        <div class="card-modal-tabs">
+          <button id="tab-btn-picker" class="card-tab-btn active" type="button">🂠 Visual Card Picker</button>
+          <button id="tab-btn-upload" class="card-tab-btn" type="button">📷 Upload / Photo</button>
+        </div>
+
+        <!-- Tab 1: Visual Picker Content -->
+        <div id="tab-content-picker" class="tab-content active">
+          <div class="picker-two-cards-grid">
+            <!-- Card 1 Picker -->
+            <div class="card-selector-box">
+              <span class="selector-card-title">CARD 1</span>
+              <div id="picker-card-1-preview" class="selected-card-preview">
+                <div class="card-placeholder-text">Select Suit &amp; Rank</div>
+              </div>
+              <div class="picker-section-label">SUIT</div>
+              <div class="suit-pills-row" data-card="1">
+                <button type="button" class="suit-pill active" data-suit="spades">♠ Spades</button>
+                <button type="button" class="suit-pill" data-suit="hearts">♥ Hearts</button>
+                <button type="button" class="suit-pill" data-suit="diamonds">♦ Diamonds</button>
+                <button type="button" class="suit-pill" data-suit="clubs">♣ Clubs</button>
+              </div>
+              <div class="picker-section-label">RANK</div>
+              <div class="rank-grid" data-card="1">
+                <button type="button" class="rank-btn active" data-rank="A">A</button>
+                <button type="button" class="rank-btn" data-rank="K">K</button>
+                <button type="button" class="rank-btn" data-rank="Q">Q</button>
+                <button type="button" class="rank-btn" data-rank="J">J</button>
+                <button type="button" class="rank-btn" data-rank="10">10</button>
+                <button type="button" class="rank-btn" data-rank="9">9</button>
+                <button type="button" class="rank-btn" data-rank="8">8</button>
+                <button type="button" class="rank-btn" data-rank="7">7</button>
+                <button type="button" class="rank-btn" data-rank="6">6</button>
+                <button type="button" class="rank-btn" data-rank="5">5</button>
+                <button type="button" class="rank-btn" data-rank="4">4</button>
+                <button type="button" class="rank-btn" data-rank="3">3</button>
+                <button type="button" class="rank-btn" data-rank="2">2</button>
+              </div>
+            </div>
+
+            <!-- Card 2 Picker -->
+            <div class="card-selector-box">
+              <span class="selector-card-title">CARD 2</span>
+              <div id="picker-card-2-preview" class="selected-card-preview">
+                <div class="card-placeholder-text">Select Suit &amp; Rank</div>
+              </div>
+              <div class="picker-section-label">SUIT</div>
+              <div class="suit-pills-row" data-card="2">
+                <button type="button" class="suit-pill" data-suit="spades">♠ Spades</button>
+                <button type="button" class="suit-pill active" data-suit="hearts">♥ Hearts</button>
+                <button type="button" class="suit-pill" data-suit="diamonds">♦ Diamonds</button>
+                <button type="button" class="suit-pill" data-suit="clubs">♣ Clubs</button>
+              </div>
+              <div class="picker-section-label">RANK</div>
+              <div class="rank-grid" data-card="2">
+                <button type="button" class="rank-btn" data-rank="A">A</button>
+                <button type="button" class="rank-btn active" data-rank="K">K</button>
+                <button type="button" class="rank-btn" data-rank="Q">Q</button>
+                <button type="button" class="rank-btn" data-rank="J">J</button>
+                <button type="button" class="rank-btn" data-rank="10">10</button>
+                <button type="button" class="rank-btn" data-rank="9">9</button>
+                <button type="button" class="rank-btn" data-rank="8">8</button>
+                <button type="button" class="rank-btn" data-rank="7">7</button>
+                <button type="button" class="rank-btn" data-rank="6">6</button>
+                <button type="button" class="rank-btn" data-rank="5">5</button>
+                <button type="button" class="rank-btn" data-rank="4">4</button>
+                <button type="button" class="rank-btn" data-rank="3">3</button>
+                <button type="button" class="rank-btn" data-rank="2">2</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Upload Image Content -->
+        <div id="tab-content-upload" class="tab-content hidden">
+          <div class="upload-dropzone" id="player-card-dropzone">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#C59B27" stroke-width="1.8">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <h4>Snap Photo or Upload Card Image</h4>
+            <p>Take a picture of your physical cards or choose an image file from your device.</p>
+            <label class="btn btn-luxury-gold btn-sm upload-file-btn">
+              <span>Browse / Take Photo</span>
+              <input type="file" id="input-player-card-file" accept="image/*" style="display:none;">
+            </label>
+          </div>
+          <div id="player-upload-previews" class="upload-previews-row hidden">
+            <div class="upload-preview-card">
+              <img id="img-player-upload-preview" src="" alt="Card Upload Preview">
+              <button id="btn-remove-uploaded-card" class="btn-remove-preview" title="Remove photo">&times;</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-bottom card-modal-footer">
+          <button id="btn-clear-my-cards" class="btn btn-glass" type="button">Clear Cards</button>
+          <button class="btn btn-glass" data-close="modal-player-cards" type="button">Cancel</button>
+          <button id="btn-save-player-cards" class="btn btn-luxury-emerald" type="button">Save My Cards</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: Host Community Board Manager (5 Cards) -->
+    <div id="modal-host-board" class="modal-backdrop hidden">
+      <div class="modal-luxury-card modal-card-wide modal-host-board-card">
+        <div class="modal-top">
+          <div class="modal-title-wrap">
+            <span class="gold-badge-label">HOST TABLE TOOLS</span>
+            <h3>Community Cards Board (5 Cards)</h3>
+          </div>
+          <button class="modal-x-btn" data-close="modal-host-board">&times;</button>
+        </div>
+        <p class="modal-sub">
+          Round 1 deals 1st card, Round 2 deals 2nd card, and continue through 5 cards. You can manage or pre-stage all 5 cards below:
+        </p>
+
+        <div class="host-board-slots-grid" id="host-modal-slots-row">
+          <!-- Rendered via JS: 5 card slots -->
+        </div>
+
+        <!-- Card Picker for Selected Slot -->
+        <div id="host-slot-editor-box" class="host-slot-editor-box">
+          <div class="slot-editor-header">
+            <span id="host-slot-editor-title">Editing Card 1 (Round 1)</span>
+            <label class="btn btn-xs btn-glass upload-inline-label">
+              <span>📷 Upload Photo</span>
+              <input type="file" id="input-host-slot-file" accept="image/*" style="display:none;">
+            </label>
+          </div>
+          <div class="suit-pills-row" id="host-slot-suits">
+            <button type="button" class="suit-pill active" data-suit="spades">♠ Spades</button>
+            <button type="button" class="suit-pill" data-suit="hearts">♥ Hearts</button>
+            <button type="button" class="suit-pill" data-suit="diamonds">♦ Diamonds</button>
+            <button type="button" class="suit-pill" data-suit="clubs">♣ Clubs</button>
+          </div>
+          <div class="rank-grid" id="host-slot-ranks">
+            <button type="button" class="rank-btn active" data-rank="A">A</button>
+            <button type="button" class="rank-btn" data-rank="K">K</button>
+            <button type="button" class="rank-btn" data-rank="Q">Q</button>
+            <button type="button" class="rank-btn" data-rank="J">J</button>
+            <button type="button" class="rank-btn" data-rank="10">10</button>
+            <button type="button" class="rank-btn" data-rank="9">9</button>
+            <button type="button" class="rank-btn" data-rank="8">8</button>
+            <button type="button" class="rank-btn" data-rank="7">7</button>
+            <button type="button" class="rank-btn" data-rank="6">6</button>
+            <button type="button" class="rank-btn" data-rank="5">5</button>
+            <button type="button" class="rank-btn" data-rank="4">4</button>
+            <button type="button" class="rank-btn" data-rank="3">3</button>
+            <button type="button" class="rank-btn" data-rank="2">2</button>
+          </div>
+        </div>
+
+        <div class="modal-bottom card-modal-footer">
+          <button id="btn-host-clear-board" class="btn btn-glass btn-danger-soft" type="button">Clear Board</button>
+          <button id="btn-host-deal-next-round" class="btn btn-luxury-gold" type="button">
+            Deal Next Card (<span id="deal-next-round-text">Round 1</span>)
+          </button>
+          <button id="btn-host-save-all-5" class="btn btn-luxury-emerald" type="button">Save All 5 to Board</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: Quick Add Card (Round X) -->
+    <div id="modal-quick-add-card" class="modal-backdrop hidden">
+      <div class="modal-luxury-card modal-quick-card">
+        <div class="modal-top">
+          <div class="modal-title-wrap">
+            <span class="gold-badge-label" id="quick-add-badge-label">ROUND 1</span>
+            <h3 id="quick-add-modal-title">Add Card to Board</h3>
+          </div>
+          <button class="modal-x-btn" data-close="modal-quick-add-card">&times;</button>
+        </div>
+        <div class="quick-add-body">
+          <div class="selected-card-preview" id="quick-add-card-preview">
+            <!-- Live Preview -->
+          </div>
+          <div class="picker-section-label">SUIT</div>
+          <div class="suit-pills-row" id="quick-add-suits">
+            <button type="button" class="suit-pill active" data-suit="spades">♠ Spades</button>
+            <button type="button" class="suit-pill" data-suit="hearts">♥ Hearts</button>
+            <button type="button" class="suit-pill" data-suit="diamonds">♦ Diamonds</button>
+            <button type="button" class="suit-pill" data-suit="clubs">♣ Clubs</button>
+          </div>
+          <div class="picker-section-label">RANK</div>
+          <div class="rank-grid" id="quick-add-ranks">
+            <button type="button" class="rank-btn active" data-rank="A">A</button>
+            <button type="button" class="rank-btn" data-rank="K">K</button>
+            <button type="button" class="rank-btn" data-rank="Q">Q</button>
+            <button type="button" class="rank-btn" data-rank="J">J</button>
+            <button type="button" class="rank-btn" data-rank="10">10</button>
+            <button type="button" class="rank-btn" data-rank="9">9</button>
+            <button type="button" class="rank-btn" data-rank="8">8</button>
+            <button type="button" class="rank-btn" data-rank="7">7</button>
+            <button type="button" class="rank-btn" data-rank="6">6</button>
+            <button type="button" class="rank-btn" data-rank="5">5</button>
+            <button type="button" class="rank-btn" data-rank="4">4</button>
+            <button type="button" class="rank-btn" data-rank="3">3</button>
+            <button type="button" class="rank-btn" data-rank="2">2</button>
+          </div>
+          <div class="quick-photo-row">
+            <label class="btn btn-xs btn-glass upload-inline-label">
+              <span>📷 Or Upload Photo</span>
+              <input type="file" id="input-quick-add-file" accept="image/*" style="display:none;">
+            </label>
+          </div>
+        </div>
+        <div class="modal-bottom">
+          <button class="btn btn-glass" data-close="modal-quick-add-card" type="button">Cancel</button>
+          <button id="btn-confirm-quick-add" class="btn btn-luxury-emerald" type="button">Deal Card</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: Card Zoom Preview (For Photos) -->
+    <div id="modal-card-zoom" class="modal-backdrop hidden">
+      <div class="modal-card-zoom-content">
+        <button class="modal-x-btn zoom-close-btn" data-close="modal-card-zoom">&times;</button>
+        <img id="img-card-zoom" src="" alt="Enlarged Card">
+        <div id="caption-card-zoom" class="zoom-caption"></div>
       </div>
     </div>
 

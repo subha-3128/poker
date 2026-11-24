@@ -15,11 +15,14 @@ A real-time multiplayer poker chip tracker designed for home games with physical
 ## ⚡ Highlights
 
 - **Zero-Friction Multiplayer** — Join instantly via 4-digit room code or in-browser QR code. No sign-ups.
+- **16:9 Pro Broadcast Mode** — Widescreen 16:9 cinema layout modeled after high-roller tournament tables with expansive oval felt, broadcast player pods, and unified HUD.
+- **Player Hole Cards (Select or Upload)** — Players can upload a photo of their physical cards or use the interactive visual rank & suit selector, equipped with screen-peeking privacy protection (tap-to-peek).
+- **Progressive 5-Card Community Board** — Host adds 1st card in Round 1, 2nd card in Round 2, and continues through all 5 cards, with real-time deal animations and 3D card textures.
 - **Accurate Pot Engine** — Automatic multi-way side pots, under-raise all-in protection, and blind rotations (Dealer, SB, BB).
-- **Mobile-First PWA** — Installable to home screen on iOS and Android with standalone fullscreen display and offline shell caching.
-- **Action Controls** — 2×2 thumb-friendly dock (Fold, Check/Call, Raise with custom slider/presets, and All-In).
+- **Mobile & Desktop PWA** — Responsive widescreen 16:9 and mobile display with standalone fullscreen capability and offline shell caching.
+- **Action Controls** — Ergonomic dock (Fold, Check/Call, Raise with custom slider/presets, and All-In).
 - **Untimed, Relaxed Play** — No countdown stress or auto-folds; players act comfortably on their own turn.
-- **Host Tools** — Mid-game chip rebuys, kick player controls, and pot winner designation.
+- **Host Tools** — Progressive board card dealing, mid-game chip rebuys, kick player controls, and pot winner designation.
 - **End-of-Night Ledger** — Final zero-sum summary tracking exact profit and loss ($+\text{chips} / -\text{chips}$) for every player.
 
 ---

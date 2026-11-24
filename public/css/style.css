@@ -135,7 +135,7 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   pointer-events: none !important;
 }
 
-/* Viewport Root Container */
+/* Viewport Root Container - Seamless Fluid Widescreen & 16:9 Cinema Mode */
 #app-container {
   width: 100%;
   max-width: 480px;
@@ -149,6 +149,42 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   overflow: hidden;
   padding-left: var(--safe-left);
   padding-right: var(--safe-right);
+  transition: max-width 0.3s cubic-bezier(0.16, 1, 0.3, 1), height 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 16:9 Pro Cinema Viewport Framing */
+#app-container.mode-widescreen-16-9 {
+  max-width: min(100vw, calc(100dvh * 16 / 9));
+  height: min(100dvh, calc(100vw * 9 / 16));
+  aspect-ratio: 16 / 9;
+  border: 1px solid rgba(212, 175, 55, 0.28);
+  border-radius: 14px;
+  box-shadow: 0 0 90px rgba(0, 0, 0, 0.98), 0 0 45px rgba(212, 175, 55, 0.15);
+}
+
+@media screen and (min-width: 640px) and (min-aspect-ratio: 1.15/1) {
+  #app-container {
+    max-width: min(100vw, calc(100dvh * 16 / 9));
+    height: min(100dvh, calc(100vw * 9 / 16));
+    aspect-ratio: 16 / 9;
+    border: 1px solid rgba(212, 175, 55, 0.28);
+    border-radius: 14px;
+    box-shadow: 0 0 90px rgba(0, 0, 0, 0.98), 0 0 45px rgba(212, 175, 55, 0.15);
+  }
+}
+
+.aspect-badge {
+  font-family: var(--font-serif);
+  font-weight: 800;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  color: var(--gold-champagne);
+}
+
+.header-btn-aspect.active {
+  border-color: var(--gold-primary);
+  background: rgba(212, 175, 55, 0.15);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
 }
 
 /* ==========================================================================
@@ -225,62 +261,7 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
   100% { transform: translateX(250%); }
 }
 
-/* ==========================================================================
-   PORTRAIT ONLY LANDSCAPE BLOCKER
-   ========================================================================== */
-.landscape-blocker {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: #08080a;
-  z-index: 99999;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
-  text-align: center;
-}
 
-@media screen and (orientation: landscape) and (max-height: 580px) {
-  .landscape-blocker {
-    display: flex;
-  }
-}
-
-.landscape-card {
-  max-width: 320px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-gold);
-  border-radius: var(--radius-card);
-  padding: 1.75rem 1.5rem;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.95);
-}
-
-.rotate-phone-anim {
-  margin-bottom: 1rem;
-  animation: rotate-phone 2.4s infinite ease-in-out;
-}
-
-@keyframes rotate-phone {
-  0%, 20% { transform: rotate(0deg); }
-  50%, 80% { transform: rotate(90deg); }
-  100% { transform: rotate(0deg); }
-}
-
-.landscape-card h2 {
-  font-family: var(--font-serif);
-  font-size: 1.2rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: var(--gold-champagne);
-  margin-bottom: 0.5rem;
-}
-
-.landscape-card p {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  line-height: 1.45;
-}
 
 /* ==========================================================================
    HEADER — EXCLUSIVE PRIVATE CLUB AESTHETIC
@@ -2687,3 +2668,835 @@ button:disabled, .btn:disabled, .btn-pill:disabled {
     filter: brightness(1.08);
   }
 }
+
+/* ==========================================================================
+   PRO 16:9 WIDESCREEN & BROADCAST SYSTEM
+   ========================================================================== */
+
+/* 16:9 Table Stage & Oval Refinements */
+@media screen and (min-aspect-ratio: 1.15/1), screen and (min-width: 768px) {
+  .table-stage-scroll-wrapper {
+    padding-bottom: 92px;
+    justify-content: center;
+    overflow-y: hidden;
+  }
+
+  .table-stage {
+    padding: 0.25rem 0.75rem;
+    height: 100%;
+    max-height: calc(100% - 10px);
+  }
+
+  .poker-table-bezel {
+    max-width: 1060px;
+    width: 96%;
+    aspect-ratio: 2.15 / 1;
+    border-radius: 210px / 125px;
+    margin: auto;
+  }
+
+  .poker-table-wood-rail {
+    height: 100%;
+    border-radius: 206px / 121px;
+    padding: 7px 11px;
+  }
+
+  .poker-table-brass-inlay {
+    height: 100%;
+    border-radius: 198px / 113px;
+  }
+
+  .poker-table-felt {
+    height: 100%;
+    min-height: 350px;
+    border-radius: 192px / 107px;
+    padding: 0.75rem 1.25rem;
+  }
+
+  .felt-inner-betting-track {
+    border-radius: 178px / 95px;
+    inset: 14px 22px;
+  }
+
+  /* 16:9 Streamlined Action Dock HUD */
+  .glass-action-dock {
+    height: auto;
+    min-height: 80px;
+    padding: 6px 16px calc(var(--safe-bottom) + 6px);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+  }
+
+  .my-hole-cards-panel {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 4px 12px;
+    background: rgba(10, 10, 14, 0.85);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 12px;
+    flex-shrink: 0;
+  }
+
+  .action-dock-buttons {
+    flex: 1;
+    max-width: 620px;
+    margin: 0 auto;
+  }
+
+  .action-grid-2x2 {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .action-row-split {
+    display: flex;
+    gap: 0.5rem;
+    flex: 1;
+  }
+
+  .btn-pill {
+    height: 48px;
+    min-height: 48px;
+    padding: 4px 12px;
+  }
+
+  .waiting-dock-message {
+    padding: 8px 20px;
+    font-size: 0.88rem;
+  }
+
+  .dock-host-actions {
+    display: flex;
+    flex-direction: row;
+    gap: 0.6rem;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+}
+
+/* ==========================================================================
+   5-CARD COMMUNITY BOARD (FELT CENTER)
+   ========================================================================== */
+.community-board-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: rgba(4, 18, 12, 0.78);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 14px;
+  padding: 5px 12px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.65), inset 0 0 12px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  z-index: 12;
+}
+
+.community-board-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 0.75rem;
+}
+
+.community-board-label {
+  font-family: var(--font-serif);
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: rgba(236, 200, 99, 0.75);
+}
+
+.community-round-badge {
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  color: var(--gold-champagne);
+  padding: 1px 7px;
+  border-radius: var(--radius-pill);
+}
+
+.community-cards-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 72px;
+}
+
+/* Host Quick Buttons on Felt */
+.host-board-felt-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 2px;
+}
+
+.btn-xs {
+  font-size: 0.68rem;
+  padding: 2px 9px;
+  height: 24px;
+  border-radius: var(--radius-pill);
+}
+
+/* ==========================================================================
+   HIGH-END CASINO PLAYING CARD COMPONENT
+   ========================================================================== */
+.poker-card {
+  width: 50px;
+  height: 70px;
+  background: linear-gradient(150deg, #FFFFFF 0%, #F5F5F7 60%, #EBEBED 100%);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 3px 4px;
+  user-select: none;
+  box-sizing: border-box;
+  transform-style: preserve-3d;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s ease;
+  cursor: pointer;
+}
+
+.poker-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.65), 0 0 8px rgba(212, 175, 55, 0.25);
+}
+
+/* Corner Ranks & Suits */
+.poker-card .card-corner-top,
+.poker-card .card-corner-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+}
+
+.poker-card .card-corner-bottom {
+  transform: rotate(180deg);
+}
+
+.poker-card .card-rank-text {
+  font-family: var(--font-sans);
+  font-weight: 900;
+  font-size: 0.8rem;
+  letter-spacing: -0.04em;
+}
+
+.poker-card .card-suit-icon {
+  font-size: 0.65rem;
+  margin-top: 1px;
+}
+
+/* Big Center Suit Watermark */
+.poker-card .card-center-suit {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.55rem;
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* Color Coding */
+.poker-card.is-red {
+  color: #DC2626;
+}
+
+.poker-card.is-red .card-center-suit {
+  color: rgba(220, 38, 38, 0.88);
+}
+
+.poker-card.is-black {
+  color: #0F172A;
+}
+
+.poker-card.is-black .card-center-suit {
+  color: rgba(15, 23, 42, 0.88);
+}
+
+/* Card Back (Monaco Burgundy & Gold Luxury Filigree) */
+.poker-card.is-back {
+  background: radial-gradient(circle at 50% 50%, #520c1a 0%, #29060d 70%, #150206 100%);
+  border: 1.5px solid #D4AF37;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px;
+}
+
+.card-back-pattern {
+  width: 100%;
+  height: 100%;
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  border-radius: 4px;
+  background-image: radial-gradient(rgba(212, 175, 55, 0.25) 1px, transparent 0);
+  background-size: 6px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-back-crest {
+  font-size: 0.9rem;
+  color: #D4AF37;
+  filter: drop-shadow(0 0 3px rgba(212, 175, 55, 0.6));
+}
+
+/* Photo / Uploaded Card Variant */
+.poker-card.is-photo {
+  padding: 2px;
+  background: #0D0D12;
+  border-color: #D4AF37;
+}
+
+.poker-card.is-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.card-photo-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(212, 175, 55, 0.6);
+  border-radius: var(--radius-pill);
+  font-size: 0.5rem;
+  padding: 1px 4px;
+  color: #FFF3B0;
+  pointer-events: none;
+}
+
+/* Empty Card Slot on Community Board */
+.community-card-slot {
+  width: 50px;
+  height: 70px;
+  border: 1.5px dashed rgba(212, 175, 55, 0.35);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 12, 10, 0.4);
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.6);
+  gap: 2px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.community-card-slot:hover {
+  border-color: var(--gold-primary);
+  background: rgba(212, 175, 55, 0.08);
+}
+
+.slot-round-name {
+  font-family: var(--font-serif);
+  font-size: 0.58rem;
+  font-weight: 800;
+  color: rgba(212, 175, 55, 0.65);
+}
+
+.slot-add-icon {
+  font-size: 0.75rem;
+  color: rgba(212, 175, 55, 0.45);
+}
+
+/* Widescreen Card Sizing Upgrades */
+@media screen and (min-aspect-ratio: 1.15/1), screen and (min-width: 768px) {
+  .poker-card, .community-card-slot {
+    width: 58px;
+    height: 82px;
+  }
+  .poker-card .card-rank-text {
+    font-size: 0.92rem;
+  }
+  .poker-card .card-center-suit {
+    font-size: 1.85rem;
+  }
+}
+
+/* ==========================================================================
+   MY HOLE CARDS PANEL (INSIDE ACTION DOCK)
+   ========================================================================== */
+.my-hole-cards-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 6px 10px;
+  background: rgba(12, 12, 18, 0.9);
+  border: 1px solid rgba(212, 175, 55, 0.32);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+}
+
+.hole-cards-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.hole-cards-title {
+  font-family: var(--font-serif);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: var(--gold-champagne);
+}
+
+.hole-cards-btns {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-card-ctrl {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-secondary);
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: var(--radius-pill);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-card-ctrl:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #FFFFFF;
+}
+
+.btn-card-ctrl-gold {
+  border-color: rgba(212, 175, 55, 0.4);
+  color: var(--gold-champagne);
+}
+
+.btn-card-ctrl-gold:hover {
+  background: rgba(212, 175, 55, 0.18);
+  border-color: var(--gold-primary);
+  color: #FFF3B0;
+}
+
+.my-hole-cards-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 70px;
+}
+
+.empty-hole-slot {
+  width: 50px;
+  height: 70px;
+  border: 1.5px dashed rgba(212, 175, 55, 0.35);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.02);
+  gap: 3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.empty-hole-slot:hover {
+  border-color: var(--gold-primary);
+  background: rgba(212, 175, 55, 0.08);
+}
+
+.empty-hole-slot span {
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: rgba(212, 175, 55, 0.6);
+  letter-spacing: 0.08em;
+}
+
+/* Peek Hidden Overlay */
+.peek-overlay-msg {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 8, 12, 0.94);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--gold-champagne);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   MINIATURE CARDS IN SEATED PLAYER PODS
+   ========================================================================== */
+.player-table-cards {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-top: 3px;
+}
+
+.player-table-cards .poker-card {
+  width: 26px;
+  height: 38px;
+  padding: 1px 2px;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+.player-table-cards .poker-card .card-rank-text {
+  font-size: 0.55rem;
+}
+
+.player-table-cards .poker-card .card-suit-icon {
+  font-size: 0.45rem;
+}
+
+.player-table-cards .poker-card .card-center-suit {
+  font-size: 0.85rem;
+}
+
+.player-table-cards .poker-card.is-back .card-back-crest {
+  font-size: 0.55rem;
+}
+
+/* ==========================================================================
+   CARD MODALS (PICKER, UPLOAD & HOST BOARD)
+   ========================================================================== */
+.card-modal-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+  padding-bottom: 8px;
+}
+
+.card-tab-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.card-tab-btn.active {
+  background: rgba(212, 175, 55, 0.15);
+  color: var(--gold-champagne);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.25);
+}
+
+.picker-two-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 580px) {
+  .picker-two-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card-selector-box {
+  background: rgba(8, 8, 12, 0.7);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 10px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.selector-card-title {
+  font-family: var(--font-serif);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  color: var(--gold-champagne);
+}
+
+.selected-card-preview {
+  min-height: 84px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 4px 0;
+}
+
+.card-placeholder-text {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  border: 1.5px dashed rgba(212, 175, 55, 0.3);
+  border-radius: 6px;
+  padding: 14px 10px;
+  text-align: center;
+}
+
+.picker-section-label {
+  align-self: flex-start;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 4px;
+}
+
+/* Suit Pills Row */
+.suit-pills-row {
+  display: flex;
+  gap: 4px;
+  width: 100%;
+}
+
+.suit-pill {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-secondary);
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 4px 2px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  text-align: center;
+}
+
+.suit-pill[data-suit="hearts"], .suit-pill[data-suit="diamonds"] {
+  color: #F87171;
+}
+
+.suit-pill.active {
+  background: rgba(212, 175, 55, 0.22);
+  border-color: var(--gold-primary);
+  color: #FFF3B0;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.35);
+}
+
+/* Rank Buttons Grid */
+.rank-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  width: 100%;
+}
+
+.rank-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 4px 0;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  text-align: center;
+}
+
+.rank-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.rank-btn.active {
+  background: var(--gold-primary);
+  color: #100C04;
+  border-color: var(--gold-light);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+  font-weight: 900;
+}
+
+/* Upload Dropzone */
+.upload-dropzone {
+  border: 2px dashed rgba(212, 175, 55, 0.35);
+  border-radius: 12px;
+  padding: 1.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.5rem;
+  background: rgba(8, 8, 12, 0.5);
+}
+
+.upload-dropzone h4 {
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  color: var(--gold-champagne);
+  margin: 0;
+}
+
+.upload-dropzone p {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  max-width: 320px;
+  margin: 0;
+}
+
+.upload-previews-row {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.upload-preview-card {
+  position: relative;
+  width: 90px;
+  height: 126px;
+  border-radius: 8px;
+  border: 1.5px solid var(--gold-primary);
+  overflow: hidden;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.8);
+}
+
+.upload-preview-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.btn-remove-preview {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(220, 38, 38, 0.9);
+  color: #FFFFFF;
+  border: none;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* Host Community Board Manager Grid */
+.host-board-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin: 0.75rem 0;
+}
+
+.host-slot-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px;
+  background: rgba(8, 8, 12, 0.6);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.host-slot-card.active-editing {
+  border-color: var(--gold-primary);
+  background: rgba(212, 175, 55, 0.12);
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.35);
+}
+
+.host-slot-label {
+  font-family: var(--font-serif);
+  font-size: 0.6rem;
+  font-weight: 800;
+  color: var(--gold-champagne);
+}
+
+.host-slot-editor-box {
+  background: rgba(8, 8, 12, 0.7);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 10px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 0.5rem;
+}
+
+.slot-editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#host-slot-editor-title {
+  font-family: var(--font-serif);
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--gold-champagne);
+}
+
+.upload-inline-label {
+  cursor: pointer;
+}
+
+/* Card Zoom Modal Lightbox */
+.modal-card-zoom-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-card-zoom-content img {
+  max-width: 100%;
+  max-height: 75vh;
+  border-radius: 12px;
+  border: 2px solid var(--gold-primary);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.95);
+}
+
+.zoom-caption {
+  margin-top: 0.75rem;
+  font-family: var(--font-serif);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--gold-champagne);
+}
+
+.zoom-close-btn {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+}
+

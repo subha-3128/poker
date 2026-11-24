@@ -1,29 +1,63 @@
 const io = require('socket.io-client');
 const assert = require('assert');
+const http = require('http');
+const { fork } = require('child_process');
 
-const PORT = process.env.PORT || 3000;
-const SERVER_URL = process.env.TEST_SERVER_URL || `http://localhost:${PORT}`;
+let PORT = process.env.PORT || 3999;
+let SERVER_URL = process.env.TEST_SERVER_URL || `http://localhost:${PORT}`;
 
 function wait(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function runMultiplayerSimulation() {
-  console.log('--- Starting Real-Time Multiplayer Simulation ---');
-
-  // Client 1: Host (Rahul)
-  const socketHost = io(SERVER_URL);
-  let hostState = null;
-  let roomId = null;
-  let hostPlayerId = null;
-  let hostToken = null;
-
-  socketHost.on('game-state', state => {
-    hostState = state;
+function checkServer(url) {
+  return new Promise(resolve => {
+    const req = http.get(`${url}/health`, res => {
+      resolve(res.statusCode === 200);
+    });
+    req.on('error', () => resolve(false));
+    req.setTimeout(400, () => {
+      req.destroy();
+      resolve(false);
+    });
   });
+}
 
-  await new Promise(resolve => socketHost.on('connect', resolve));
-  console.log('✅ Host connected to server');
+async function runMultiplayerSimulation() {
+  let childServer = null;
+  const running = await checkServer(SERVER_URL);
+  if (!running) {
+    PORT = 3999;
+    SERVER_URL = `http://localhost:${PORT}`;
+    console.log(`Starting isolated test server on port ${PORT}...`);
+    childServer = fork('./server.js', [], {
+      env: { ...process.env, PORT: String(PORT) },
+      silent: true
+    });
+    let attempts = 0;
+    while (!(await checkServer(SERVER_URL)) && attempts < 30) {
+      await wait(100);
+      attempts++;
+    }
+    console.log('✅ Test server ready!');
+  }
+
+  try {
+    console.log('--- Starting Real-Time Multiplayer Simulation ---');
+
+    // Client 1: Host (Rahul)
+    const socketHost = io(SERVER_URL);
+    let hostState = null;
+    let roomId = null;
+    let hostPlayerId = null;
+    let hostToken = null;
+
+    socketHost.on('game-state', state => {
+      hostState = state;
+    });
+
+    await new Promise(resolve => socketHost.on('connect', resolve));
+    console.log('✅ Host connected to server');
 
   // 1. Create Room
   const createRes = await new Promise(resolve => {
@@ -243,6 +277,46 @@ async function runMultiplayerSimulation() {
   console.log('✅ Legitimate reconnect succeeded with valid playerToken!');
   socketAttacker.disconnect();
 
+  // Test 1b: Card upload and community cards over socket
+  console.log('--- Testing Card Uploads and Progressive Community Cards ---');
+  const setCardRes = await new Promise(resolve => {
+    socketHost.emit('set-player-cards', { roomId, cards: ['As', 'Kh'] }, resolve);
+  });
+  assert(setCardRes && setCardRes.success, 'Host failed to set player cards');
+
+  const setPriyaCardRes = await new Promise(resolve => {
+    socketPriya.emit('set-player-cards', { roomId, cards: ['Qd', 'Jc'] }, resolve);
+  });
+  assert(setPriyaCardRes && setPriyaCardRes.success, 'Priya failed to set player cards');
+  await wait(50);
+
+  // Priya's view should see her cards, but host's cards should be face down
+  assert(priyaState, 'priyaState should exist');
+  const priyaInPriyaState = priyaState.players.find(p => p.id === priyaPlayerId);
+  const hostInPriyaState = priyaState.players.find(p => p.id === hostPlayerId);
+  assert(priyaInPriyaState.cards[0].code === 'Qd', 'Priya should see Qd');
+  assert(hostInPriyaState.cards[0].faceDown === true, 'Host cards should be hidden from Priya');
+  console.log('✅ Player cards uploaded and private visibility verified over socket!');
+
+  // Host adds Round 1 community card
+  const r1Res = await new Promise(resolve => {
+    socketHost.emit('host-add-community-card', { roomId, hostToken, card: '10s', round: 1 }, resolve);
+  });
+  assert(r1Res && r1Res.success, 'Host failed to add round 1 card');
+  assert.strictEqual(r1Res.communityCards.length, 1);
+  assert.strictEqual(r1Res.communityCards[0].code, '10s');
+
+  // Host adds Round 2 community card
+  const r2Res = await new Promise(resolve => {
+    socketHost.emit('host-add-community-card', { roomId, hostToken, card: '9h', round: 2 }, resolve);
+  });
+  assert(r2Res && r2Res.success, 'Host failed to add round 2 card');
+  assert.strictEqual(r2Res.communityCards.length, 2);
+  assert.strictEqual(r2Res.communityCards[1].code, '9h');
+  await wait(50);
+  assert.strictEqual(priyaState.communityCards.length, 2, 'Priya must receive progressive community cards');
+  console.log('✅ Host progressive community card upload (Round 1, Round 2) verified over socket!');
+
   // Test 2: Input validation for raises and rebuys
   const negRaiseRes = await new Promise(resolve => {
     socketHost.emit('player-action', { roomId, action: 'raise', amount: -50 }, resolve);
@@ -277,6 +351,11 @@ async function runMultiplayerSimulation() {
   socketAmit.disconnect();
 
   console.log('🎉 ALL MULTIPLAYER REAL-TIME TESTS PASSED SUCCESSFULLY!');
+  } finally {
+    if (childServer) {
+      childServer.kill();
+    }
+  }
 }
 
 runMultiplayerSimulation().catch(err => {

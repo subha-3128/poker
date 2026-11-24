@@ -318,6 +318,93 @@ function runTests() {
     console.log('✅ Test 9 Passed!');
   }
 
+  // Test 10: Player hole cards and privacy
+  {
+    console.log('Test 10: Player hole cards upload and secrecy');
+    const game = new PokerGame('4444', 'p1', { startingChips: 1000, smallBlind: 10, bigBlind: 20 });
+    game.addPlayer('p1', 'Alice', 's1');
+    game.addPlayer('p2', 'Bob', 's2');
+    game.startGame();
+
+    // Alice uploads [As, Kh]
+    game.setPlayerCards('p1', ['As', 'Kh']);
+    // Bob uploads [Qd, Jc]
+    game.setPlayerCards('p2', [{ rank: 'Q', suit: 'diamonds' }, { rank: 'J', suit: 'clubs' }]);
+
+    // Alice checks her state
+    const aliceView = game.getPublicState('p1');
+    const aliceInAliceView = aliceView.players.find(p => p.id === 'p1');
+    const bobInAliceView = aliceView.players.find(p => p.id === 'p2');
+    assert.strictEqual(aliceInAliceView.cards.length, 2);
+    assert.strictEqual(aliceInAliceView.cards[0].code, 'As');
+    assert.strictEqual(aliceInAliceView.cards[1].code, 'Kh');
+
+    // Bob's cards MUST be faceDown from Alice's viewpoint during betting
+    assert.strictEqual(bobInAliceView.cards.length, 2);
+    assert.strictEqual(bobInAliceView.cards[0].faceDown, true);
+    assert.strictEqual(bobInAliceView.cards[1].faceDown, true);
+    assert.strictEqual(bobInAliceView.hasCards, true);
+
+    console.log('✅ Test 10 Passed!');
+  }
+
+  // Test 11: Host community cards (5 cards, round 1, round 2, continue)
+  {
+    console.log('Test 11: Host community cards round-by-round');
+    const game = new PokerGame('5555', 'p1', { startingChips: 1000 });
+    game.addPlayer('p1', 'Alice (Host)', 's1');
+    game.addPlayer('p2', 'Bob', 's2');
+    game.startGame();
+
+    assert.strictEqual(game.communityCards.length, 0);
+
+    // Round 1: Host adds first card
+    game.addCommunityCard('Ah', 1);
+    assert.strictEqual(game.communityCards.length, 1);
+    assert.strictEqual(game.communityCards[0].code, 'Ah');
+    assert.strictEqual(game.boardRound, 1);
+
+    // Round 2: Host adds second card
+    game.addCommunityCard('Kd', 2);
+    assert.strictEqual(game.communityCards.length, 2);
+    assert.strictEqual(game.communityCards[1].code, 'Kd');
+    assert.strictEqual(game.boardRound, 2);
+
+    // Host continues: 3rd, 4th, 5th card
+    game.addCommunityCard('Qc', 3);
+    game.addCommunityCard('Js', 4);
+    game.addCommunityCard('10h', 5);
+    assert.strictEqual(game.communityCards.length, 5);
+
+    // Cannot add 6th card
+    assert.throws(() => {
+      game.addCommunityCard('9s', 6);
+    }, /Maximum 5 community cards/);
+
+    // Check public state includes all 5 community cards
+    const state = game.getPublicState('p2');
+    assert.strictEqual(state.communityCards.length, 5);
+    assert.strictEqual(state.communityCards[4].code, '10h');
+
+    // Test staged 5-card progressive reveal
+    game.clearCommunityCards();
+    assert.strictEqual(game.communityCards.length, 0);
+    game.stageCommunityCards(['2c', '3d', '4h', '5s', '6c']);
+    assert.strictEqual(game.stagedCommunityCards.length, 5);
+
+    // Reveal Round 1
+    game.revealNextCommunityCard();
+    assert.strictEqual(game.communityCards.length, 1);
+    assert.strictEqual(game.communityCards[0].code, '2c');
+
+    // Reveal Round 2
+    game.revealNextCommunityCard();
+    assert.strictEqual(game.communityCards.length, 2);
+    assert.strictEqual(game.communityCards[1].code, '3d');
+
+    console.log('✅ Test 11 Passed!');
+  }
+
   console.log('🎉 All PokerGame Unit Tests Passed Successfully!');
 }
 

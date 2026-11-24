@@ -120,6 +120,55 @@ class PokerAudio {
     noise.start(this.ctx.currentTime);
   }
 
+  // Card Deal Snap / Slide
+  playCardDeal() {
+    if (!this.enabled) return;
+    this.init();
+    if (!this.ctx) return;
+
+    try {
+      const bufferSize = Math.floor(this.ctx.sampleRate * 0.08);
+      const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (this.ctx.sampleRate * 0.018));
+      }
+      const noise = this.ctx.createBufferSource();
+      noise.buffer = buffer;
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'highpass';
+      filter.frequency.setValueAtTime(1400, this.ctx.currentTime);
+      const gain = this.ctx.createGain();
+      gain.gain.setValueAtTime(0.35, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.005, this.ctx.currentTime + 0.08);
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.ctx.destination);
+      noise.start();
+    } catch (e) {}
+  }
+
+  // Card Peek / Flip Soft Tick
+  playCardFlip() {
+    if (!this.enabled) return;
+    this.init();
+    if (!this.ctx) return;
+
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(420, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(180, this.ctx.currentTime + 0.04);
+      gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.04);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.045);
+    } catch (e) {}
+  }
+
   // All-In Dramatic Sound
   playAllIn() {
     if (!this.enabled) return;

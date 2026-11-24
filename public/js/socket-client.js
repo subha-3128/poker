@@ -254,6 +254,85 @@ class PokerSocketClient {
     });
   }
 
+  setPlayerCards(cards) {
+    return new Promise((resolve, reject) => {
+      this.socket.emit('set-player-cards', { roomId: this.roomId, cards }, (res) => {
+        if (res?.success) resolve(res);
+        else reject(new Error(res?.message || 'Failed to set cards'));
+      });
+    });
+  }
+
+  clearPlayerCards() {
+    return new Promise((resolve, reject) => {
+      this.socket.emit('clear-player-cards', { roomId: this.roomId }, (res) => {
+        if (res?.success) resolve(res);
+        else reject(new Error(res?.message || 'Failed to clear cards'));
+      });
+    });
+  }
+
+  revealPlayerCards() {
+    return new Promise((resolve, reject) => {
+      this.socket.emit('reveal-player-cards', { roomId: this.roomId }, (res) => {
+        if (res?.success) resolve(res);
+        else reject(new Error(res?.message || 'Failed to reveal cards'));
+      });
+    });
+  }
+
+  hostAddCommunityCard(card, round = null) {
+    return new Promise((resolve, reject) => {
+      this.socket.emit('host-add-community-card', {
+        roomId: this.roomId,
+        hostToken: this.hostToken,
+        card,
+        round
+      }, (res) => {
+        if (res?.success) resolve(res);
+        else reject(new Error(res?.message || 'Failed to add board card'));
+      });
+    });
+  }
+
+  hostSetCommunityCards(cards, staged = false) {
+    return new Promise((resolve, reject) => {
+      this.socket.emit('host-set-community-cards', {
+        roomId: this.roomId,
+        hostToken: this.hostToken,
+        cards,
+        staged
+      }, (res) => {
+        if (res?.success) resolve(res);
+        else reject(new Error(res?.message || 'Failed to set board cards'));
+      });
+    });
+  }
+
+  hostRevealNextCard() {
+    return new Promise((resolve, reject) => {
+      this.socket.emit('host-reveal-next-card', {
+        roomId: this.roomId,
+        hostToken: this.hostToken
+      }, (res) => {
+        if (res?.success) resolve(res);
+        else reject(new Error(res?.message || 'Failed to reveal board card'));
+      });
+    });
+  }
+
+  hostClearCommunityCards() {
+    return new Promise((resolve, reject) => {
+      this.socket.emit('host-clear-community-cards', {
+        roomId: this.roomId,
+        hostToken: this.hostToken
+      }, (res) => {
+        if (res?.success) resolve(res);
+        else reject(new Error(res?.message || 'Failed to clear board cards'));
+      });
+    });
+  }
+
   leaveTable() {
     return new Promise((resolve) => {
       const roomId = this.roomId;

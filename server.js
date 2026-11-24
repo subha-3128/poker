@@ -476,6 +476,122 @@ io.on('connection', (socket) => {
     }
   });
 
+  // 12b. Set Player Hole Cards (Any seated player)
+  socket.on('set-player-cards', ({ roomId, cards }, callback) => {
+    try {
+      const targetRoomId = roomId || currentRoomId;
+      const game = games.get(targetRoomId);
+      if (!game) throw new Error('Game not found.');
+      if (!currentPlayerId) throw new Error('Player not identified.');
+
+      const updated = game.setPlayerCards(currentPlayerId, cards);
+      broadcastRoomState(game);
+      if (typeof callback === 'function') callback({ success: true, cards: updated });
+    } catch (err) {
+      if (typeof callback === 'function') callback({ success: false, message: err.message });
+    }
+  });
+
+  // 12c. Clear Player Hole Cards
+  socket.on('clear-player-cards', ({ roomId }, callback) => {
+    try {
+      const targetRoomId = roomId || currentRoomId;
+      const game = games.get(targetRoomId);
+      if (!game) throw new Error('Game not found.');
+      if (!currentPlayerId) throw new Error('Player not identified.');
+
+      game.clearPlayerCards(currentPlayerId);
+      broadcastRoomState(game);
+      if (typeof callback === 'function') callback({ success: true });
+    } catch (err) {
+      if (typeof callback === 'function') callback({ success: false, message: err.message });
+    }
+  });
+
+  // 12d. Reveal Player Cards (Voluntary Showdown / Muck Reveal)
+  socket.on('reveal-player-cards', ({ roomId }, callback) => {
+    try {
+      const targetRoomId = roomId || currentRoomId;
+      const game = games.get(targetRoomId);
+      if (!game) throw new Error('Game not found.');
+      if (!currentPlayerId) throw new Error('Player not identified.');
+
+      game.revealPlayerCards(currentPlayerId);
+      broadcastRoomState(game);
+      if (typeof callback === 'function') callback({ success: true });
+    } catch (err) {
+      if (typeof callback === 'function') callback({ success: false, message: err.message });
+    }
+  });
+
+  // 12e. Host Add Community Card (Round 1 add 1st card, Round 2 add 2nd card, etc.)
+  socket.on('host-add-community-card', ({ roomId, hostToken, card, round }, callback) => {
+    try {
+      const targetRoomId = roomId || currentRoomId;
+      const game = games.get(targetRoomId);
+      if (!game) throw new Error('Game not found.');
+      if (!verifyHostAuth(game, hostToken, currentPlayerId)) throw new Error('Only the host can add board cards.');
+
+      const cards = game.addCommunityCard(card, round);
+      broadcastRoomState(game);
+      if (typeof callback === 'function') callback({ success: true, communityCards: cards });
+    } catch (err) {
+      if (typeof callback === 'function') callback({ success: false, message: err.message });
+    }
+  });
+
+  // 12f. Host Set / Stage Community Cards (Up to 5 cards)
+  socket.on('host-set-community-cards', ({ roomId, hostToken, cards, staged }, callback) => {
+    try {
+      const targetRoomId = roomId || currentRoomId;
+      const game = games.get(targetRoomId);
+      if (!game) throw new Error('Game not found.');
+      if (!verifyHostAuth(game, hostToken, currentPlayerId)) throw new Error('Only the host can manage board cards.');
+
+      if (staged) {
+        game.stageCommunityCards(cards);
+      } else {
+        game.setCommunityCards(cards);
+      }
+      broadcastRoomState(game);
+      if (typeof callback === 'function') callback({ success: true });
+    } catch (err) {
+      if (typeof callback === 'function') callback({ success: false, message: err.message });
+    }
+  });
+
+  // 12g. Host Reveal Next Staged Card
+  socket.on('host-reveal-next-card', ({ roomId, hostToken }, callback) => {
+    try {
+      const targetRoomId = roomId || currentRoomId;
+      const game = games.get(targetRoomId);
+      if (!game) throw new Error('Game not found.');
+      if (!verifyHostAuth(game, hostToken, currentPlayerId)) throw new Error('Only the host can reveal board cards.');
+
+      const card = game.revealNextCommunityCard();
+      broadcastRoomState(game);
+      if (typeof callback === 'function') callback({ success: true, card, communityCards: game.communityCards });
+    } catch (err) {
+      if (typeof callback === 'function') callback({ success: false, message: err.message });
+    }
+  });
+
+  // 12h. Host Clear Board Cards
+  socket.on('host-clear-community-cards', ({ roomId, hostToken }, callback) => {
+    try {
+      const targetRoomId = roomId || currentRoomId;
+      const game = games.get(targetRoomId);
+      if (!game) throw new Error('Game not found.');
+      if (!verifyHostAuth(game, hostToken, currentPlayerId)) throw new Error('Only the host can clear board cards.');
+
+      game.clearCommunityCards();
+      broadcastRoomState(game);
+      if (typeof callback === 'function') callback({ success: true });
+    } catch (err) {
+      if (typeof callback === 'function') callback({ success: false, message: err.message });
+    }
+  });
+
   // 13. Table Banter / Chat (Rate-limited: max 2 messages per second)
   let lastChatTime = 0;
   let chatCount = 0;
