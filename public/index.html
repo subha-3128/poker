@@ -355,7 +355,7 @@
                           <span id="community-round-badge" class="community-round-badge">ROUND 0 / 5</span>
                         </div>
                         <div id="community-cards-row" class="community-cards-row">
-                          <!-- Injected via JS: 5 card slots with 3D styling or uploaded images -->
+                          <!-- Injected via JS: 5 card slots with 3D styling -->
                         </div>
                         <!-- Host Board Controls on Felt -->
                         <div id="host-board-felt-bar" class="host-board-felt-bar host-only hidden">
@@ -405,18 +405,17 @@
                   </svg>
                   <span id="peek-btn-text">Peek</span>
                 </button>
-                <button id="btn-open-player-cards-modal" class="btn-card-ctrl btn-card-ctrl-gold" type="button" title="Upload or Choose Your Cards">
+                <button id="btn-open-player-cards-modal" class="btn-card-ctrl btn-card-ctrl-gold" type="button" title="Select Your Cards">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                    <polyline points="17 8 12 3 7 8"></polyline>
-                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                    <rect x="3" y="5" width="13" height="16" rx="2"></rect>
+                    <path d="M8 5V3a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-2"></path>
                   </svg>
-                  <span>Upload</span>
+                  <span>Cards</span>
                 </button>
               </div>
             </div>
             <div id="my-hole-cards-container" class="my-hole-cards-container">
-              <!-- Rendered via JS: 2 hole cards with 3D texture or uploaded photo -->
+              <!-- Rendered via JS: 2 hole cards with 3D texture -->
             </div>
           </div>
 
@@ -667,109 +666,78 @@
       </div>
     </div>
 
-    <!-- MODAL: Player Hole Cards (Select or Upload) -->
+    <!-- MODAL: Player Hole Cards (Visual Card Picker) -->
     <div id="modal-player-cards" class="modal-backdrop hidden">
       <div class="modal-luxury-card modal-card-wide">
         <div class="modal-top">
           <div class="modal-title-wrap">
             <span class="gold-badge-label">HOLE CARDS</span>
-            <h3>Upload / Select Your Cards</h3>
+            <h3>Select Your Cards</h3>
           </div>
           <button class="modal-x-btn" data-close="modal-player-cards">&times;</button>
         </div>
 
-        <!-- Tab Switcher: Visual Picker vs Image Upload -->
-        <div class="card-modal-tabs">
-          <button id="tab-btn-picker" class="card-tab-btn active" type="button">🂠 Visual Card Picker</button>
-          <button id="tab-btn-upload" class="card-tab-btn" type="button">📷 Upload / Photo</button>
-        </div>
-
-        <!-- Tab 1: Visual Picker Content -->
-        <div id="tab-content-picker" class="tab-content active">
-          <div class="picker-two-cards-grid">
-            <!-- Card 1 Picker -->
-            <div class="card-selector-box">
-              <span class="selector-card-title">CARD 1</span>
-              <div id="picker-card-1-preview" class="selected-card-preview">
-                <div class="card-placeholder-text">Select Suit &amp; Rank</div>
-              </div>
-              <div class="picker-section-label">SUIT</div>
-              <div class="suit-pills-row" data-card="1">
-                <button type="button" class="suit-pill active" data-suit="spades">♠ Spades</button>
-                <button type="button" class="suit-pill" data-suit="hearts">♥ Hearts</button>
-                <button type="button" class="suit-pill" data-suit="diamonds">♦ Diamonds</button>
-                <button type="button" class="suit-pill" data-suit="clubs">♣ Clubs</button>
-              </div>
-              <div class="picker-section-label">RANK</div>
-              <div class="rank-grid" data-card="1">
-                <button type="button" class="rank-btn active" data-rank="A">A</button>
-                <button type="button" class="rank-btn" data-rank="K">K</button>
-                <button type="button" class="rank-btn" data-rank="Q">Q</button>
-                <button type="button" class="rank-btn" data-rank="J">J</button>
-                <button type="button" class="rank-btn" data-rank="10">10</button>
-                <button type="button" class="rank-btn" data-rank="9">9</button>
-                <button type="button" class="rank-btn" data-rank="8">8</button>
-                <button type="button" class="rank-btn" data-rank="7">7</button>
-                <button type="button" class="rank-btn" data-rank="6">6</button>
-                <button type="button" class="rank-btn" data-rank="5">5</button>
-                <button type="button" class="rank-btn" data-rank="4">4</button>
-                <button type="button" class="rank-btn" data-rank="3">3</button>
-                <button type="button" class="rank-btn" data-rank="2">2</button>
-              </div>
+        <!-- Visual Picker Content -->
+        <div class="picker-two-cards-grid">
+          <!-- Card 1 Picker -->
+          <div class="card-selector-box">
+            <span class="selector-card-title">CARD 1</span>
+            <div id="picker-card-1-preview" class="selected-card-preview">
+              <div class="card-placeholder-text">Select Suit &amp; Rank</div>
             </div>
-
-            <!-- Card 2 Picker -->
-            <div class="card-selector-box">
-              <span class="selector-card-title">CARD 2</span>
-              <div id="picker-card-2-preview" class="selected-card-preview">
-                <div class="card-placeholder-text">Select Suit &amp; Rank</div>
-              </div>
-              <div class="picker-section-label">SUIT</div>
-              <div class="suit-pills-row" data-card="2">
-                <button type="button" class="suit-pill" data-suit="spades">♠ Spades</button>
-                <button type="button" class="suit-pill active" data-suit="hearts">♥ Hearts</button>
-                <button type="button" class="suit-pill" data-suit="diamonds">♦ Diamonds</button>
-                <button type="button" class="suit-pill" data-suit="clubs">♣ Clubs</button>
-              </div>
-              <div class="picker-section-label">RANK</div>
-              <div class="rank-grid" data-card="2">
-                <button type="button" class="rank-btn" data-rank="A">A</button>
-                <button type="button" class="rank-btn active" data-rank="K">K</button>
-                <button type="button" class="rank-btn" data-rank="Q">Q</button>
-                <button type="button" class="rank-btn" data-rank="J">J</button>
-                <button type="button" class="rank-btn" data-rank="10">10</button>
-                <button type="button" class="rank-btn" data-rank="9">9</button>
-                <button type="button" class="rank-btn" data-rank="8">8</button>
-                <button type="button" class="rank-btn" data-rank="7">7</button>
-                <button type="button" class="rank-btn" data-rank="6">6</button>
-                <button type="button" class="rank-btn" data-rank="5">5</button>
-                <button type="button" class="rank-btn" data-rank="4">4</button>
-                <button type="button" class="rank-btn" data-rank="3">3</button>
-                <button type="button" class="rank-btn" data-rank="2">2</button>
-              </div>
+            <div class="picker-section-label">SUIT</div>
+            <div class="suit-pills-row" data-card="1">
+              <button type="button" class="suit-pill active" data-suit="spades">♠ Spades</button>
+              <button type="button" class="suit-pill" data-suit="hearts">♥ Hearts</button>
+              <button type="button" class="suit-pill" data-suit="diamonds">♦ Diamonds</button>
+              <button type="button" class="suit-pill" data-suit="clubs">♣ Clubs</button>
+            </div>
+            <div class="picker-section-label">RANK</div>
+            <div class="rank-grid" data-card="1">
+              <button type="button" class="rank-btn active" data-rank="A">A</button>
+              <button type="button" class="rank-btn" data-rank="K">K</button>
+              <button type="button" class="rank-btn" data-rank="Q">Q</button>
+              <button type="button" class="rank-btn" data-rank="J">J</button>
+              <button type="button" class="rank-btn" data-rank="10">10</button>
+              <button type="button" class="rank-btn" data-rank="9">9</button>
+              <button type="button" class="rank-btn" data-rank="8">8</button>
+              <button type="button" class="rank-btn" data-rank="7">7</button>
+              <button type="button" class="rank-btn" data-rank="6">6</button>
+              <button type="button" class="rank-btn" data-rank="5">5</button>
+              <button type="button" class="rank-btn" data-rank="4">4</button>
+              <button type="button" class="rank-btn" data-rank="3">3</button>
+              <button type="button" class="rank-btn" data-rank="2">2</button>
             </div>
           </div>
-        </div>
 
-        <!-- Tab 2: Upload Image Content -->
-        <div id="tab-content-upload" class="tab-content hidden">
-          <div class="upload-dropzone" id="player-card-dropzone">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#C59B27" stroke-width="1.8">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="17 8 12 3 7 8"></polyline>
-              <line x1="12" y1="3" x2="12" y2="15"></line>
-            </svg>
-            <h4>Snap Photo or Upload Card Image</h4>
-            <p>Take a picture of your physical cards or choose an image file from your device.</p>
-            <label class="btn btn-luxury-gold btn-sm upload-file-btn">
-              <span>Browse / Take Photo</span>
-              <input type="file" id="input-player-card-file" accept="image/*" style="display:none;">
-            </label>
-          </div>
-          <div id="player-upload-previews" class="upload-previews-row hidden">
-            <div class="upload-preview-card">
-              <img id="img-player-upload-preview" src="" alt="Card Upload Preview">
-              <button id="btn-remove-uploaded-card" class="btn-remove-preview" title="Remove photo">&times;</button>
+          <!-- Card 2 Picker -->
+          <div class="card-selector-box">
+            <span class="selector-card-title">CARD 2</span>
+            <div id="picker-card-2-preview" class="selected-card-preview">
+              <div class="card-placeholder-text">Select Suit &amp; Rank</div>
+            </div>
+            <div class="picker-section-label">SUIT</div>
+            <div class="suit-pills-row" data-card="2">
+              <button type="button" class="suit-pill" data-suit="spades">♠ Spades</button>
+              <button type="button" class="suit-pill active" data-suit="hearts">♥ Hearts</button>
+              <button type="button" class="suit-pill" data-suit="diamonds">♦ Diamonds</button>
+              <button type="button" class="suit-pill" data-suit="clubs">♣ Clubs</button>
+            </div>
+            <div class="picker-section-label">RANK</div>
+            <div class="rank-grid" data-card="2">
+              <button type="button" class="rank-btn" data-rank="A">A</button>
+              <button type="button" class="rank-btn active" data-rank="K">K</button>
+              <button type="button" class="rank-btn" data-rank="Q">Q</button>
+              <button type="button" class="rank-btn" data-rank="J">J</button>
+              <button type="button" class="rank-btn" data-rank="10">10</button>
+              <button type="button" class="rank-btn" data-rank="9">9</button>
+              <button type="button" class="rank-btn" data-rank="8">8</button>
+              <button type="button" class="rank-btn" data-rank="7">7</button>
+              <button type="button" class="rank-btn" data-rank="6">6</button>
+              <button type="button" class="rank-btn" data-rank="5">5</button>
+              <button type="button" class="rank-btn" data-rank="4">4</button>
+              <button type="button" class="rank-btn" data-rank="3">3</button>
+              <button type="button" class="rank-btn" data-rank="2">2</button>
             </div>
           </div>
         </div>
@@ -804,10 +772,6 @@
         <div id="host-slot-editor-box" class="host-slot-editor-box">
           <div class="slot-editor-header">
             <span id="host-slot-editor-title">Editing Card 1 (Round 1)</span>
-            <label class="btn btn-xs btn-glass upload-inline-label">
-              <span>📷 Upload Photo</span>
-              <input type="file" id="input-host-slot-file" accept="image/*" style="display:none;">
-            </label>
           </div>
           <div class="suit-pills-row" id="host-slot-suits">
             <button type="button" class="suit-pill active" data-suit="spades">♠ Spades</button>
@@ -879,26 +843,11 @@
             <button type="button" class="rank-btn" data-rank="3">3</button>
             <button type="button" class="rank-btn" data-rank="2">2</button>
           </div>
-          <div class="quick-photo-row">
-            <label class="btn btn-xs btn-glass upload-inline-label">
-              <span>📷 Or Upload Photo</span>
-              <input type="file" id="input-quick-add-file" accept="image/*" style="display:none;">
-            </label>
-          </div>
         </div>
         <div class="modal-bottom">
           <button class="btn btn-glass" data-close="modal-quick-add-card" type="button">Cancel</button>
           <button id="btn-confirm-quick-add" class="btn btn-luxury-emerald" type="button">Deal Card</button>
         </div>
-      </div>
-    </div>
-
-    <!-- MODAL: Card Zoom Preview (For Photos) -->
-    <div id="modal-card-zoom" class="modal-backdrop hidden">
-      <div class="modal-card-zoom-content">
-        <button class="modal-x-btn zoom-close-btn" data-close="modal-card-zoom">&times;</button>
-        <img id="img-card-zoom" src="" alt="Enlarged Card">
-        <div id="caption-card-zoom" class="zoom-caption"></div>
       </div>
     </div>
 

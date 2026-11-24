@@ -193,16 +193,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Modals - Player Cards
   const elModalPlayerCards = document.getElementById('modal-player-cards');
-  const elTabBtnPicker = document.getElementById('tab-btn-picker');
-  const elTabBtnUpload = document.getElementById('tab-btn-upload');
-  const elTabContentPicker = document.getElementById('tab-content-picker');
-  const elTabContentUpload = document.getElementById('tab-content-upload');
   const elPickerCard1Preview = document.getElementById('picker-card-1-preview');
   const elPickerCard2Preview = document.getElementById('picker-card-2-preview');
-  const elInputPlayerCardFile = document.getElementById('input-player-card-file');
-  const elPlayerUploadPreviews = document.getElementById('player-upload-previews');
-  const elImgPlayerUploadPreview = document.getElementById('img-player-upload-preview');
-  const elBtnRemoveUploadedCard = document.getElementById('btn-remove-uploaded-card');
   const elBtnSavePlayerCards = document.getElementById('btn-save-player-cards');
   const elBtnClearMyCards = document.getElementById('btn-clear-my-cards');
 
@@ -210,7 +202,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const elModalHostBoard = document.getElementById('modal-host-board');
   const elHostModalSlotsRow = document.getElementById('host-modal-slots-row');
   const elHostSlotEditorTitle = document.getElementById('host-slot-editor-title');
-  const elInputHostSlotFile = document.getElementById('input-host-slot-file');
   const elHostSlotSuits = document.getElementById('host-slot-suits');
   const elHostSlotRanks = document.getElementById('host-slot-ranks');
   const elBtnHostClearBoard = document.getElementById('btn-host-clear-board');
@@ -225,13 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const elQuickAddCardPreview = document.getElementById('quick-add-card-preview');
   const elQuickAddSuits = document.getElementById('quick-add-suits');
   const elQuickAddRanks = document.getElementById('quick-add-ranks');
-  const elInputQuickAddFile = document.getElementById('input-quick-add-file');
   const elBtnConfirmQuickAdd = document.getElementById('btn-confirm-quick-add');
-
-  // Modals - Card Zoom
-  const elModalCardZoom = document.getElementById('modal-card-zoom');
-  const elImgCardZoom = document.getElementById('img-card-zoom');
-  const elCaptionCardZoom = document.getElementById('caption-card-zoom');
 
   const elToastContainer = document.getElementById('toast-container');
   const elCelebrationOverlay = document.getElementById('celebration-overlay');
@@ -254,20 +239,18 @@ document.addEventListener('DOMContentLoaded', () => {
   let isPeekEnabled = localStorage.getItem('poker_peek_cards') !== 'false';
   let selectedCard1 = { rank: 'A', suit: 'spades' };
   let selectedCard2 = { rank: 'K', suit: 'hearts' };
-  let uploadedCardPhoto = null;
-  let playerModalActiveTab = 'picker';
 
   let hostSelectedSlot = 0; // 0 to 4
   let hostSlots = [
-    { rank: 'A', suit: 'spades', image: null },
-    { rank: 'K', suit: 'diamonds', image: null },
-    { rank: 'Q', suit: 'clubs', image: null },
-    { rank: 'J', suit: 'hearts', image: null },
-    { rank: '10', suit: 'spades', image: null }
+    { rank: 'A', suit: 'spades' },
+    { rank: 'K', suit: 'diamonds' },
+    { rank: 'Q', suit: 'clubs' },
+    { rank: 'J', suit: 'hearts' },
+    { rank: '10', suit: 'spades' }
   ];
 
   let quickAddSlotRound = 1;
-  let quickAddCard = { rank: 'A', suit: 'spades', image: null };
+  let quickAddCard = { rank: 'A', suit: 'spades' };
 
   // Opulent Monte Carlo Gemstone & Velvet Avatar Palettes (Deep & Classy)
   const LUXURY_AVATAR_THEMES = [
@@ -426,15 +409,6 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
     }
 
-    if (card.image) {
-      return `
-        <div class="poker-card is-photo ${anim ? 'anim-card-deal' : ''}" data-zoom-img="${escapeHtml(card.image)}" data-zoom-caption="${escapeHtml(card.label || 'Card Photo')}">
-          <img src="${card.image}" alt="Card">
-          <span class="card-photo-badge">📷</span>
-        </div>
-      `;
-    }
-
     const rank = (card.rank || 'A').toUpperCase();
     const suit = card.suit || 'spades';
     const symbol = getSuitSymbol(suit);
@@ -454,45 +428,6 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       </div>
     `;
-  }
-
-  function compressImage(file, maxDimension = 800, quality = 0.82) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          let width = img.width;
-          let height = img.height;
-          if (width > maxDimension || height > maxDimension) {
-            if (width > height) {
-              height = Math.round((height * maxDimension) / width);
-              width = maxDimension;
-            } else {
-              width = Math.round((width * maxDimension) / height);
-              height = maxDimension;
-            }
-          }
-          const canvas = document.createElement('canvas');
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-          resolve(canvas.toDataURL('image/jpeg', quality));
-        };
-        img.onerror = reject;
-        img.src = e.target.result;
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  }
-
-  function openCardZoom(src, caption = '') {
-    if (!elModalCardZoom || !elImgCardZoom) return;
-    elImgCardZoom.src = src;
-    if (elCaptionCardZoom) elCaptionCardZoom.textContent = caption;
-    elModalCardZoom.classList.remove('hidden');
   }
 
   // --- PEEK CARDS TOGGLE ---
@@ -540,9 +475,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const cardWrapper = document.createElement('div');
         cardWrapper.className = 'community-card-item';
         cardWrapper.innerHTML = renderCardHtml(card, { anim: false });
-        cardWrapper.addEventListener('click', () => {
-          if (card.image) openCardZoom(card.image, `Community Card #${slotRoundNum} (Round ${slotRoundNum})`);
-        });
         elCommunityCardsRow.appendChild(cardWrapper);
       } else {
         const slotEl = document.createElement('div');
@@ -618,8 +550,6 @@ document.addEventListener('DOMContentLoaded', () => {
       cardEl.addEventListener('click', () => {
         if (!isPeekEnabled) {
           togglePeek();
-        } else if (card.image) {
-          openCardZoom(card.image, `My Hole Card #${idx + 1}`);
         } else {
           openPlayerCardsModal();
         }
@@ -632,29 +562,13 @@ document.addEventListener('DOMContentLoaded', () => {
   function openPlayerCardsModal() {
     if (!elModalPlayerCards) return;
     const self = client.currentState?.players?.find(p => p.isYou);
-    if (self && self.cards && self.cards.length >= 2 && !self.cards[0].image) {
+    if (self && self.cards && self.cards.length >= 2) {
       selectedCard1 = { ...self.cards[0] };
       selectedCard2 = { ...self.cards[1] };
     }
     updateCardPickerPreview(1);
     updateCardPickerPreview(2);
-    setPlayerModalTab('picker');
     elModalPlayerCards.classList.remove('hidden');
-  }
-
-  function setPlayerModalTab(tabName) {
-    playerModalActiveTab = tabName;
-    if (tabName === 'picker') {
-      elTabBtnPicker?.classList.add('active');
-      elTabBtnUpload?.classList.remove('active');
-      elTabContentPicker?.classList.remove('hidden');
-      elTabContentUpload?.classList.add('hidden');
-    } else {
-      elTabBtnPicker?.classList.remove('active');
-      elTabBtnUpload?.classList.add('active');
-      elTabContentPicker?.classList.add('hidden');
-      elTabContentUpload?.classList.remove('hidden');
-    }
   }
 
   function updateCardPickerPreview(cardIndex) {
@@ -678,9 +592,6 @@ document.addEventListener('DOMContentLoaded', () => {
   function setupPlayerCardsModal() {
     elBtnOpenPlayerCardsModal?.addEventListener('click', openPlayerCardsModal);
 
-    elTabBtnPicker?.addEventListener('click', () => setPlayerModalTab('picker'));
-    elTabBtnUpload?.addEventListener('click', () => setPlayerModalTab('upload'));
-
     // Suit and Rank Picker clicks
     elModalPlayerCards?.querySelectorAll('.suit-pill').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -702,39 +613,13 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
-    // Image Upload
-    elInputPlayerCardFile?.addEventListener('change', async (e) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      try {
-        const dataUrl = await compressImage(file, 800, 0.82);
-        uploadedCardPhoto = dataUrl;
-        if (elImgPlayerUploadPreview) elImgPlayerUploadPreview.src = dataUrl;
-        elPlayerUploadPreviews?.classList.remove('hidden');
-      } catch (err) {
-        showToast('Failed to load image', 'red');
-      }
-    });
-
-    elBtnRemoveUploadedCard?.addEventListener('click', () => {
-      uploadedCardPhoto = null;
-      if (elImgPlayerUploadPreview) elImgPlayerUploadPreview.src = '';
-      elPlayerUploadPreviews?.classList.add('hidden');
-      if (elInputPlayerCardFile) elInputPlayerCardFile.value = '';
-    });
-
     // Save cards
     elBtnSavePlayerCards?.addEventListener('click', async () => {
       try {
-        let cardsToSend = [];
-        if (playerModalActiveTab === 'upload' && uploadedCardPhoto) {
-          cardsToSend = [{ image: uploadedCardPhoto, label: 'My Cards Photo' }];
-        } else {
-          cardsToSend = [selectedCard1, selectedCard2];
-        }
+        const cardsToSend = [selectedCard1, selectedCard2];
         await client.setPlayerCards(cardsToSend);
         if (audio) audio.playCardDeal();
-        showToast('Your cards were uploaded successfully!', 'gold');
+        showToast('Your cards were saved successfully!', 'gold');
         elModalPlayerCards?.classList.add('hidden');
       } catch (err) {
         showToast(err.message || 'Failed to save cards', 'red');
@@ -811,36 +696,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // Host slot editor suits and ranks
     elHostSlotSuits?.querySelectorAll('.suit-pill').forEach(btn => {
       btn.addEventListener('click', () => {
-        if (!hostSlots[hostSelectedSlot]) hostSlots[hostSelectedSlot] = { rank: 'A', suit: 'spades', image: null };
+        if (!hostSlots[hostSelectedSlot]) hostSlots[hostSelectedSlot] = { rank: 'A', suit: 'spades' };
         hostSlots[hostSelectedSlot].suit = btn.dataset.suit;
-        hostSlots[hostSelectedSlot].image = null;
         renderHostBoardModalSlots();
       });
     });
 
     elHostSlotRanks?.querySelectorAll('.rank-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        if (!hostSlots[hostSelectedSlot]) hostSlots[hostSelectedSlot] = { rank: 'A', suit: 'spades', image: null };
+        if (!hostSlots[hostSelectedSlot]) hostSlots[hostSelectedSlot] = { rank: 'A', suit: 'spades' };
         hostSlots[hostSelectedSlot].rank = btn.dataset.rank;
-        hostSlots[hostSelectedSlot].image = null;
         renderHostBoardModalSlots();
       });
-    });
-
-    // Host photo upload for slot
-    elInputHostSlotFile?.addEventListener('change', async (e) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      try {
-        const dataUrl = await compressImage(file, 800, 0.82);
-        hostSlots[hostSelectedSlot] = {
-          image: dataUrl,
-          label: `Round ${hostSelectedSlot + 1} Card`
-        };
-        renderHostBoardModalSlots();
-      } catch (err) {
-        showToast('Failed to load card photo', 'red');
-      }
     });
 
     // Host Deal Next Card
@@ -919,7 +786,6 @@ document.addEventListener('DOMContentLoaded', () => {
     elQuickAddSuits?.querySelectorAll('.suit-pill').forEach(btn => {
       btn.addEventListener('click', () => {
         quickAddCard.suit = btn.dataset.suit;
-        quickAddCard.image = null;
         updateQuickAddPreview();
       });
     });
@@ -927,24 +793,8 @@ document.addEventListener('DOMContentLoaded', () => {
     elQuickAddRanks?.querySelectorAll('.rank-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         quickAddCard.rank = btn.dataset.rank;
-        quickAddCard.image = null;
         updateQuickAddPreview();
       });
-    });
-
-    elInputQuickAddFile?.addEventListener('change', async (e) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      try {
-        const dataUrl = await compressImage(file, 800, 0.82);
-        quickAddCard = {
-          image: dataUrl,
-          label: `Round ${quickAddSlotRound} Card`
-        };
-        updateQuickAddPreview();
-      } catch (err) {
-        showToast('Failed to load card photo', 'red');
-      }
     });
 
     elBtnConfirmQuickAdd?.addEventListener('click', async () => {
